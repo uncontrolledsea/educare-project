@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>हिंदी ज्ञान यात्रा</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+<style>
+    :root {
+        --primary-color: #3498db; /* Bright Blue */
+        --secondary-color: #f1c40f; /* Sunny Yellow */
+        --correct-color: #2ecc71; /* Emerald Green */
+        --incorrect-color: #e74c3c; /* Alizarin Red */
+        --background-color: #87CEEB; /* Sky Blue */
+        --text-color-dark: #2c3e50;
+        --card-bg: #ffffff;
+        --font-main: 'Baloo 2', cursive;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        font-family: var(--font-main);
+        background-color: var(--background-color);
+        background-image: 
+            radial-gradient(circle at 10% 10%, #ffffff66 10%, transparent 11%),
+            radial-gradient(circle at 80% 90%, #ffffff66 10%, transparent 11%),
+            radial-gradient(circle at 50% 50%, #a7e2f5 0%, #87CEEB 100%);
+        color: var(--text-color-dark);
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px 15px;
+        position: relative;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    
+    .cloud {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0.8;
+        filter: blur(2px);
+        pointer-events: none;
+    }
+    .cloud:before, .cloud:after {
+        content: '';
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+    }
+    .cloud1 { width: 150px; height: 50px; top: 10%; left: -150px; animation: moveClouds 25s linear infinite; }
+    .cloud1:before { width: 80px; height: 80px; top: -40px; left: 20px; }
+    .cloud1:after { width: 100px; height: 100px; top: -50px; right: 10px; }
+    .cloud2 { width: 200px; height: 60px; top: 25%; right: -200px; animation: moveClouds 35s linear infinite 5s; }
+    .cloud2:before { width: 100px; height: 100px; top: -50px; left: 30px; }
+    .cloud2:after { width: 120px; height: 120px; top: -60px; right: 20px; }
+
+    @keyframes moveClouds {
+        from { transform: translateX(0); }
+        to { transform: translateX(calc(100vw + 300px)); }
+    }
+
+    .container {
+        width: 100%;
+        max-width: 900px;
+        text-align: center;
+        z-index: 10;
+        margin: auto;
+    }
+
+    h1, h2 {
+        font-family: var(--font-main);
+        font-weight: 700;
+        color: #0056b3;
+        text-shadow: 2px 2px 0px white, 4px 4px 0px rgba(0,0,0,0.1);
+    }
+    
+    h1 { font-size: 3.2rem; margin-bottom: 0em; line-height: 1.2; }
+    h2 { font-size: 2rem; margin-bottom: 1em; color: #e67e22; }
+
+    .mascot { width: 120px; height: auto; margin-bottom: -10px; }
+
+    .screen { display: none; animation: fadeIn 0.5s ease-in-out; }
+    .screen.active { display: block; }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+
+    .fun-card {
+        background: var(--card-bg);
+        border: 4px solid #2c3e50;
+        border-radius: 25px;
+        box-shadow: 0 8px 0 #bdc3c7;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fun-card:hover { transform: translateY(-4px); box-shadow: 0 12px 0 #bdc3c7; }
+    .fun-card:active { transform: translateY(1px); box-shadow: 0 7px 0 #bdc3c7; }
+
+    .class-btn {
+        padding: 25px 15px; font-size: 1.8rem; font-weight: 700;
+        color: var(--primary-color); cursor: pointer;
+        background: linear-gradient(145deg, #ffffff, #f1f2f6);
+    }
+    
+    .module-card {
+        padding: 20px; cursor: pointer; position: relative;
+        background: linear-gradient(145deg, #ffffff, #f1f2f6);
+    }
+    .module-card .icon { font-size: 3rem; margin-bottom: 10px; line-height: 1; }
+    .module-card h3 { font-size: 1.5rem; margin: 0; color: var(--text-color-dark); font-weight: 700; }
+    .completed-star {
+        color: var(--secondary-color); font-size: 2rem;
+        position: absolute; top: 5px; right: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    #game-screen-wrapper { padding: 20px; }
+    #game-header {
+        display: flex; justify-content: center; align-items: center; background: white;
+        padding: 8px 20px; border-radius: 50px; margin-bottom: 20px;
+        border: 4px solid var(--text-color-dark); box-shadow: 0 6px 0 var(--text-color-dark);
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    #game-header .stat { font-size: 1.4rem; font-weight: 700; }
+    #lives { color: var(--incorrect-color); }
+    #gems { color: var(--primary-color); }
+    #timer { color: #e67e22; }
+
+    #question-container {
+        min-height: 350px; display: flex; flex-direction: column; justify-content: center;
+        margin-bottom: 20px; background: white; border-radius: 20px;
+        padding: 20px; border: 4px solid var(--text-color-dark);
+    }
+    #question-text { font-size: 1.8rem; line-height: 1.6; }
+    
+    /* NEW STYLE FOR GADYANSH PASSAGE */
+    .gadyansh-passage {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+      color: #555;
+      text-align: left;
+    }
+    
+    /* MCQ Styles */
+    #options-container { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    .option-btn {
+        background-color: #f8f9fa; border: 4px solid #bdc3c7; border-radius: 15px; padding: 15px; font-size: 1.4rem;
+        cursor: pointer; text-align: left; transition: all 0.2s ease; color: #333; box-shadow: 0 6px 0 #bdc3c7;
+    }
+    .option-btn:hover { border-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 8px 0 #bdc3c7;}
+    .option-btn:active { transform: translateY(1px); box-shadow: 0 5px 0 #bdc3c7; }
+    .option-btn.correct { background-color: #d4edda; border-color: var(--correct-color); box-shadow: 0 6px 0 var(--correct-color); }
+    .option-btn.incorrect { background-color: #f8d7da; border-color: var(--incorrect-color); box-shadow: 0 6px 0 var(--incorrect-color); }
+    .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+    /* Matching Game Styles */
+    .matching-container { position: relative; width: 100%; }
+    .matching-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 50px; align-items: center;}
+    .match-card {
+        padding: 15px; font-size: 1.4rem; background-color: #f0f0f0;
+        border: 4px solid #bdc3c7; border-radius: 15px;
+        box-shadow: 0 6px 0 #bdc3c7; cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .match-card.selected { background-color: var(--secondary-color); border-color: #e67e22; }
+    .match-card.matched { background-color: var(--correct-color); border-color: #27ae60; color: white; cursor: not-allowed; opacity: 0.8; }
+    .match-card.incorrect-match { animation: shake 0.5s; background-color: var(--incorrect-color); }
+
+    /* Drag & Drop Styles */
+    .drop-zone {
+        border: 4px dashed #bdc3c7; border-radius: 15px; padding: 20px;
+        font-size: 1.8rem; margin: 20px 0; background: #f9f9f9; min-height: 70px;
+    }
+    .drop-zone.drag-over { border-color: var(--primary-color); background: #eaf4ff; }
+    .drag-options { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+    .drag-item {
+        padding: 10px 20px; font-size: 1.5rem; background: #ecf0f1;
+        border: 4px solid #bdc3c7; box-shadow: 0 6px 0 #bdc3c7;
+        border-radius: 15px; cursor: grab;
+    }
+
+    /* Jumble Word Styles */
+    .jumble-slots { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+    .jumble-slot {
+        width: 60px; height: 60px; font-size: 2rem;
+        border: 4px dashed #bdc3c7; border-radius: 15px;
+        display: flex; justify-content: center; align-items: center;
+        background: #f9f9f9;
+    }
+    .jumble-letters { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .jumble-letter {
+        width: 60px; height: 60px; font-size: 2rem;
+        border-radius: 15px; cursor: grab;
+        display: flex; justify-content: center; align-items: center;
+    }
+    
+    /* Story Complete Styles */
+    .story-container { font-size: 1.6rem; line-height: 2; }
+    .story-blank {
+        display: inline-block;
+        width: 100px;
+        height: 40px;
+        border: 3px dashed #bdc3c7;
+        border-radius: 10px;
+        background: #f9f9f9;
+        margin: 0 5px -10px;
+        color: var(--correct-color);
+        font-weight: 700;
+    }
+    .story-blank.drag-over { border-color: var(--primary-color); }
+    
+    @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-8px);} 75% {transform: translateX(8px);} }
+
+    #feedback-container { margin-top: 15px; font-size: 1.2rem; font-weight: bold; min-height: 25px; }
+    #feedback-container.correct { color: var(--correct-color); }
+    #feedback-container.incorrect { color: var(--incorrect-color); }
+
+    #end-screen-content { padding: 30px; }
+    #end-stars { font-size: 2.5rem; color: var(--secondary-color); margin: 10px 0; }
+    #badge-unlocked { margin-top: 20px; background: #e7f3ff; border: 2px dashed var(--primary-color); padding: 15px; border-radius: 10px; }
+    #badge-unlocked .icon { font-size: 3rem; }
+    #badge-unlocked p { font-size: 1.1rem; font-weight: bold; color: var(--primary-color); }
+    
+    .nav-button-container { display: flex; justify-content: center; align-items: center; margin-top: 30px; flex-wrap: wrap; gap: 10px; }
+    .nav-btn {
+        background: var(--primary-color); color: white; padding: 12px 30px; font-size: 1.2rem;
+        border-radius: 50px; border: none; cursor: pointer;
+        box-shadow: 0 6px 0 #0056b3; transition: all 0.2s ease;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+    .nav-btn:hover { background-color: #2980b9; transform: translateY(-2px); box-shadow: 0 8px 0 #0056b3;}
+    .nav-btn:active { transform: translateY(1px); box-shadow: 0 5px 0 #0056b3;}
+    .nav-btn.back { background: var(--secondary-color); box-shadow: 0 6px 0 #d39e00;}
+    .nav-btn.back:hover { background: #f39c12; box-shadow: 0 8px 0 #d39e00;}
+    .nav-btn.back:active { box-shadow: 0 5px 0 #d39e00;}
+    .nav-btn.quit { background: var(--incorrect-color); box-shadow: 0 6px 0 #c0392b;}
+    .nav-btn.quit:hover { background: #ff7675; box-shadow: 0 8px 0 #c0392b;}
+    .nav-btn.quit:active { box-shadow: 0 5px 0 #c0392b;}
+    .nav-btn:disabled { background-color: #ccc; box-shadow: 0 6px 0 #999; cursor: not-allowed; }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 768px) {
+        h1 { font-size: 2.8rem; }
+        h2 { font-size: 1.8rem; }
+        .grid-container { gap: 20px; }
+        .class-btn { font-size: 1.5rem; }
+        .module-card h3 { font-size: 1.3rem; }
+    }
+
+    @media (max-width: 480px) {
+        body { padding: 15px 10px; }
+        h1 { font-size: 2.2rem; }
+        h2 { font-size: 1.6rem; }
+        .mascot { width: 100px; }
+
+        .grid-container {
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px;
+        }
+
+        .fun-card { border-radius: 20px; }
+        .class-btn { padding: 20px 10px; font-size: 1.3rem; }
+        .module-card { padding: 15px; }
+        .module-card .icon { font-size: 2.5rem; }
+        .module-card h3 { font-size: 1.1rem; }
+
+        #game-screen-wrapper { padding: 10px; }
+        #game-header { padding: 8px 15px; }
+        #game-header .stat { font-size: 1.1rem; }
+        #question-container { min-height: 300px; padding: 15px; }
+        #question-text { font-size: 1.4rem; }
+        .option-btn { font-size: 1.1rem; padding: 12px; }
+        .match-card { font-size: 1.1rem; padding: 12px; }
+        .drag-item { font-size: 1.1rem; padding: 8px 15px; }
+        .jumble-slot, .jumble-letter { width: 45px; height: 45px; font-size: 1.6rem; }
+        .story-container { font-size: 1.2rem; }
+        .nav-btn { font-size: 1.1rem; padding: 10px 20px; }
+    }
+</style>
+</head>
+<body>
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+
+<div class="container">
+    <!-- Screen 1: Class Selection -->
+    <div id="class-selection-screen" class="screen active">
+        <img src="https://freepngimg.com/thumb/owl/35221-1-owl-cartoon-image.png" alt="" class="mascot">
+        <h1>हिंदी ज्ञान यात्रा</h1>
+        <h2>अपनी कक्षा चुनें</h2>
+        <div class="grid-container">
+            <button class="class-btn fun-card" data-class="5">कक्षा 5</button>
+            <button class="class-btn fun-card" data-class="6">कक्षा 6</button>
+            <button class="class-btn fun-card" data-class="7">कक्षा 7</button>
+            <button class="class-btn fun-card" data-class="8">कक्षा 8</button>
+            <button class="class-btn fun-card" data-class="9">कक्षा 9</button>
+            <button class="class-btn fun-card" data-class="10">कक्षा 10</button>
+        </div>
+    </div>
+    
+    <!-- Screen 2: Module Selection Screen -->
+    <div id="module-selection-screen" class="screen">
+        <h2>विषय चुनें</h2>
+        <div class="grid-container">
+            <div class="module-card fun-card" data-module="muhavare">
+                <div class="icon">🤔</div><h3>मुहावरे</h3><div class="completed-star" style="display:none;">⭐</div>
+            </div>
+            <div class="module-card fun-card" data-module="upsargPratyay">
+                <div class="icon">➕</div><h3>उपसर्ग-प्रत्यय</h3><div class="completed-star" style="display:none;">⭐</div>
+            </div>
+            <div class="module-card fun-card" data-module="kaarak">
+                <div class="icon">✍️</div><h3>कारक</h3><div class="completed-star" style="display:none;">⭐</div>
+            </div>
+            <div class="module-card fun-card" data-module="hindiMonths">
+                <div class="icon">📅</div><h3>हिंदी महीने</h3><div class="completed-star" style="display:none;">⭐</div>
+            </div>
+            <div class="module-card fun-card" data-module="paryayvachiVilom">
+                <div class="icon">🔄</div><h3>पर्यायवाची-विलोम</h3><div class="completed-star" style="display:none;">⭐</div>
+            </div>
+            <div class="module-card fun-card" data-module="vachan">
+                <div class="icon">✌️</div><h3>वचन</h3><div class="completed-star" style="display:none;">⭐</div>
+            </div>
+            <div class="module-card fun-card" data-module="gadyansh">
+                <div class="icon">📖</div><h3>गद्यांश</h3><div class="completed-star" style="display:none;">⭐</div>
+            </div>
+        </div>
+        <div class="nav-button-container">
+            <button id="back-to-class-selection" class="nav-btn back">कक्षा बदलें</button>
+        </div>
+    </div>
+
+    <!-- Screen 3: Game Screen -->
+    <div id="game-screen" class="screen">
+        <div id="game-screen-wrapper" class="fun-card">
+            <h2 id="module-title"></h2>
+            <div id="game-header">
+                <div id="gems" class="stat">💎 0</div>
+                <div id="lives" class="stat">❤️❤️❤️</div>
+                <div id="timer" class="stat">समय: 30</div>
+            </div>
+            <div id="question-container">
+                <!-- Game content will be loaded here -->
+            </div>
+            <div id="feedback-container"></div>
+            <div class="nav-button-container">
+                <button id="back-to-module-selection" class="nav-btn back">विषय पर वापस</button>
+                <button id="quit-game-btn" class="nav-btn quit">खेल छोड़ें</button>
+                <button id="next-question-btn" class="nav-btn" disabled>अगला प्रश्न</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Screen 4: End Screen -->
+    <div id="end-screen" class="screen">
+          <div id="end-screen-content" class="fun-card">
+            <h2 id="end-title">शाबाश!</h2>
+            <p id="end-message" style="font-size: 1.2rem;"></p>
+            <div id="end-stars"></div>
+            <h3 id="final-gems" style="font-size: 1.5rem; color: var(--primary-color);"></h3>
+            <div id="badge-unlocked" style="display:none;">
+                <p>आपने नया बैज जीता!</p>
+                <div id="badge-icon" class="icon"></div>
+                <p id="badge-name"></p>
+            </div>
+            <div class="nav-button-container">
+                <button id="play-again-btn" class="nav-btn">फिर से खेलें</button>
+                <button id="main-menu-btn" class="nav-btn back">विषय पर वापस</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Sounds and Game State remain the same
+// ... [previous script code]
+// Initializing Tone.js for sounds
+const sounds = {
+    click: new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.1 } }).toDestination(),
+    correct: new Tone.Synth({ oscillator: { type: 'triangle' }, envelope: { attack: 0.01, decay: 0.3, sustain: 0.1, release: 0.2 } }).toDestination(),
+    incorrect: new Tone.MembraneSynth({ pitchDecay: 0.1, octaves: 4 }).toDestination(),
+    levelEnd: new Tone.PluckSynth().toDestination(),
+    badgeUnlock: new Tone.Synth({ oscillator: { type: "fatsawtooth", count: 3, spread: 30 }, envelope: { attack: 0.1, decay: 0.2, sustain: 0.3, release: 0.4 } }).toDestination(),
+    match: new Tone.Synth({ oscillator: { type: 'square' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 } }).toDestination(),
+};
+let musicInitialized = false;
+document.body.addEventListener('click', async () => {
+    if (!musicInitialized) { await Tone.start(); musicInitialized = true; }
+}, { once: true });
+
+// Game & Player State
+let playerState = {
+    selectedClass: null,
+    gems: 0,
+    completedModules: [],
+};
+let currentGameState = {
+    selectedModule: null,
+    currentQuestionIndex: 0,
+    lives: 3,
+    timer: 30,
+    timerInterval: null,
+    questions: [],
+    // For matching game
+    selectedCard: null,
+    matchesFound: 0,
+    // For story game
+    blanksFilled: 0
+};
+
+// DOM Elements
+const screens = {
+    classSelection: document.getElementById('class-selection-screen'),
+    moduleSelection: document.getElementById('module-selection-screen'),
+    game: document.getElementById('game-screen'),
+    end: document.getElementById('end-screen'),
+};
+
+const gameElements = {
+    title: document.getElementById('module-title'),
+    gems: document.getElementById('gems'),
+    lives: document.getElementById('lives'),
+    timer: document.getElementById('timer'),
+    questionContainer: document.getElementById('question-container'),
+    feedback: document.getElementById('feedback-container'),
+    nextBtn: document.getElementById('next-question-btn'),
+};
+
+// Navigation (same as before)
+function showScreen(screenId) {
+    Object.values(screens).forEach(screen => screen.classList.remove('active'));
+    screens[screenId].classList.add('active');
+}
+document.querySelectorAll('.class-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        playerState.selectedClass = btn.dataset.class;
+        playerState.completedModules = [];
+        updateModuleScreen();
+        showScreen('moduleSelection');
+    });
+});
+document.querySelectorAll('.module-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const moduleName = card.dataset.module;
+        startGame(moduleName, playerState.selectedClass);
+    });
+});
+document.getElementById('back-to-class-selection').addEventListener('click', () => showScreen('classSelection'));
+document.getElementById('back-to-module-selection').addEventListener('click', () => showScreen('moduleSelection'));
+document.getElementById('quit-game-btn').addEventListener('click', () => {
+    stopTimer();
+    showScreen('classSelection');
+});
+document.getElementById('main-menu-btn').addEventListener('click', () => showScreen('moduleSelection'));
+gameElements.nextBtn.addEventListener('click', nextQuestion);
+document.getElementById('play-again-btn').addEventListener('click', () => {
+    startGame(currentGameState.selectedModule, playerState.selectedClass);
+});
+
+
+// --- NEW GAME LOGIC ---
+
+function startGame(moduleName, className) {
+    currentGameState = { ...currentGameState, selectedModule: moduleName, currentQuestionIndex: 0, lives: 3 };
+    currentGameState.questions = getQuestions(moduleName, className);
+    
+    if (currentGameState.questions.length === 0) {
+        alert('इस कक्षा के लिए अभी प्रश्न उपलब्ध नहीं हैं।');
+        return;
+    }
+
+    const moduleCard = document.querySelector(`.module-card[data-module="${moduleName}"]`);
+    gameElements.title.textContent = moduleCard.querySelector('h3').textContent;
+
+    showScreen('game');
+    loadQuestion();
+}
+
+function loadQuestion() {
+    if (currentGameState.currentQuestionIndex >= currentGameState.questions.length) {
+        endGame(true); return;
+    }
+    
+    resetUI();
+    updateHeader();
+
+    const q = currentGameState.questions[currentGameState.currentQuestionIndex];
+    
+    // Call the correct function based on question type
+    switch(q.type) {
+        case 'mcq': loadMCQ(q); break;
+        case 'match': loadMatchingGame(q); break;
+        case 'drag': loadDragDropGame(q); break;
+        case 'jumble': loadJumbleGame(q); break;
+        case 'story': loadStoryGame(q); break;
+        default: console.error('Unknown question type:', q.type);
+    }
+    startTimer();
+}
+
+// --- Question Type Loaders ---
+
+function loadMCQ(q) {
+    // Corrected logic to display the passage if it exists
+    let contentHTML = '';
+    if (q.passage) {
+        contentHTML += `<p class="gadyansh-passage">${q.passage}</p>`;
+    }
+    contentHTML += `<div id="question-text">${q.q}</div><div id="options-container"></div>`;
+    
+    gameElements.questionContainer.innerHTML = contentHTML;
+    
+    const optionsContainer = document.getElementById('options-container');
+    q.options.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'option-btn';
+        button.innerHTML = option;
+        button.addEventListener('click', () => checkAnswerMCQ(button, option, q.answer));
+        optionsContainer.appendChild(button);
+    });
+}
+
+function loadMatchingGame(q) {
+    currentGameState.matchesFound = 0;
+    gameElements.questionContainer.innerHTML = `<div id="question-text">${q.title}</div><div class="matching-grid"></div>`;
+    const grid = gameElements.questionContainer.querySelector('.matching-grid');
+    const items = [...q.pairs.map(p => ({...p, val: p.item1})), ...q.pairs.map(p => ({...p, val: p.item2}))];
+    items.sort(() => Math.random() - 0.5); 
+
+    items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'match-card';
+        card.textContent = item.val;
+        card.dataset.pairId = item.item1;
+        card.addEventListener('click', () => onCardSelect(card, q.pairs.length));
+        grid.appendChild(card);
+    });
+}
+
+function loadDragDropGame(q) {
+    gameElements.questionContainer.innerHTML = `<div id="question-text">${q.title}</div><div class="drop-zone" data-answer="${q.answer}">${q.sentence.replace('___', '<span id="blank-span">___</span>')}</div><div class="drag-options"></div>`;
+    const dragOptions = gameElements.questionContainer.querySelector('.drag-options');
+    q.options.sort(() => Math.random() - 0.5).forEach(opt => {
+        const item = document.createElement('div');
+        item.className = 'drag-item';
+        item.textContent = opt;
+        item.draggable = true;
+        item.addEventListener('dragstart', e => e.dataTransfer.setData('text', opt));
+        dragOptions.appendChild(item);
+    });
+
+    const dropZone = gameElements.questionContainer.querySelector('.drop-zone');
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const droppedText = e.dataTransfer.getData('text');
+        checkAnswerDrag(droppedText, dropZone.dataset.answer);
+    });
+}
+
+function loadJumbleGame(q) {
+    const letters = q.answer.split('').sort(() => Math.random() - 0.5);
+    let slotsHTML = q.answer.split('').map(() => '<div class="jumble-slot"></div>').join('');
+
+    gameElements.questionContainer.innerHTML = `<div id="question-text">${q.title}</div><div class="jumble-slots">${slotsHTML}</div><div class="jumble-letters"></div>`;
+
+    const lettersContainer = gameElements.questionContainer.querySelector('.jumble-letters');
+    letters.forEach(letter => {
+        const letterDiv = document.createElement('div');
+        letterDiv.className = 'jumble-letter fun-card';
+        letterDiv.textContent = letter;
+        letterDiv.draggable = true;
+        letterDiv.addEventListener('dragstart', e => e.dataTransfer.setData('text', letter));
+        lettersContainer.appendChild(letterDiv);
+    });
+
+    const slots = gameElements.questionContainer.querySelectorAll('.jumble-slot');
+    slots.forEach(slot => {
+        slot.addEventListener('dragover', e => e.preventDefault());
+        slot.addEventListener('drop', e => {
+            e.preventDefault();
+            const data = e.dataTransfer.getData('text');
+            if (slot.textContent === '') {
+                 slot.textContent = data;
+                 // Hide dragged letter
+                 const draggedLetter = Array.from(lettersContainer.children).find(l => l.textContent === data && l.style.visibility !== 'hidden');
+                 if(draggedLetter) draggedLetter.style.visibility = 'hidden';
+            }
+            if (Array.from(slots).every(s => s.textContent !== '')) {
+                checkAnswerJumble(q.answer);
+            }
+        });
+    });
+}
+
+function loadStoryGame(q) {
+    currentGameState.blanksFilled = 0;
+    const storyHTML = q.story.replace(/___/g, (match, index) => `<span class="story-blank" data-answer-index="${index}"></span>`);
+    
+    gameElements.questionContainer.innerHTML = `<div id="question-text">${q.title}</div><p class="story-container">${storyHTML}</p><div class="drag-options"></div>`;
+    
+    const dragOptions = gameElements.questionContainer.querySelector('.drag-options');
+    q.options.sort(() => Math.random() - 0.5).forEach(opt => {
+        const item = document.createElement('div');
+        item.className = 'drag-item';
+        item.textContent = opt;
+        item.draggable = true;
+        item.addEventListener('dragstart', e => e.dataTransfer.setData('text', opt));
+        dragOptions.appendChild(item);
+    });
+
+    const blanks = gameElements.questionContainer.querySelectorAll('.story-blank');
+    blanks.forEach((blank, i) => {
+        blank.dataset.answer = q.answers[i];
+        blank.addEventListener('dragover', e => { e.preventDefault(); blank.classList.add('drag-over'); });
+        blank.addEventListener('dragleave', () => blank.classList.remove('drag-over'));
+        blank.addEventListener('drop', e => {
+            e.preventDefault();
+            blank.classList.remove('drag-over');
+            const droppedText = e.dataTransfer.getData('text');
+            if (blank.textContent === '') {
+                blank.textContent = droppedText;
+                currentGameState.blanksFilled++;
+                const draggedItem = Array.from(dragOptions.children).find(d => d.textContent === droppedText && d.style.visibility !== 'hidden');
+                if (draggedItem) draggedItem.style.visibility = 'hidden';
+
+                if (currentGameState.blanksFilled === q.answers.length) {
+                    checkAnswerStory();
+                }
+            }
+        });
+    });
+}
+
+// --- Answer Checkers ---
+function checkAnswerMCQ(btn, selected, correct) {
+    stopTimer();
+    sounds.click.triggerAttackRelease("C4", "8n");
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+    if (selected === correct) { handleCorrect(); btn.classList.add('correct'); } 
+    else { handleIncorrect(`गलत! सही जवाब है: ${correct}`); btn.classList.add('incorrect'); }
+}
+function onCardSelect(card, totalPairs) {
+    // ... logic from previous step, no changes needed
+    if (card.classList.contains('matched')) return;
+    sounds.click.triggerAttackRelease("E4", "8n");
+    if (!currentGameState.selectedCard) {
+        currentGameState.selectedCard = card;
+        card.classList.add('selected');
+    } else {
+        if (currentGameState.selectedCard === card) {
+            card.classList.remove('selected');
+            currentGameState.selectedCard = null;
+            return;
+        }
+        if (currentGameState.selectedCard.dataset.pairId === card.dataset.pairId) {
+            sounds.match.triggerAttackRelease("C5", "0.2s");
+            currentGameState.selectedCard.classList.add('matched');
+            card.classList.add('matched');
+            currentGameState.matchesFound++;
+            if (currentGameState.matchesFound === totalPairs) {
+                stopTimer(); handleCorrect();
+            }
+        } else {
+            sounds.incorrect.triggerAttackRelease("C2", "0.5s");
+            card.classList.add('incorrect-match');
+            currentGameState.selectedCard.classList.add('incorrect-match');
+            setTimeout(() => {
+                card.classList.remove('incorrect-match', 'selected');
+                if (currentGameState.selectedCard) {
+                    currentGameState.selectedCard.classList.remove('incorrect-match', 'selected');
+                }
+                currentGameState.selectedCard = null;
+            }, 600);
+            currentGameState.lives--;
+            updateHeader();
+            if (currentGameState.lives <= 0) { setTimeout(() => endGame(false), 1500); }
+        }
+        if (currentGameState.selectedCard) currentGameState.selectedCard.classList.remove('selected');
+        currentGameState.selectedCard = null;
+    }
+}
+function checkAnswerDrag(dropped, correct) {
+    stopTimer(); sounds.click.triggerAttackRelease("C4", "8n");
+    if (dropped === correct) {
+        handleCorrect();
+        document.getElementById('blank-span').textContent = dropped;
+        document.getElementById('blank-span').style.color = 'var(--correct-color)';
+    } else { handleIncorrect(`गलत! सही जवाब है: ${correct}`); }
+}
+function checkAnswerJumble(correctAnswer) {
+    stopTimer();
+    const slots = gameElements.questionContainer.querySelectorAll('.jumble-slot');
+    const userAnswer = Array.from(slots).map(s => s.textContent).join('');
+    if (userAnswer === correctAnswer) { handleCorrect(); } 
+    else { handleIncorrect(`गलत! सही जवाब है: ${correctAnswer}`); }
+}
+function checkAnswerStory() {
+    stopTimer();
+    const blanks = gameElements.questionContainer.querySelectorAll('.story-blank');
+    let allCorrect = true;
+    blanks.forEach(blank => {
+        if(blank.textContent !== blank.dataset.answer) {
+            allCorrect = false;
+        }
+    });
+    if (allCorrect) { handleCorrect(); } 
+    else { handleIncorrect('कहानी सही नहीं है, फिर कोशिश करो!'); }
+}
+
+
+// --- Common Handlers & UI ---
+function handleCorrect() {
+    gameElements.feedback.textContent = "बहुत बढ़िया! आपका जवाब सही है।";
+    gameElements.feedback.className = 'correct';
+    playerState.gems += 10 + Math.max(0, currentGameState.timer);
+    sounds.correct.triggerAttackRelease("C5", "0.2s", Tone.now() + 0.1);
+    updateHeader();
+    gameElements.nextBtn.disabled = false;
+}
+function handleIncorrect(message = 'गलत जवाब!') {
+    gameElements.feedback.textContent = message;
+    gameElements.feedback.className = 'incorrect';
+    currentGameState.lives--;
+    sounds.incorrect.triggerAttackRelease("C2", "0.5s", Tone.now() + 0.1);
+    updateHeader();
+    gameElements.nextBtn.disabled = false;
+    if (currentGameState.lives <= 0) { setTimeout(() => endGame(false), 1500); }
+}
+
+function nextQuestion() { currentGameState.currentQuestionIndex++; loadQuestion(); }
+
+function endGame(isWin) {
+    stopTimer(); sounds.levelEnd.triggerAttackRelease("G4", "4n", Tone.now() + 0.1);
+    const endTitle = document.getElementById('end-title');
+    const endMessage = document.getElementById('end-message');
+    const endStars = document.getElementById('end-stars');
+    const badgeUnlockedDiv = document.getElementById('badge-unlocked');
+
+    badgeUnlockedDiv.style.display = 'none';
+
+    if (isWin) {
+        endTitle.textContent = "अभ्यास पूरा हुआ!";
+        endMessage.textContent = "आपने बहुत अच्छा प्रदर्शन किया।";
+        const stars = Math.max(1, currentGameState.lives);
+        endStars.textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+        const moduleClassKey = `${currentGameState.selectedModule}-${playerState.selectedClass}`;
+        if (!playerState.completedModules.includes(moduleClassKey)) {
+            playerState.completedModules.push(moduleClassKey);
+            badgeUnlockedDiv.style.display = 'block';
+            const badgeData = getBadgeData(currentGameState.selectedModule);
+            document.getElementById('badge-icon').textContent = badgeData.icon;
+            document.getElementById('badge-name').textContent = badgeData.name;
+            sounds.badgeUnlock.triggerAttackRelease("C4", "0.5s", Tone.now() + 0.2);
+            updateModuleScreen();
+        }
+    } else {
+        endTitle.textContent = "खेल समाप्त!";
+        endMessage.textContent = "कोई बात नहीं, फिर से प्रयास करें!";
+        endStars.textContent = '☆☆☆';
+    }
+    document.getElementById('final-gems').textContent = `कुल ज्ञान-मणि: 💎 ${playerState.gems}`;
+    showScreen('end');
+}
+
+function updateModuleScreen() {
+    document.querySelectorAll('.module-card .completed-star').forEach(star => star.style.display = 'none');
+    playerState.completedModules.forEach(moduleClassKey => {
+        const [moduleName, className] = moduleClassKey.split('-');
+        if (className === playerState.selectedClass) {
+            const moduleCard = document.querySelector(`.module-card[data-module="${moduleName}"]`);
+            if(moduleCard) {
+                moduleCard.querySelector('.completed-star').style.display = 'block';
+            }
+        }
+    });
+}
+
+// Timer and UI Functions
+function startTimer() {
+    let timeLimit = 30; // Default
+    const q = currentGameState.questions[currentGameState.currentQuestionIndex];
+    if (q.type === 'match' || q.type === 'story') timeLimit = 60; // More time for complex games
+    
+    currentGameState.timer = timeLimit;
+    gameElements.timer.textContent = `समय: ${currentGameState.timer}`;
+    currentGameState.timerInterval = setInterval(() => {
+        currentGameState.timer--;
+        gameElements.timer.textContent = `समय: ${currentGameState.timer}`;
+        if (currentGameState.timer <= 5) gameElements.timer.style.color = '#D0021B';
+        if (currentGameState.timer <= 0) {
+            stopTimer();
+            handleTimeOut();
+        }
+    }, 1000);
+}
+function stopTimer() { clearInterval(currentGameState.timerInterval); }
+function handleTimeOut() {
+    currentGameState.lives--;
+    updateHeader();
+    gameElements.feedback.textContent = "समय समाप्त!";
+    gameElements.feedback.className = 'incorrect';
+    document.querySelectorAll('.option-btn, .match-card, .drag-item').forEach(b => b.classList.add('disabled'));
+    gameElements.nextBtn.disabled = false;
+    if (currentGameState.lives <= 0) { setTimeout(() => endGame(false), 1500); }
+}
+function updateHeader() {
+    gameElements.gems.innerHTML = `💎 ${playerState.gems}`;
+    gameElements.lives.innerHTML = '❤️'.repeat(currentGameState.lives);
+}
+function resetUI() {
+    gameElements.questionContainer.innerHTML = '';
+    gameElements.feedback.textContent = '';
+    gameElements.nextBtn.disabled = true;
+    gameElements.timer.style.color = '#e67e22';
+    stopTimer();
+}
+
+// Data Fetching
+function getBadgeData(module) {
+    const badges = {
+        muhavare: { name: 'मुहावरा-सम्राट', icon: '👑' },
+        upsargPratyay: { name: 'शब्द-शिल्पी', icon: '🛠️' },
+        kaarak: { name: 'वाक्य-विशारद', icon: '🎓' },
+        hindiMonths: { name: 'संवत्-सरताज', icon: '📜' },
+        paryayvachiVilom: { name: 'शब्द-सागर', icon: '🌊' },
+        vachan: { name: 'वचन-वीर', icon: '💪' },
+        gadyansh: { name: 'ज्ञान-पंडित', icon: '🦉' }
+    };
+    return badges[module];
+}
+
+const allQuestions = {
+    '5-6': {
+        muhavare: [ { type: 'mcq', q: "'आँखों का तारा' मुहावरे का क्या अर्थ है?", options: ["बहुत प्यारा", "आँख में दर्द", "एक तारा", "बहुत दूर"], answer: "बहुत प्यारा" }, { type: 'mcq', q: "'पेट में चूहे कूदना' का क्या मतलब है?", options: ["पेट में दर्द होना", "बहुत भूख लगना", "खुश होना", "चूहे का पेट में जाना"], answer: "बहुत भूख लगना" }, ],
+        upsargPratyay: [ { type: 'mcq', q: "'अज्ञान' शब्द में उपसर्ग क्या है?", options: ["अ", "आ", "ज्ञान", "न"], answer: "अ" }, { type: 'mcq', q: "'सुंदरता' शब्द में प्रत्यय क्या है?", options: ["सुंदर", "ता", "आ", "रता"], answer: "ता" }, ],
+        kaarak: [ { type: 'mcq', q: "माँ ने बच्चे ___ दूध पिलाया।", options: ["का", "की", "को", "से"], answer: "को" }, { type: 'story', title: 'कहानी पूरी करो:', story: 'एक कौआ ___ एक घड़ा देखा। घड़े ___ पानी कम था। कौवे ___ घड़े में कंकड़ डाले।', answers: ['ने', 'में', 'ने'], options: ['ने', 'में', 'को', 'से', 'पर'] } ],
+        hindiMonths: [ { type: 'mcq', q: "होली का त्योहार हिंदी के किस महीने में आता है?", options: ["चैत्र", "सावन", "कार्तिक", "फाल्गुन"], answer: "फाल्गुन" }, { type: 'match', title: 'मौसम को सही महीने से मिलाओ:', pairs: [{item1: 'सर्दी', item2: 'पौष'}, {item1: 'गर्मी', item2: 'ज्येष्ठ'}, {item1: 'वर्षा', item2: 'श्रावण'}] }, ],
+        paryayvachiVilom: [ { type: 'mcq', q: "'दिन' का विलोम शब्द क्या है?", options: ["सुबह", "रात", "शाम", "दोपहर"], answer: "रात" }, { type: 'match', title: 'शब्दों का सही विलोम से मिलान करो:', pairs: [{item1: 'ऊपर', item2: 'नीचे'}, {item1: 'अंदर', item2: 'बाहर'}, {item1: 'छोटा', item2: 'बड़ा'}] }, ],
+        vachan: [ { type: 'mcq', q: "'लड़का' शब्द का बहुवचन रूप क्या है?", options: ["लड़की", "लड़कों", "लड़के", "लड़कियाँ"], answer: "लड़के" }, { type: 'jumble', title: 'अक्षरों को जोड़कर सही शब्द बनाओ (एक सब्जी):', answer: 'मटर' }, ],
+        gadyansh: [ { type: 'mcq', passage: "एक कौआ बहुत प्यासा था। उसने एक घड़ा देखा। घड़े में पानी बहुत कम था। कौवे ने घड़े में कंकड़ डाले। पानी ऊपर आ गया और कौवे ने पानी पी लिया।", q: "कौवे ने पानी पीने के लिए घड़े में क्या डाला?", options: ["पत्थर", "पत्ते", "कंकड़", "लकड़ी"], answer: "कंकड़" }, ]
+    },
+    '7-8': {
+        muhavare: [ { type: 'mcq', q: "'घी के दीये जलाना' का क्या मतलब है?", options: ["रोशनी करना", "बहुत खुश होना", "दीवाली मनाना", "अमीर होना"], answer: "बहुत खुश होना" }, { type: 'mcq', q: "'नाको चने चबवाना' का क्या अर्थ है?", options: ["बहुत खुश करना", "चने खाना", "बहुत तंग करना", "भाग जाना"], answer: "बहुत तंग करना" }, ],
+        upsargPratyay: [ { type: 'mcq', q: "'निर्बल' शब्द में उपसर्ग क्या है?", options: ["न", "नि", "बल", "निर्"], answer: "निर्" }, { type: 'mcq', q: "'लिखावट' शब्द में प्रत्यय क्या है?", options: ["लिख", "वट", "आवट", "ट"], answer: "आवट" }, ],
+        kaarak: [ { type: 'mcq', q: "पेड़ ___ पत्ते गिरते हैं। (यहाँ 'से' कारक का कौन सा भेद है?)", options: ["करण कारक", "अपादान कारक", "संबंध कारक", "कर्ता कारक"], answer: "अपादान कारक" }, { type: 'story', title: 'कहानी पूरी करो:', story: 'राम ___ रावण को बाण ___ मारा। यह युद्ध धर्म ___ लिए था।', answers: ['ने', 'से', 'के'], options: ['ने', 'से', 'के', 'को', 'पर'] } ],
+        hindiMonths: [ { type: 'mcq', q: "रक्षाबंधन का त्योहार आमतौर पर किस हिंदी महीने में मनाया जाता है?", options: ["चैत्र", "सावन", "भाद्रपद", "कार्तिक"], answer: "सावन" }, ],
+        paryayvachiVilom: [ { type: 'mcq', q: "'अमृत' का विलोम शब्द क्या है?", options: ["पानी", "रस", "विष", "मीठा"], answer: "विष" }, { type: 'match', title: 'शब्दों का सही पर्यायवाची से मिलान करो:', pairs: [{item1: 'आकाश', item2: 'गगन'}, {item1: 'सूर्य', item2: 'रवि'}, {item1: 'कमल', item2: 'पंकज'}] }, ],
+        vachan: [ { type: 'mcq', q: "'महिला' का बहुवचन रूप क्या है?", options: ["महिलाएँ", "महिलाओं", "महिला", "महिलायों"], answer: "महिलाएँ" }, { type: 'jumble', title: 'अक्षरों को जोड़कर सही शब्द बनाओ (एक जानवर):', answer: 'लोमड़ी' }, ],
+        gadyansh: [ { type: 'mcq', passage: "महात्मा गांधी का जन्म 2 अक्टूबर 1869 को गुजरात के पोरबंदर में हुआ था। उन्होंने सत्य और अहिंसा के मार्ग पर चलकर भारत को स्वतंत्रता दिलाई। वे सादा जीवन जीते थे और सभी से प्रेम करने की शिक्षा देते थे।", q: "गांधीजी ने भारत को स्वतंत्रता कैसे दिलाई?", options: ["युद्ध करके", "सत्य और अहिंसा के मार्ग पर चलकर", "भाषण देकर", "विदेश जाकर"], answer: "सत्य और अहिंसा के मार्ग पर चलकर" }, ]
+    },
+    '9-10': {
+        muhavare: [ { type: 'mcq', q: "'श्री गणेश करना' मुहावरे का क्या अर्थ है?", options: ["पूजा करना", "काम खत्म करना", "शुरू करना", "गणेश जी को याद करना"], answer: "शुरू करना" }, { type: 'mcq', q: "'टेढ़ी खीर होना' का क्या मतलब है?", options: ["खीर का खराब होना", "बहुत आसान काम", "बहुत कठिन काम", "खीर बनाना"], answer: "बहुत कठिन काम" }, ],
+        upsargPratyay: [ { type: 'mcq', q: "'अत्याचार' शब्द में कौन सा उपसर्ग है?", options: ["अ", "अत्य", "आचार", "अति"], answer: "अति" }, { type: 'mcq', q: "'वैज्ञानिक' शब्द में मूल शब्द और प्रत्यय अलग करें।", options: ["विज्ञान + इक", "विज्ञानी + क", "वि + ज्ञानिक", "वैज्ञान + इक"], answer: "विज्ञान + इक" }, ],
+        kaarak: [ { type: 'mcq', q: "'राजा ने गरीबों को कम्बल दिए।' इस वाक्य में 'गरीबों को' में कौन सा कारक है?", options: ["कर्म कारक", "संप्रदान कारक", "अपादान कारक", "संबंध कारक"], answer: "संप्रदान कारक" }, { type: 'drag', title: 'सही कारक को खाली जगह पर खींचो:', sentence: 'वह चाकु ___ फल काटता है।', options: ['को', 'से', 'पर', 'का'], answer: 'से' } ],
+        hindiMonths: [ { type: 'mcq', q: "हिंदी पंचांग के अनुसार वर्ष का अंतिम महीना कौन सा होता है?", options: ["माघ", "फाल्गुन", "चैत्र", "पौष"], answer: "फाल्गुन" }, ],
+        paryayvachiVilom: [ { type: 'mcq', q: "'उत्थान' का विलोम शब्द क्या है?", options: ["उन्नति", "विकास", "पतन", "प्रगति"], answer: "पतन" }, { type: 'match', title: 'शब्दों का सही विलोम से मिलान करो:', pairs: [{item1: 'सृजन', item2: 'संहार'}, {item1: 'आयात', item2: 'निर्यात'}, {item1: 'आदर', item2: 'अनादर'}] }, ],
+        vachan: [ { type: 'mcq', q: "'नेता' शब्द का बहुवचन रूप क्या है?", options: ["नेताओं", "नेतागण", "नेताएँ", "नेता ही रहता है"], answer: "नेता ही रहता है" }, { type: 'jumble', title: 'अक्षरों को जोड़कर सही शब्द बनाओ (एक भावना):', answer: 'खुशी' }, ],
+        gadyansh: [ { type: 'mcq', passage: "अनुशासन का अर्थ है नियमों का सही ढंग से पालन करना। यह केवल विद्यार्थियों के लिए ही नहीं, बल्कि हर व्यक्ति के लिए आवश्यक है। प्रकृति भी अनुशासन का पालन करती है, जैसे सूर्य का समय पर उगना और अस्त होना। अनुशासन के बिना जीवन सफल नहीं हो सकता।", q: "इस गद्यांश का उपयुक्त शीर्षक क्या होगा?", options: ["प्रकृति के नियम", "सफलता का रहस्य", "अनुशासन का महत्व", "विद्यार्थी जीवन"], answer: "अनुशासन का महत्व" }, ]
+    }
+};
+
+function getQuestions(module, grade) {
+    let level;
+    if (grade >= 9) level = '9-10';
+    else if (grade >= 7) level = '7-8';
+    else level = '5-6';
+    
+    const questionsForLevel = (allQuestions[level] && allQuestions[level][module]) 
+        || (allQuestions['7-8'] && allQuestions['7-8'][module]) 
+        || (allQuestions['5-6'] && allQuestions['5-6'][module]) 
+        || [];
+
+    return [...questionsForLevel].sort(() => 0.5 - Math.random());
+}
+
+// Initial call
+showScreen('classSelection');
+
+</script>
+</body>
+</html>

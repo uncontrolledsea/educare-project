@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ଜ୍ଞାନର ପୁଟୁଳି: ସତ କି ମିଛ?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans+Oriya:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', 'Noto Sans Devanagari', 'Noto Sans Oriya', sans-serif;
+            overflow-x: hidden;
+            background-color: #2C5364; /* Fallback color */
+            background-image: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-attachment: fixed;
+        }
+        
+        .hindi, .oriya {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+        }
+        .oriya {
+            font-family: 'Noto Sans Oriya', sans-serif;
+        }
+        .gradient-bg {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .game-card {
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .category-card, .glass-card {
+             background: rgba(255, 255, 255, 0.05);
+             backdrop-filter: blur(10px);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             transition: all 0.2s ease-in-out;
+             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.1);
+        }
+        
+        .btn-choice {
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+         .btn-choice:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 20px 5px rgba(0,0,0,0.2);
+        }
+        .feedback {
+            display: none;
+            animation: feedbackPop 0.5s ease-out forwards;
+        }
+        #progress-bar-fill {
+            transition: width 0.5s ease-in-out;
+        }
+
+        .lang-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .lang-btn.active {
+            background: #8B5CF6; /* violet-500 */
+            border-color: #A78BFA; /* violet-400 */
+            box-shadow: 0 0 10px #8B5CF6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card-enter {
+            animation: cardEnter 0.5s ease-out forwards;
+        }
+        
+        @keyframes cardEnter {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes feedbackPop {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            pointer-events: none;
+            animation: confetti-fall 3s cubic-bezier(0.1, 0.5, 0.5, 1) forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-150px) rotate(0deg) rotateY(0deg); opacity: 1; }
+            100% { transform: translateY(400px) rotate(1080deg) rotateY(360deg); opacity: 0; }
+        }
+        
+        @keyframes score-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
+
+        .score-popped {
+            animation: score-pop 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <!-- Header Section -->
+    <header class="gradient-bg text-white text-center p-6 md:p-8 relative">
+        <div id="language-selector" class="absolute top-4 right-4 flex space-x-2">
+             <button onclick="changeLanguage('en')" class="lang-btn" id="lang-btn-en">EN</button>
+             <button onclick="changeLanguage('hi')" class="lang-btn active" id="lang-btn-hi">HI</button>
+             <button onclick="changeLanguage('or')" class="lang-btn" id="lang-btn-or">OR</button>
+        </div>
+        <div class="flex justify-center items-center gap-4">
+             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-sun-fill text-yellow-300" viewBox="0 0 16 16" style="filter: drop-shadow(0 0 10px #fef08a);">
+                <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+            </svg>
+            <h1 class="text-4xl md:text-5xl font-bold" data-key="title"></h1>
+        </div>
+        <p class="mt-3 text-lg md:text-xl opacity-90" data-key="tagline"></p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-5 md:p-8">
+
+        <!-- Category Selection -->
+        <section id="category-selection" style="animation: fadeIn 1s ease-out;">
+            <h2 class="text-3xl font-bold text-center mb-8 text-indigo-300" data-key="select_category"></h2>
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="category-card p-6 rounded-2xl text-center cursor-pointer" onclick="startGame('shiksha')">
+                    <div class="text-5xl mb-4"><svg class="w-16 h-16 mx-auto text-amber-300" style="filter: drop-shadow(0 0 10px #fcd34d);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg></div>
+                    <h3 class="text-xl font-bold text-white" data-key="shiksha"></h3>
+                </div>
+                <div class="category-card p-6 rounded-2xl text-center cursor-pointer" onclick="startGame('swasthya')">
+                    <div class="text-5xl mb-4"><svg class="w-16 h-16 mx-auto text-green-300" style="filter: drop-shadow(0 0 10px #86efac);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg></div>
+                    <h3 class="text-xl font-bold text-white" data-key="swasthya"></h3>
+                </div>
+                <div class="category-card p-6 rounded-2xl text-center cursor-pointer" onclick="startGame('paisa')">
+                    <div class="text-5xl mb-4"><svg class="w-16 h-16 mx-auto text-rose-300" style="filter: drop-shadow(0 0 10px #fda4af);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>
+                    <h3 class="text-xl font-bold text-white" data-key="paisa"></h3>
+                </div>
+                <div class="category-card p-6 rounded-2xl text-center cursor-pointer" onclick="startGame('digital')">
+                    <div class="text-5xl mb-4"><svg class="w-16 h-16 mx-auto text-violet-300" style="filter: drop-shadow(0 0 10px #d8b4fe);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg></div>
+                    <h3 class="text-xl font-bold text-white" data-key="digital"></h3>
+                </div>
+                 <div class="category-card p-6 rounded-2xl text-center cursor-pointer" onclick="startGame('adhikar')">
+                    <div class="text-5xl mb-4"><svg class="w-16 h-16 mx-auto text-sky-300" style="filter: drop-shadow(0 0 10px #7dd3fc);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg></div>
+                    <h3 class="text-xl font-bold text-white" data-key="adhikar"></h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Game Area -->
+        <section id="game-area" class="p-6 md:p-8 rounded-2xl hidden">
+            
+            <div class="w-full flex justify-start mb-4">
+                <button onclick="quitGame()" class="btn-choice bg-rose-500/80 hover:bg-rose-600 text-white font-bold py-2 px-5 rounded-lg flex items-center gap-2" >
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"/>
+                        <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
+                     </svg>
+                     <span data-key="back_btn"></span>
+                </button>
+            </div>
+
+            <div id="game-content">
+                <div id="game-stats" class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-200"><span data-key="score"></span>: <span id="score" class="text-white">0</span></h3>
+                        <p class="text-lg text-gray-300"><span id="question-counter">1</span> / <span id="total-questions"></span></p>
+                    </div>
+                    <div class="w-full bg-white/20 rounded-full h-4">
+                        <div id="progress-bar-fill" class="bg-green-500 rounded-full h-4" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="game-card" class="game-card glass-card shadow-2xl text-center p-6 rounded-xl">
+                    <div id="celebration-container" class="absolute inset-0 pointer-events-none overflow-hidden rounded-xl"></div>
+                    <h3 id="statement-text" class="text-2xl md:text-3xl font-bold text-white px-4"></h3>
+                    <div id="feedback" class="feedback mt-4 text-left p-4 rounded-lg">
+                        <div class="flex items-start gap-4">
+                            <div id="feedback-icon" class="text-3xl"></div>
+                            <p id="explanation-text" class="text-base md:text-lg"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="action-buttons" class="mt-6">
+                    <div id="choice-buttons" class="flex justify-center items-center gap-4">
+                        <button id="fact-btn" onclick="checkAnswer(true)" class="btn-choice w-full md:w-1/3 bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl text-2xl" data-key="fact_btn"></button>
+                        <button id="myth-btn" onclick="checkAnswer(false)" class="btn-choice w-full md:w-1/3 bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 px-6 rounded-xl text-2xl" data-key="myth_btn"></button>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <button id="next-btn" onclick="playClickAndAdvance()" class="w-full md:w-1/2 bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-6 rounded-xl text-xl btn-choice" style="display: none;" data-key="next_btn"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Over Screen -->
+            <div id="game-over-screen" class="hidden text-center card-enter">
+                 <div class="glass-card p-8 rounded-2xl shadow-2xl">
+                    <h2 class="text-5xl font-bold text-amber-300 mb-4" data-key="game_over_title"></h2>
+                    <p class="text-2xl text-gray-200" data-key="game_over_subtitle"></p>
+                    <p class="text-3xl mt-6 text-gray-200" data-key="final_score_text"></p>
+                    <p id="final-score" class="text-7xl font-bold text-green-400 my-4">100</p>
+                     <div id="maha-jaankari" class="mt-8 p-6 md:p-8 bg-black/20 border-2 border-amber-300/50 rounded-2xl text-left shadow-inner">
+                        <h3 id="maha-jaankari-title" class="text-3xl md:text-4xl font-bold text-amber-300 mb-4"></h3>
+                        <p id="maha-jaankari-text" class="text-gray-200 text-lg md:text-xl leading-relaxed"></p>
+                     </div>
+                    <button onclick="window.location.reload()" class="w-full md:w-1/2 mt-8 bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-6 rounded-xl text-xl btn-choice" data-key="play_again_btn"></button>
+                 </div>
+            </div>
+        </section>
+
+    </main>
+    <footer class="text-center p-4 mt-8 text-gray-400">
+        <p>&copy; 2025 - For a better future</p>
+    </footer>
+
+    <script>
+        let currentLanguage = 'hi';
+        let currentCategory = '';
+        let currentCategoryQuestions = [];
+        let currentQuestionIndex = -1;
+        let score = 0;
+
+        const languageContent = {
+            en: {
+                ui: {
+                    title: "Pot of Knowledge",
+                    tagline: "Essential information for your child's future",
+                    select_category: "Which topic would you like to learn about today?",
+                    score: "Score",
+                    shiksha: "Education",
+                    swasthya: "Health",
+                    paisa: "Money & Schemes",
+                    digital: "Digital World",
+                    adhikar: "Rights & Safety",
+                    fact_btn: "Fact",
+                    myth_btn: "Myth",
+                    next_btn: "Next",
+                    back_btn: "Quit",
+                    game_over_title: "Well Done!",
+                    game_over_subtitle: "This topic is complete!",
+                    final_score_text: "Your final score is:",
+                    play_again_btn: "Choose Another Topic",
+                    feedback_correct_strong: "Excellent! Your answer is correct.",
+                    feedback_wrong_strong_prefix: "No problem. The correct answer is '",
+                    feedback_wrong_strong_suffix: "'.",
+                    tip_prefix: "🪔 Pro Tip: ",
+                    maha_jaankari_prefix: "🪔 Super Info: "
+                },
+                questions: {
+                    shiksha: [
+                        { statement: "Under the 'Right to Education' (RTE) Act, every child from 6 to 14 years must get free and compulsory education.", isFact: true, explanation: "This is true. No government school can deny admission to your child, even if some documents are missing.", tip: "If a school denies admission, you can directly complain to the Block Education Officer (BEO). A birth certificate or Aadhaar card is important for admission, so get them made." },
+                        { statement: "The iron tablets given to children in school are harmful to them.", isFact: false, explanation: "This is false. These tablets prevent anemia (iron deficiency), which keeps them healthy and helps them concentrate on their studies.", tip: "This tablet is part of the 'Anemia Mukt Bharat' campaign. If the child complains of stomach ache after taking it, give it to them after a meal and inform the teacher." },
+                        { statement: "If a child refuses to go to school, you should listen to them and let them stay home.", isFact: false, explanation: "This is wrong. You should talk to the child lovingly to understand their problem (e.g., someone is bullying them, or they can't understand something) and inform the teacher.", tip: "Always attend the Parent-Teacher Meetings (PTM) held every 2-3 months. This will keep you informed about your child's problems and progress." },
+                        { statement: "Low marks on a child's report card mean they cannot achieve anything in life.", isFact: false, explanation: "This is a wrong perception. Every child has some unique talent. It's more important to recognize and encourage their skills in art, sports, or any other field than just focusing on marks.", tip: "Under the new 'PM Vishwakarma' scheme, 18 types of traditional artisans (like carpenters, blacksmiths, tailors) get training, Rs. 15,000 for tools, and a cheap loan of up to Rs. 1 lakh." },
+                        { statement: "It is enough to educate girls only up to the 8th grade.", isFact: false, explanation: "This is a wrong belief. The more you educate girls, the more self-reliant they will become and contribute to the progress of the entire family.", tip: "You can open an account in your daughter's name (if she is under 10) under the 'Sukanya Samriddhi Yojana' at the post office. You can deposit from Rs. 250 to Rs. 1.5 lakh annually, which earns the highest interest rate." }
+                    ],
+                    swasthya: [
+                        { statement: "If a child has diarrhea, they should not be given any water or liquids.", isFact: false, explanation: "This is a very dangerous misconception! Diarrhea causes dehydration. The child must be continuously given Oral Rehydration Solution (ORS) and breast milk/water.", tip: "ORS packets are available for free from your ASHA worker or the nearest health center. Always keep them at home. To prepare, dissolve one packet in 1 liter of clean water and use within 24 hours." },
+                        { statement: "It is not necessary to regularly measure a child's weight and height.", isFact: false, explanation: "This is false. Monthly measurement of weight and height indicates whether the child is growing properly or is suffering from malnutrition.", tip: "Under the 'Poshan 2.0' campaign, special attention is given to the nutrition and development of children at Anganwadi centers. Ask your ASHA worker which color (green, yellow, or red) your child falls into on the growth chart." },
+                        { statement: "There is no risk of disease from open defecation.", isFact: false, explanation: "This is false. Open defecation spreads germs through flies, causing serious diseases like diarrhea and cholera.", tip: "In the second phase of the 'Swachh Bharat Mission (Rural)', the government is now emphasizing 'ODF Plus' villages, which means not just building toilets but also ensuring proper waste management." },
+                        { statement: "It is important to use iodized salt in children's food.", isFact: true, explanation: "This is true. Iodine is very important for children's brain development and protects against diseases like goiter.", tip: "Always buy packaged salt and look for the 'Iodized' mark on it. Avoid using loose salt as it may not contain iodine." },
+                        { statement: "Children should only be taken to the doctor when they are very sick.", isFact: false, explanation: "This is wrong. It is important to consult a doctor even for minor illnesses so that the illness does not become serious.", tip: "You can now get free consultation from a government doctor via video call from home using the 'eSanjeevani' app. You need a smartphone for this." }
+                    ],
+                    paisa: [
+                        { statement: "No minimum balance is required in an account opened under 'Pradhan Mantri Jan Dhan Yojana'.", isFact: true, explanation: "This is true. In this account, you also get a RuPay debit card and accident insurance of Rs. 2 lakhs.", tip: "Another major benefit of this account is that after running it properly for 6 months, you can get an overdraft facility (a type of loan) of up to Rs. 10,000." },
+                        { statement: "For any bank-related problem, you should tell your ATM PIN or password to any stranger on the phone.", isFact: false, explanation: "This is very dangerous! No bank employee ever asks for your PIN, password, or OTP. Do not share such information with anyone.", tip: "If someone calls saying your ATM card is blocked and needs information to reactivate it, never provide it. Go directly to your bank branch and talk to them." },
+                        { statement: "In 'Pradhan Mantri Jeevan Jyoti Bima Yojana' (PMJJBY), you get a life insurance of Rs. 2 lakhs for just Rs. 436 per year.", isFact: true, explanation: "This is true. Anyone between 18 to 50 years of age with a bank account can avail this scheme.", tip: "Similarly, in 'Pradhan Mantri Suraksha Bima Yojana' (PMSBY), you get accident insurance of Rs. 2 lakhs for just Rs. 20 per year. You can easily activate both these schemes from your bank." },
+                        { statement: "Only men have the right to open a bank account.", isFact: false, explanation: "This is wrong. Every woman has the right to open her own bank account. This makes them self-reliant and allows them to benefit from government schemes.", tip: "Under the 'Lakhpati Didi' scheme, the government is providing new training like drone piloting to women associated with Self Help Groups (SHGs) to increase their annual income to over Rs. 1 lakh." },
+                        { statement: "Farmers cannot get their crops insured.", isFact: false, explanation: "This is false. Under the 'Pradhan Mantri Fasal Bima Yojana', farmers can get their crops insured.", tip: "You can apply for this scheme within 10 days of sowing the crop. You will need land documents (Khasra), Aadhaar card, and bank passbook. Contact your nearest CSC center." }
+                    ],
+                    digital: [
+                        { statement: "You have to enter your PIN to 'receive' money via UPI (like PhonePe).", isFact: false, explanation: "This is a big scam! A UPI PIN is like the key to your safe, which you only use when sending money, not receiving it.", tip: "Scammers often lure you with 'cashback' offers, make you scan a QR code, and enter your PIN, which results in money being debited. Avoid scanning any unknown QR codes." },
+                        { statement: "If someone sends you a lottery winning message on WhatsApp, you should click on the link provided.", isFact: false, explanation: "This is false. This is a method of online fraud (scam). Do not click on any such unknown links or provide any information.", tip: "If you become a victim of online fraud, immediately call the helpline number 1930 or file a complaint at cybercrime.gov.in. The sooner you complain, the higher the chances of getting your money back." },
+                        { statement: "You should always keep a screen lock (pattern or PIN) on your mobile.", isFact: true, explanation: "This is true. This keeps your phone and your personal information like photos, contact numbers, etc., safe.", tip: "Do not keep a simple screen lock PIN or pattern (like 1234 or L). Make it a bit complex and do not share it with anyone." },
+                        { statement: "For information about any government scheme, you should only trust its official website.", isFact: true, explanation: "This is true. Information received on WhatsApp or Facebook can be incorrect.", tip: "Government websites are identified by having '.gov.in' or '.nic.in' at the end. For example, pmkisan.gov.in. Always trust these." },
+                        { statement: "You can securely store your important documents like Aadhaar, PAN card, etc., on your phone.", isFact: true, explanation: "This is true. You can download the 'DigiLocker' app to securely store your documents.", tip: "In DigiLocker, you can now also store your health records (like vaccination certificates, doctor's prescriptions). It can be linked to the 'Ayushman Bharat Health Account (ABHA)'." }
+                    ],
+                    adhikar: [
+                        { statement: "If a child is in trouble, help can be sought from 'Childline' by calling 1098.", isFact: true, explanation: "This is true. It is a free, 24-hour emergency service that helps children in distress.", tip: "The caller's identity is kept completely confidential. So, feel free to call for any child in trouble without fear." },
+                        { statement: "It is not necessary to teach children about 'Good Touch' and 'Bad Touch'.", isFact: false, explanation: "This is a very wrong and dangerous notion. It is very important to teach children this to protect themselves from sexual abuse.", tip: "Explain to children in simple language that their private body parts (lips, chest, and the area between their legs) cannot be touched by anyone but them, and if someone does, they should tell you immediately." },
+                        { statement: "Domestic violence is a family matter and should not be reported to the police.", isFact: false, explanation: "This is wrong. Domestic violence is a criminal offense. Any woman can report it on the helpline number 181.", tip: "'One Stop Centres' (Sakhi Kendras) are run by the government in every district, where women victims of violence get police, legal, and medical assistance for free at one place." },
+                        { statement: "Only sons have a right to the father's property, not daughters.", isFact: false, explanation: "This is wrong. According to the 2005 law, a daughter has an equal right to the father's property as a son, whether the daughter is married or not.", tip: "For correct information about your property rights, you can get free legal advice from the 'District Legal Services Authority' (DLSA). It is located in the court of every district." },
+                        { statement: "You cannot ask for information from any government department about its work.", isFact: false, explanation: "This is wrong. Under the 'Right to Information' (RTI) Act, you can ask for information from any government department.", tip: "For example, you can file an RTI to ask, 'How much money was allocated for building the road in your village and where was it spent?'. For this, you have to apply on a plain paper with a postal order of Rs. 10." }
+                    ]
+                },
+                mahaJaankari: {
+                    shiksha: { title: "New Education Policy", text: "The government has introduced the 'New Education Policy 2020'. Now, children will be taught computer coding and vocational skills (like carpentry, sewing) from the 6th grade. The aim is to provide not just bookish knowledge but also practical skills to make them self-reliant." },
+                    swasthya: { title: "Ayushman Bharat Card", text: "This is the country's largest health insurance scheme. Under this, every eligible family gets free treatment up to Rs. 5 lakhs per year. You can avail this benefit at any government or empanelled private hospital. Check your eligibility at the nearest CSC center with your ration card or Aadhaar card." },
+                    paisa: { title: "PM-KISAN Scheme", text: "Under the 'Pradhan Mantri Kisan Samman Nidhi' scheme, the government provides Rs. 6000 per year in three installments directly into the bank accounts of all small and marginal farmers. If you are a farmer and not getting this benefit, contact your Lekhpal or the agriculture department office." },
+                    digital: { title: "Cyber Crime Helpline 1930", text: "If you face any online financial fraud (UPI, ATM, Link), call the number 1930 immediately without delay. The sooner you call, the higher the chances of getting your money back. This number works 24 hours." },
+                    adhikar: { title: "Child Helpline 1098", text: "1098 is a magic number for children. If you see any child in trouble - be it child labor, begging, or someone harassing them - call this number immediately. Your identity will be kept confidential, and help will reach the child." }
+                }
+            },
+            hi: {
+                ui: {
+                    title: "ज्ञान की पोटली",
+                    tagline: "बच्चों के भविष्य के लिए, ज़रूरी जानकारी",
+                    select_category: "आज आप किस विषय में जानना चाहेंगे?",
+                    score: "स्कोर",
+                    shiksha: "शिक्षा",
+                    swasthya: "स्वास्थ्य",
+                    paisa: "पैसा और योजनाएं",
+                    digital: "डिजिटल दुनिया",
+                    adhikar: "अधिकार और सुरक्षा",
+                    fact_btn: "सच",
+                    myth_btn: "गलत",
+                    next_btn: "अगला",
+                    back_btn: "बाहर निकलें",
+                    game_over_title: "शाबाश!",
+                    game_over_subtitle: "यह विषय पूरा हुआ!",
+                    final_score_text: "आपका अंतिम स्कोर है:",
+                    play_again_btn: "दूसरा विषय चुनें",
+                    feedback_correct_strong: "बहुत बढ़िया! आपका जवाब सही है।",
+                    feedback_wrong_strong_prefix: "कोई बात नहीं। सही जवाब '",
+                    feedback_wrong_strong_suffix: "' है।",
+                    tip_prefix: "🪔 काम की बात: ",
+                    maha_jaankari_prefix: "🪔 महा जानकारी: "
+                },
+                questions: {
+                    shiksha: [
+                        { statement: "'शिक्षा का अधिकार' (RTE) कानून के तहत 6 से 14 साल के हर बच्चे को मुफ्त और अनिवार्य शिक्षा मिलनी चाहिए।", isFact: true, explanation: "यह सच है। कोई भी सरकारी स्कूल आपके बच्चे को एडमिशन देने से मना नहीं कर सकता, भले ही कोई दस्तावेज़ कम हो।", tip: "अगर कोई स्कूल एडमिशन से मना करे, तो आप सीधे ब्लॉक शिक्षा अधिकारी (BEO) को शिकायत कर सकते हैं। बच्चे का जन्म प्रमाण पत्र या आधार कार्ड एडमिशन के लिए ज़रूरी हैं, इन्हें बनवा कर रखें।" },
+                        { statement: "बच्चों को स्कूल में मिलने वाली आयरन की गोली उनके लिए नुकसानदायक होती है।", isFact: false, explanation: "यह गलत है। यह गोली बच्चों में खून की कमी (एनीमिया) को दूर करती है, जिससे वे स्वस्थ रहते हैं और पढ़ाई में मन लगता है।", tip: "यह गोली 'एनीमिया मुक्त भारत' अभियान का हिस्सा है। अगर बच्चा इसे खाने के बाद पेट दर्द की शिकायत करे, तो उसे यह गोली खाना खाने के बाद दें और टीचर को सूचित करें।" },
+                        { statement: "अगर बच्चा स्कूल जाने से मना करे, तो उसकी बात मानकर उसे घर पर रख लेना चाहिए।", isFact: false, explanation: "यह गलत है। बच्चे से प्यार से बात करके उसकी समस्या (जैसे- कोई डरा रहा है, या कुछ समझ नहीं आ रहा) जानने की कोशिश करें और टीचर को बताएं।", tip: "हर 2-3 महीने में स्कूल में होने वाली पेरेंट्स-टीचर मीटिंग (PTM) में ज़रूर जाएं। इससे आपको बच्चे की परेशानियों और प्रगति के बारे में पता चलता रहेगा।" },
+                        { statement: "बच्चों की मार्कशीट पर कम नंबर आने का मतलब है कि वे जीवन में कुछ नहीं कर सकते।", isFact: false, explanation: "यह धारणा गलत है। हर बच्चे में कोई न कोई खूबी होती है। नंबरों से ज़्यादा ज़रूरी है कि हम उनकी कला, खेल या किसी और हुनर को पहचानें और उसे बढ़ाएं।", tip: "नई 'PM Vishwakarma' योजना के तहत 18 तरह के पारंपरिक कारीगरों (जैसे बढ़ई, लोहार, दर्जी) को ट्रेनिंग, औजार के लिए 15,000 रु. और 1 लाख तक का सस्ता लोन मिलता है। इससे हुनर को बढ़ावा मिलेगा।" },
+                        { statement: "लड़कियों को स्कूल सिर्फ 8वीं तक पढ़ाना काफी होता है।", isFact: false, explanation: "यह धारणा गलत है। लड़कियों को जितना ज़्यादा पढ़ाएंगे, वे उतनी आत्मनिर्भर बनेंगी और पूरे परिवार की तरक्की में मदद करेंगी।", tip: "डाकघर में 'सुकन्या समृद्धि योजना' के तहत आप अपनी 10 साल से कम उम्र की बेटी के नाम से खाता खुलवा सकते हैं। इसमें सालाना 250 रु. से लेकर 1.5 लाख तक जमा कर सकते हैं, जिस पर सबसे ज़्यादा ब्याज मिलता है।" }
+                    ],
+                    swasthya: [
+                        { statement: "अगर बच्चे को दस्त लग जाएं, तो उसे पानी या कुछ भी पीने को नहीं देना चाहिए।", isFact: false, explanation: "यह बहुत खतरनाक धारणा है! दस्त में शरीर का पानी खत्म हो जाता है। बच्चे को जीवन रक्षक घोल (ORS) और माँ का दूध/पानी लगातार पिलाते रहना चाहिए।", tip: "ORS का पैकेट आपकी आशा दीदी या नज़दीकी स्वास्थ्य केंद्र पर मुफ्त में मिलता है। इसे हमेशा घर में रखें। बनाने के लिए, पैकेट को 1 लीटर साफ़ पानी में घोलें और 24 घंटे के अंदर इस्तेमाल करें।" },
+                        { statement: "बच्चे का वज़न और लम्बाई नियमित रूप से नपवाना ज़रूरी नहीं है।", isFact: false, explanation: "यह गलत है। हर महीने वज़न और लम्बाई नपवाने से पता चलता है कि बच्चा ठीक से बढ़ रहा है या कुपोषण का शिकार हो रहा है।", tip: "'Poshan 2.0' अभियान के तहत आंगनवाड़ी केंद्र पर बच्चों के पोषण और विकास पर खास ध्यान दिया जाता है। अपनी आशा दीदी से पूछें कि आपका बच्चा उस ग्रोथ चार्ट में किस रंग (हरे, पीले या लाल) में है।" },
+                        { statement: "खुले में शौच करने से बीमारियों का कोई खतरा नहीं होता है।", isFact: false, explanation: "यह गलत है। खुले में शौच करने से मक्खियों द्वारा कीटाणु फैलते हैं, जिससे डायरिया, हैजा जैसी गंभीर बीमारियाँ होती हैं।", tip: "'स्वच्छ भारत मिशन (ग्रामीण)' के दूसरे चरण में अब सरकार 'ODF Plus' गांवों पर ज़ोर दे रही है, जिसका मतलब है सिर्फ शौचालय बनाना नहीं, बल्कि कचरे का सही निपटान भी करना।" },
+                        { statement: "बच्चों के खाने में आयोडीन वाला नमक इस्तेमाल करना ज़रूरी है।", isFact: true, explanation: "यह सच है। आयोडीन बच्चों के दिमागी विकास के लिए बहुत ज़रूरी है और यह घेंघा जैसी बीमारियों से बचाता है।", tip: "हमेशा पैकेट वाला नमक ही खरीदें और उस पर 'आयोडीन युक्त' या 'Iodized' का निशान ज़रूर देखें। खुला नमक इस्तेमाल करने से बचें क्योंकि उसमें आयोडीन नहीं हो सकता।" },
+                        { statement: "बच्चों को सिर्फ तभी डॉक्टर के पास ले जाना चाहिए जब वे बहुत ज़्यादा बीमार हों।", isFact: false, explanation: "यह गलत है। छोटी-मोटी बीमारी में भी डॉक्टर की सलाह लेना ज़रूरी है ताकि बीमारी गंभीर रूप न ले।", tip: "अब आप 'eSanjeevani' ऐप के ज़रिए घर बैठे सरकारी डॉक्टर से वीडियो कॉल पर मुफ्त सलाह ले सकते हैं। इसके लिए आपके पास एक स्मार्टफोन होना चाहिए।" }
+                    ],
+                    paisa: [
+                        { statement: "'प्रधानमंत्री जन धन योजना' में खुले खाते में कोई भी न्यूनतम बैलेंस रखने की ज़रूरत नहीं होती है।", isFact: true, explanation: "यह सच है। इस खाते में आपको RuPay डेबिट कार्ड और 2 लाख रुपये का दुर्घटना बीमा भी मिलता है।", tip: "इस खाते का एक और बड़ा फायदा है कि 6 महीने तक सही से चलाने पर आपको 10,000 रुपये तक की ओवरड्राफ्ट (एक तरह का लोन) सुविधा भी मिल सकती है।" },
+                        { statement: "बैंक से जुड़ी कोई भी समस्या हो तो किसी भी अनजान व्यक्ति को फोन पर अपना ATM पिन या पासवर्ड बता देना चाहिए।", isFact: false, explanation: "यह बहुत खतरनाक है! बैंक का कोई भी कर्मचारी आपसे कभी भी पिन, पासवर्ड या OTP नहीं पूछता। ऐसी जानकारी किसी को न दें।", tip: "अगर कोई फोन करके कहे कि आपका ATM कार्ड ब्लॉक हो गया है और उसे चालू करने के लिए जानकारी चाहिए, तो कभी न दें। सीधे अपनी बैंक शाखा में जाकर बात करें।" },
+                        { statement: "'प्रधानमंत्री जीवन ज्योति बीमा योजना' (PMJJBY) में सिर्फ 436 रुपये सालाना देकर 2 लाख रुपये का जीवन बीमा मिलता है।", isFact: true, explanation: "यह सच है। 18 से 50 साल का कोई भी व्यक्ति जिसके पास बैंक खाता हो, इस योजना का लाभ ले सकता है।", tip: "इसी तरह 'प्रधानमंत्री सुरक्षा बीमा योजना' (PMSBY) में सिर्फ 20 रुपये सालाना देकर 2 लाख का दुर्घटना बीमा मिलता है। ये दोनों योजनाएं आप अपने बैंक से आसानी से चालू करा सकते हैं।" },
+                        { statement: "सिर्फ पुरुषों को ही बैंक खाता खुलवाने का अधिकार है।", isFact: false, explanation: "यह गलत है। हर महिला को अपना खुद का बैंक खाता खुलवाने का अधिकार है। इससे वे आत्मनिर्भर बनती हैं और सरकारी योजनाओं का लाभ ले सकती हैं।", tip: "अब 'Lakhpati Didi' योजना के तहत सरकार स्वयं सहायता समूहों (SHG) से जुड़ी महिलाओं को ड्रोन चलाने जैसी नई ट्रेनिंग दे रही है, ताकि उनकी सालाना आय 1 लाख से ज़्यादा हो सके।" },
+                        { statement: "किसान अपनी फसल का बीमा नहीं करा सकते।", isFact: false, explanation: "यह गलत है। 'प्रधानमंत्री फसल बीमा योजना' के तहत किसान अपनी फसल का बीमा करा सकते हैं।", tip: "फसल बोने के 10 दिन के अंदर आप इस योजना के लिए आवेदन कर सकते हैं। इसके लिए आपको ज़मीन के कागज़ (खसरा), आधार कार्ड, और बैंक पासबुक की ज़रूरत होगी। अपने नज़दीकी CSC केंद्र से संपर्क करें।" }
+                    ],
+                    digital: [
+                        { statement: "UPI (जैसे PhonePe) से पैसे 'पाने' (Receive) के लिए भी अपना पिन डालना पड़ता है।", isFact: false, explanation: "यह बहुत बड़ा धोखा है! UPI पिन आपकी तिजोरी की चाबी की तरह है, जिसे आप सिर्फ पैसे देते समय इस्तेमाल करते हैं, लेते समय नहीं।", tip: "आजकल धोखेबाज़ 'कैशबैक' का लालच देकर आपसे QR कोड स्कैन करवाते हैं और पिन डलवाते हैं, जिससे पैसे कट जाते हैं। किसी भी अनजान QR कोड को स्कैन करने से बचें।" },
+                        { statement: "अगर कोई आपको WhatsApp पर लॉटरी जीतने का मैसेज भेजे, तो उस पर दिए गए लिंक पर क्लिक कर देना चाहिए।", isFact: false, explanation: "यह गलत है। यह एक ऑनलाइन धोखाधड़ी (स्कैम) का तरीका है। ऐसे किसी भी अनजान लिंक पर क्लिक न करें और न ही कोई जानकारी दें।", tip: "अगर आपके साथ कोई ऑनलाइन धोखाधड़ी होती है, तो तुरंत हेल्पलाइन नंबर 1930 पर फोन करें या cybercrime.gov.in पर शिकायत दर्ज कराएं। जितनी जल्दी शिकायत करेंगे, पैसे वापस मिलने की संभावना उतनी ज़्यादा होगी।" },
+                        { statement: "अपने मोबाइल में हमेशा एक स्क्रीन लॉक (पैटर्न या पिन) लगाकर रखना चाहिए।", isFact: true, explanation: "यह सच है। इससे आपका फोन और उसमें मौजूद आपकी व्यक्तिगत जानकारी जैसे फोटो, संपर्क नंबर आदि सुरक्षित रहते हैं।", tip: "अपना स्क्रीन लॉक पिन या पैटर्न आसान न रखें (जैसे 1234 या L)। इसे थोड़ा मुश्किल बनाएं और किसी को न बताएं।" },
+                        { statement: "अगर किसी सरकारी योजना के बारे में जानना है, तो उसकी आधिकारिक (Official) वेबसाइट पर ही भरोसा करना चाहिए।", isFact: true, explanation: "यह सच है। WhatsApp या फेसबुक पर आई जानकारी गलत हो सकती है।", tip: "सरकारी वेबसाइटों की पहचान है कि उनके अंत में '.gov.in' या '.nic.in' लगा होता है। जैसे pmkisan.gov.in. हमेशा इसी पर भरोसा करें।" },
+                        { statement: "आप अपने ज़रूरी दस्तावेज़ जैसे आधार, पैन कार्ड आदि को फोन में सुरक्षित रख सकते हैं।", isFact: true, explanation: "यह सच है। आप 'DigiLocker' ऐप डाउनलोड करके अपने दस्तावेज़ सुरक्षित रख सकते हैं।", tip: "DigiLocker में अब आप अपने स्वास्थ्य रिकॉर्ड (जैसे vaccination certificate, डॉक्टर की पर्ची) भी सुरक्षित रख सकते हैं। इसे 'Ayushman Bharat Health Account (ABHA)' से जोड़ा जा सकता है।" }
+                    ],
+                    adhikar: [
+                        { statement: "अगर कोई बच्चा मुसीबत में है, तो 1098 (दस-नब्बे-आठ) नंबर पर फोन करके 'चाइल्डलाइन' की मदद ली जा सकती है।", isFact: true, explanation: "यह सच है। यह एक मुफ्त, 24 घंटे चलने वाली आपातकालीन सेवा है जो मुसीबत में फंसे बच्चों की मदद करती है।", tip: "इस नंबर पर फोन करने वाले का नाम पूरी तरह से गुप्त रखा जाता है। इसलिए बिना डरे किसी भी मुसीबत में फंसे बच्चे के लिए फोन करें।" },
+                        { statement: "बच्चों को 'गुड टच' और 'बैड टच' के बारे में सिखाना ज़रूरी नहीं है।", isFact: false, explanation: "यह बहुत गलत और खतरनाक धारणा है। बच्चों को यह सिखाना बहुत ज़रूरी है ताकि वे यौन शोषण से खुद को बचा सकें।", tip: "बच्चों को सरल भाषा में समझाएं कि उनके शरीर के निजी अंग (होंठ, छाती, और दोनों टांगों के बीच का हिस्सा) को उनके अलावा कोई नहीं छू सकता, और अगर कोई ऐसा करे तो तुरंत आपको बताएं।" },
+                        { statement: "घरेलू हिंसा (मारपीट) एक पारिवारिक मामला है और इसकी शिकायत पुलिस में नहीं करनी चाहिए।", isFact: false, explanation: "यह गलत है। घरेलू हिंसा एक कानूनी अपराध है। कोई भी महिला हेल्पलाइन नंबर 181 पर इसकी शिकायत कर सकती है।", tip: "हर जिले में सरकार द्वारा 'One Stop Centre' (सखी केंद्र) चलाये जाते हैं, जहाँ हिंसा से पीड़ित महिलाओं को एक ही जगह पर पुलिस, कानूनी और मेडिकल सहायता मुफ्त में मिलती है।" },
+                        { statement: "पिता की संपत्ति पर सिर्फ बेटों का हक़ होता है, बेटियों का नहीं।", isFact: false, explanation: "यह गलत है। 2005 के कानून के अनुसार, पिता की संपत्ति पर बेटी का भी बेटे के बराबर हक़ होता है, चाहे बेटी शादीशुदा हो या नहीं।", tip: "अपने संपत्ति के अधिकारों की सही जानकारी के लिए आप 'जिला विधिक सेवा प्राधिकरण' (DLSA) से मुफ्त कानूनी सलाह ले सकते हैं। यह हर जिले के कोर्ट में होता है।" },
+                        { statement: "आप किसी भी सरकारी विभाग से उसके काम के बारे में जानकारी नहीं मांग सकते।", isFact: false, explanation: "यह गलत है। 'सूचना का अधिकार' (RTI) कानून के तहत आप किसी भी सरकारी विभाग से जानकारी मांग सकते हैं।", tip: "जैसे आप RTI लगाकर पूछ सकते हैं कि 'आपके गांव में सड़क बनाने के लिए कितना पैसा आया और कहाँ खर्च हुआ?'। इसके लिए एक सादे कागज़ पर 10 रुपये का पोस्टल आर्डर लगाकर आवेदन देना होता है।" }
+                    ]
+                },
+                mahaJaankari: {
+                    shiksha: { title: "नई शिक्षा नीति", text: "सरकार 'नई शिक्षा नीति 2020' लाई है। इसमें अब बच्चों को 6ठी कक्षा से ही कंप्यूटर कोडिंग और कोई हुनर (जैसे- बढ़ई का काम, सिलाई) सिखाया जाएगा। इसका मकसद बच्चों को सिर्फ किताबी ज्ञान नहीं, बल्कि हाथ का काम भी सिखाना है ताकि वे आत्मनिर्भर बनें।" },
+                    swasthya: { title: "आयुष्मान भारत कार्ड", text: "यह योजना देश की सबसे बड़ी स्वास्थ्य योजना है। इसके तहत हर पात्र परिवार को हर साल 5 लाख रुपये तक का मुफ्त इलाज मिलता है। आप किसी भी सरकारी या पैनल में शामिल प्राइवेट अस्पताल में इसका लाभ ले सकते हैं। अपनी पात्रता अपने राशन कार्ड या आधार कार्ड से नज़दीकी CSC केंद्र पर जांचें।" },
+                    paisa: { title: "PM-KISAN योजना", text: "'प्रधानमंत्री किसान सम्मान निधि' योजना के तहत सरकार सभी छोटे-बड़े किसानों को साल में 3 किश्तों में 6000 रुपये सीधे उनके बैंक खाते में देती है। अगर आप किसान हैं और आपको इसका लाभ नहीं मिल रहा है, तो अपने लेखपाल या कृषि विभाग कार्यालय में संपर्क करें।" },
+                    digital: { title: "साइबर क्राइम हेल्पलाइन 1930", text: "अगर आपके साथ कोई भी ऑनलाइन पैसों की धोखाधड़ी (UPI, ATM, Link) होती है, तो बिना देर किए तुरंत 1930 नंबर पर फोन करें। जितनी जल्दी आप फोन करेंगे, आपके पैसे वापस मिलने की संभावना उतनी ही बढ़ जाएगी। यह नंबर 24 घंटे काम करता है।" },
+                    adhikar: { title: "चाइल्ड हेल्पलाइन 1098", text: "1098 (दस-नब्बे-आठ) बच्चों के लिए एक जादुई नंबर है। अगर आप किसी भी बच्चे को मुसीबत में देखें - चाहे वो बाल मज़दूरी हो, भीख मांगना हो, या कोई उसे परेशान कर रहा हो - इस नंबर पर तुरंत फोन करें। आपकी पहचान गुप्त रखी जाएगी और बच्चे तक मदद पहुंचेगी।" }
+                }
+            },
+            or: {
+                ui: {
+                    title: "ଜ୍ଞାନର ପୁଟୁଳି",
+                    tagline: "ପିଲାମାନଙ୍କ ଭବିଷ୍ୟତ ପାଇଁ, ଜରୁରୀ ସୂଚନା",
+                    select_category: "ଆଜି ଆପଣ କେଉଁ ବିଷୟରେ ଜାଣିବାକୁ ଚାହାଁନ୍ତି?",
+                    score: "ସ୍କୋର୍",
+                    shiksha: "ଶିକ୍ଷା",
+                    swasthya: "ସ୍ୱାସ୍ଥ୍ୟ",
+                    paisa: "ଟଙ୍କା ଓ ଯୋଜନା",
+                    digital: "ଡିଜିଟାଲ୍ ଦୁନିଆ",
+                    adhikar: "ଅଧିକାର ଓ ସୁରକ୍ଷା",
+                    fact_btn: "ସତ",
+                    myth_btn: "ମିଛ",
+                    next_btn: "ପରବର୍ତ୍ତୀ",
+                    back_btn: "ବାହାରକୁ ଯାଆନ୍ତୁ",
+                    game_over_title: "ଶାବାସ୍!",
+                    game_over_subtitle: "ଏହି ବିଷୟ ସମ୍ପୂର୍ଣ୍ଣ ହେଲା!",
+                    final_score_text: "ଆପଣଙ୍କର ଅନ୍ତିମ ସ୍କୋର୍ ହେଉଛି:",
+                    play_again_btn: "ଅନ୍ୟ ଏକ ବିଷୟ ବାଛନ୍ତୁ",
+                    feedback_correct_strong: "ବହୁତ ବଢ଼ିଆ! ଆପଣଙ୍କ ଉତ୍ତର ସଠିକ୍।",
+                    feedback_wrong_strong_prefix: "କିଛି କଥା ନୁହେଁ। ସଠିକ୍ ଉତ୍ତର ହେଉଛି '",
+                    feedback_wrong_strong_suffix: "'।",
+                    tip_prefix: "🪔 କାମର କଥା: ",
+                    maha_jaankari_prefix: "🪔 ମହା ସୂଚନା: "
+                },
+                questions: {
+                    shiksha: [
+                        { statement: "'ଶିକ୍ଷା ଅଧିକାର' (RTE) ଅଧିନିୟମ ଅନୁଯାୟୀ, ୬ରୁ ୧୪ ବର୍ଷର ପ୍ରତ୍ୟେକ ପିଲାଙ୍କୁ ମାଗଣା ଓ ବାଧ୍ୟତାମୂଳକ ଶିକ୍ଷା ମିଳିବା ଉଚିତ୍।", isFact: true, explanation: "ଏହା ସତ। କୌଣସି ସରକାରୀ ସ୍କୁଲ ଆପଣଙ୍କ ପିଲାକୁ ଆଡମିଶନ ମନା କରିପାରିବ ନାହିଁ, ଯଦିଓ କିଛି କାଗଜପତ୍ର କମ୍ ଥାଏ।", tip: "ଯଦି କୌଣସି ସ୍କୁଲ ଆଡମିଶନ ମନା କରେ, ତେବେ ଆପଣ ସିଧା ବ୍ଲକ୍ ଶିକ୍ଷା ଅଧିକାରୀ (BEO)ଙ୍କୁ ଅଭିଯୋଗ କରିପାରିବେ। ଜନ୍ମ ପ୍ରମାଣପତ୍ର ବା ଆଧାର କାର୍ଡ ଆଡମିଶନ ପାଇଁ ଜରୁରୀ, ଏଗୁଡ଼ିକୁ ତିଆରି କରି ରଖନ୍ତୁ।" },
+                        { statement: "ସ୍କୁଲରେ ପିଲାମାନଙ୍କୁ ଦିଆଯାଉଥିବା ଆଇରନ୍ ବଟିକା ସେମାନଙ୍କ ପାଇଁ କ୍ଷତିକାରକ।", isFact: false, explanation: "ଏହା ମିଛ। ଏହି ବଟିକା ପିଲାମାନଙ୍କଠାରେ ରକ୍ତହୀନତା (ଏନିମିଆ) ଦୂର କରେ, ଯାହାଦ୍ୱାରା ସେମାନେ ସୁସ୍ଥ ରହନ୍ତି ଓ ପାଠପଢ଼ାରେ ମନ ଲାଗେ।", tip: "ଏହି ବଟିକା 'ଏନିମିଆ ମୁକ୍ତ ଭାରତ' ଅଭିଯାନର ଏକ ଅଂଶ। ଯଦି ପିଲା ଏହାକୁ ଖାଇବା ପରେ ପେଟ ବ୍ୟଥା ଅଭିଯୋଗ କରେ, ତେବେ ତାକୁ ଏହି ବଟିକା ଖାଇବା ପରେ ଦିଅନ୍ତୁ ଓ ଶିକ୍ଷକଙ୍କୁ ଜଣାନ୍ତୁ।" },
+                        { statement: "ଯଦି ପିଲା ସ୍କୁଲ ଯିବାକୁ ମନା କରେ, ତେବେ ତା' କଥା ମାନି ତାକୁ ଘରେ ରଖିବା ଉଚିତ୍।", isFact: false, explanation: "ଏହା ଭୁଲ୍। ପିଲା ସହିତ ସ୍ନେହରେ କଥା ହୋଇ ତା'ର ସମସ୍ୟା (ଯେପରି- କେହି ଡରାଉଛି, କିମ୍ବା କିଛି ବୁଝିପାରୁ ନାହିଁ) ଜାଣିବାକୁ ଚେଷ୍ଟା କରନ୍ତୁ ଓ ଶିକ୍ଷକଙ୍କୁ ଜଣାନ୍ତୁ।", tip: "ପ୍ରତି ୨-୩ ମାସରେ ସ୍କୁଲରେ ହେଉଥିବା ଅଭିଭାବକ-ଶିକ୍ଷକ ବୈଠକ (PTM)ରେ ନିଶ୍ଚୟ ଯାଆନ୍ତୁ। ଏହାଦ୍ୱାରା ଆପଣ ପିଲାର ଅସୁବିଧା ଓ ପ୍ରଗତି ବିଷୟରେ ଜାଣିପାରିବେ।" },
+                        { statement: "ପିଲାମାନଙ୍କ ମାର୍କସିଟ୍‌ରେ କମ୍ ନମ୍ବର ଆସିବାର ଅର୍ଥ ସେମାନେ ଜୀବନରେ କିଛି କରିପାରିବେ ନାହିଁ।", isFact: false, explanation: "ଏହି ଧାରଣା ଭୁଲ୍। ପ୍ରତ୍ୟେକ ପିଲାଙ୍କଠାରେ କିଛି ନା କିଛି ପ୍ରତିଭା ଥାଏ। ନମ୍ବର ଅପେକ୍ଷା ଆମେ ସେମାନଙ୍କର କଳା, ଖେଳ ବା ଅନ୍ୟ କୌଣସି ଦକ୍ଷତାକୁ ଚିହ୍ନିବା ଓ ତାକୁ ବଢ଼ାଇବା ଅଧିକ ଜରୁରୀ।", tip: "ନୂଆ 'ପିଏମ୍ ବିଶ୍ୱକର୍ମା' ଯୋଜନା ଅଧୀନରେ, ୧୮ ପ୍ରକାରର ପାରମ୍ପରିକ କାରିଗର (ଯଥା ବଢ଼େଇ, କମାର, ଦରଜୀ)ଙ୍କୁ ତାଲିମ, ଉପକରଣ ପାଇଁ ୧୫,୦୦୦ ଟଙ୍କା ଏବଂ ୧ ଲକ୍ଷ ପର୍ଯ୍ୟନ୍ତ ଶସ୍ତା ଋଣ ମିଳେ।" },
+                        { statement: "ଝିଅମାନଙ୍କୁ କେବଳ ୮ମ ଶ୍ରେଣୀ ପର୍ଯ୍ୟନ୍ତ ପଢ଼ାଇବା ଯଥେଷ୍ଟ।", isFact: false, explanation: "ଏହି ଧାରଣା ଭୁଲ୍। ଝିଅମାନଙ୍କୁ ଯେତେ ଅଧିକ ପଢ଼ାଇବେ, ସେମାନେ ସେତେ ଆତ୍ମନିର୍ଭରଶୀଳ ହେବେ ଏବଂ ସମଗ୍ର ପରିବାରର ଉନ୍ନତିରେ ସାହାଯ୍ୟ କରିବେ।", tip: "ଡାକଘରେ 'ସୁକନ୍ୟା ସମୃଦ୍ଧି ଯୋଜନା' ଅଧୀନରେ, ଆପଣ ଆପଣଙ୍କ ୧୦ ବର୍ଷରୁ କମ୍ ବୟସର ଝିଅ ନାମରେ ଏକ ଖାତା ଖୋଲିପାରିବେ। ଏଥିରେ ବାର୍ଷିକ ୨୫୦ ଟଙ୍କାରୁ ୧.୫ ଲକ୍ଷ ପର୍ଯ୍ୟନ୍ତ ଜମା କରିପାରିବେ, ଯେଉଁଥିରେ ସର୍ବାଧିକ ସୁଧ ମିଳେ।" }
+                    ],
+                    swasthya: [
+                        { statement: "ଯଦି ପିଲାକୁ ତରଳ ଝାଡ଼ା ହୁଏ, ତେବେ ତାକୁ ପାଣି କିମ୍ବା କିଛି ପିଇବାକୁ ଦେବା ଉଚିତ୍ ନୁହେଁ।", isFact: false, explanation: "ଏହା ଏକ ବହୁତ ବିପଜ୍ଜନକ ଧାରଣା! ତରଳ ଝାଡ଼ାରେ ଶରୀରରୁ ପାଣି କମିଯାଏ। ପିଲାକୁ ଜୀବନ ରକ୍ଷକ ଘୋଳ (ORS) ଏବଂ ମା' କ୍ଷୀର/ପାଣି କ୍ରମାଗତ ଭାବରେ ପିଆଇବା ଉଚିତ୍।", tip: "ORS ପ୍ୟାକେଟ୍ ଆପଣଙ୍କ ଆଶା ଦିଦି କିମ୍ବା ନିକଟସ୍ଥ ସ୍ୱାସ୍ଥ୍ୟକେନ୍ଦ୍ରରେ ମାଗଣାରେ ମିଳେ। ଏହାକୁ ସର୍ବଦା ଘରେ ରଖନ୍ତୁ। ତିଆରି କରିବା ପାଇଁ, ପ୍ୟାକେଟକୁ ୧ ଲିଟର ସଫା ପାଣିରେ ମିଶାନ୍ତୁ ଏବଂ ୨୪ ଘଣ୍ଟା ମଧ୍ୟରେ ବ୍ୟବହାର କରନ୍ତୁ।" },
+                        { statement: "ପିଲାର ଓଜନ ଓ ଉଚ୍ଚତା ନିୟମିତ ଭାବେ ମାପିବା ଜରୁରୀ ନୁହେଁ।", isFact: false, explanation: "ଏହା ଭୁଲ୍। ପ୍ରତି ମାସରେ ଓଜନ ଓ ଉଚ୍ଚତା ମାପିବା ଦ୍ୱାରା ଜଣାପଡେ ଯେ ପିଲା ଠିକ୍ ଭାବରେ ବଢୁଛି ନା କୁପୋଷଣର ଶିକାର ହେଉଛି।", tip: "'ପୋଷଣ ୨.୦' ଅଭିଯାନ ଅଧୀନରେ ଅଙ୍ଗନବାଡ଼ି କେନ୍ଦ୍ରରେ ପିଲାମାନଙ୍କ ପୋଷଣ ଓ ବିକାଶ ଉପରେ ବିଶେଷ ଧ୍ୟାନ ଦିଆଯାଏ। ଆପଣଙ୍କ ଆଶା ଦିଦିଙ୍କୁ ପଚାରନ୍ତୁ ଯେ ଆପଣଙ୍କ ପିଲା ସେହି ବୃଦ୍ଧି ଚାର୍ଟରେ କେଉଁ ରଙ୍ଗରେ (ସବୁଜ, ହଳଦିଆ ବା ଲାଲ୍) ଅଛି।" },
+                        { statement: "ଖୋଲାରେ ଶୌଚ କରିବା ଦ୍ୱାରା ରୋଗର କୌଣସି ବିପଦ ନାହିଁ।", isFact: false, explanation: "ଏହା ଭୁଲ୍। ଖୋଲାରେ ଶୌଚ କରିବା ଦ୍ୱାରା ମାଛି ଦ୍ୱାରା କୀଟାଣୁ ବ୍ୟାପିଥାଏ, ଯାହାଦ୍ୱାରା ଡାଇରିଆ, ହଇଜା ଭଳି ଗମ୍ଭୀର ରୋଗ ହୁଏ।", tip: "'ସ୍ୱଚ୍ଛ ଭାରତ ମିଶନ (ଗ୍ରାମୀଣ)'ର ଦ୍ୱିତୀୟ ପର୍ଯ୍ୟାୟରେ ସରକାର ଏବେ 'ODF Plus' ଗାଁ ଉପରେ ଗୁରୁତ୍ୱ ଦେଉଛନ୍ତି, ଯାହାର ଅର୍ଥ କେବଳ ଶୌଚାଳୟ ନିର୍ମାଣ ନୁହେଁ, ବରଂ ବର୍ଜ୍ୟବସ୍ତୁର ସଠିକ୍ ପରିଚାଳନା ମଧ୍ୟ।" },
+                        { statement: "ପିଲାମାନଙ୍କ ଖାଦ୍ୟରେ ଆୟୋଡିନ୍ ଯୁକ୍ତ ଲୁଣ ବ୍ୟବହାର କରିବା ଜରୁରୀ।", isFact: true, explanation: "ଏହା ସତ। ଆୟୋଡିନ୍ ପିଲାମାନଙ୍କ ମସ୍ତିଷ୍କର ବିକାଶ ପାଇଁ ବହୁତ ଜରୁରୀ ଏବଂ ଏହା ଗଏଟର ଭଳି ରୋଗରୁ ରକ୍ଷା କରେ।", tip: "ସର୍ବଦା ପ୍ୟାକେଟ୍ ଲୁଣ କିଣନ୍ତୁ ଏବଂ ତା' ଉପରେ 'ଆୟୋଡିନ୍ ଯୁକ୍ତ' ବା 'Iodized' ଚିହ୍ନ ନିଶ୍ଚୟ ଦେଖନ୍ତୁ। ଖୋଲା ଲୁଣ ବ୍ୟବହାରରୁ ଦୂରେଇ ରୁହନ୍ତୁ କାରଣ ସେଥିରେ ଆୟୋଡିନ୍ ନ ଥାଇପାରେ।" },
+                        { statement: "ପିଲାମାନେ ବହୁତ ଅସୁସ୍ଥ ହେଲେ ହିଁ ସେମାନଙ୍କୁ ଡାକ୍ତରଙ୍କ ପାଖକୁ ନେବା ଉଚିତ୍।", isFact: false, explanation: "ଏହା ଭୁଲ୍। ଛୋଟମୋଟ ରୋଗରେ ମଧ୍ୟ ଡାକ୍ତରଙ୍କ ପରାମର୍ଶ ନେବା ଜରୁରୀ ଯାହାଫଳରେ ରୋଗ ଗମ୍ଭୀର ରୂପ ନ ନେଉ।", tip: "ଆପଣ ଏବେ 'eSanjeevani' ଆପ୍ ମାଧ୍ୟମରେ ଘରେ ବସି ସରକାରୀ ଡାକ୍ତରଙ୍କଠାରୁ ଭିଡିଓ କଲ୍‌ରେ ମାଗଣା ପରାମର୍ଶ ନେଇପାରିବେ। ଏଥିପାଇଁ ଆପଣଙ୍କ ପାଖରେ ଏକ ସ୍ମାର୍ଟଫୋନ୍ ରହିବା ଆବଶ୍ୟକ।" }
+                    ],
+                    paisa: [
+                        { statement: "'ପ୍ରଧାନମନ୍ତ୍ରୀ ଜନ ଧନ ଯୋଜନା'ରେ ଖୋଲାଯାଇଥିବା ଖାତାରେ କୌଣସି ସର୍ବନିମ୍ନ ବାଲାନ୍ସ ରଖିବାର ଆବଶ୍ୟକତା ନାହିଁ।", isFact: true, explanation: "ଏହା ସତ। ଏହି ଖାତାରେ ଆପଣଙ୍କୁ RuPay ଡେବିଟ୍ କାର୍ଡ ଏବଂ ୨ ଲକ୍ଷ ଟଙ୍କାର ଦୁର୍ଘଟଣା ବୀମା ମଧ୍ୟ ମିଳେ।", tip: "ଏହି ଖାତାର ଆଉ ଏକ ବଡ଼ ଲାଭ ହେଉଛି ଯେ ୬ ମାସ ପର୍ଯ୍ୟନ୍ତ ଠିକ୍ ଭାବରେ ଚଳାଇବା ପରେ ଆପଣଙ୍କୁ ୧୦,୦୦୦ ଟଙ୍କା ପର୍ଯ୍ୟନ୍ତ ଓଭରଡ୍ରାଫ୍ଟ (ଏକ ପ୍ରକାରର ଋଣ) ସୁବିଧା ମଧ୍ୟ ମିଳିପାରେ।" },
+                        { statement: "ବ୍ୟାଙ୍କ ସମ୍ବନ୍ଧୀୟ କୌଣସି ସମସ୍ୟା ପାଇଁ, ଫୋନ୍‌ରେ କୌଣସି ଅଜଣା ବ୍ୟକ୍ତିଙ୍କୁ ନିଜ ATM ପିନ୍ ବା ପାସୱାର୍ଡ କହିଦେବା ଉଚିତ୍।", isFact: false, explanation: "ଏହା ବହୁତ ବିପଜ୍ଜନକ! ବ୍ୟାଙ୍କର କୌଣସି କର୍ମଚାରୀ ଆପଣଙ୍କୁ କେବେବି ପିନ୍, ପାସୱାର୍ଡ ବା OTP ମାଗନ୍ତି ନାହିଁ। ଏପରି ତଥ୍ୟ କାହାକୁ ଦିଅନ୍ତୁ ନାହିଁ।", tip: "ଯଦି କେହି ଫୋନ୍ କରି କହେ ଯେ ଆପଣଙ୍କ ATM କାର୍ଡ ବ୍ଲକ୍ ହୋଇଯାଇଛି ଏବଂ ଏହାକୁ ଚାଲୁ କରିବା ପାଇଁ ସୂଚନା ଆବଶ୍ୟକ, ତେବେ କେବେବି ଦିଅନ୍ତୁ ନାହିଁ। ସିଧା ନିଜ ବ୍ୟାଙ୍କ ଶାଖାକୁ ଯାଇ କଥା ହୁଅନ୍ତୁ।" },
+                        { statement: "'ପ୍ରଧାନମନ୍ତ୍ରୀ ଜୀବନ ଜ୍ୟୋତି ବୀମା ଯୋଜନା' (PMJJBY)ରେ କେବଳ ୪୩୬ ଟଙ୍କା ବାର୍ଷିକ ଦେଇ ୨ ଲକ୍ଷ ଟଙ୍କାର ଜୀବନ ବୀମା ମିଳେ।", isFact: true, explanation: "ଏହା ସତ। ୧୮ରୁ ୫୦ ବର୍ଷର ଯେକୌଣସି ବ୍ୟକ୍ତି ଯାହାଙ୍କ ପାଖରେ ବ୍ୟାଙ୍କ ଖାତା ଅଛି, ସେ ଏହି ଯୋଜନାର ଲାଭ ନେଇପାରିବେ।", tip: "ସେହିପରି 'ପ୍ରଧାନମନ୍ତ୍ରୀ ସୁରକ୍ଷା ବୀମା ଯୋଜନା' (PMSBY)ରେ କେବଳ ୨୦ ଟଙ୍କା ବାର୍ଷିକ ଦେଇ ୨ ଲକ୍ଷର ଦୁର୍ଘଟଣା ବୀମା ମିଳେ। ଏହି ଦୁଇଟି ଯୋଜନା ଆପଣ ନିଜ ବ୍ୟାଙ୍କରୁ ସହଜରେ ଚାଲୁ କରାଇପାରିବେ।" },
+                        { statement: "କେବଳ ପୁରୁଷମାନଙ୍କର ହିଁ ବ୍ୟାଙ୍କ ଖାତା ଖୋଲିବାର ଅଧିକାର ଅଛି।", isFact: false, explanation: "ଏହା ଭୁଲ୍। ପ୍ରତ୍ୟେକ ମହିଳାଙ୍କର ନିଜର ବ୍ୟାଙ୍କ ଖାତା ଖୋଲିବାର ଅଧିକାର ଅଛି। ଏହା ସେମାନଙ୍କୁ ଆତ୍ମନିର୍ଭରଶୀଳ କରେ ଏବଂ ସରକାରୀ ଯୋଜନାର ଲାଭ ନେବାରେ ସାହାଯ୍ୟ କରେ।", tip: "ଏବେ 'ଲକ୍ଷପତି ଦିଦି' ଯୋଜନା ଅଧୀନରେ, ସରକାର ସ୍ୱୟଂ ସହାୟକ ଗୋଷ୍ଠୀ (SHG) ସହିତ ଜଡ଼ିତ ମହିଳାମାନଙ୍କୁ ଡ୍ରୋନ୍ ଚଳାଇବା ଭଳି ନୂଆ ତାଲିମ ଦେଉଛନ୍ତି, ଯାହାଫଳରେ ସେମାନଙ୍କର ବାର୍ଷିକ ଆୟ ୧ ଲକ୍ଷରୁ ଅଧିକ ହୋଇପାରିବ।" },
+                        { statement: "କୃଷକମାନେ ସେମାନଙ୍କ ଫସଲର ବୀମା କରାଇପାରିବେ ନାହିଁ।", isFact: false, explanation: "ଏହା ଭୁଲ୍। 'ପ୍ରଧାନମନ୍ତ୍ରୀ ଫସଲ ବୀମା ଯୋଜନା' ଅଧୀନରେ କୃଷକମାନେ ସେମାନଙ୍କ ଫସଲର ବୀମା କରାଇପାରିବେ।", tip: "ଫସଲ ବୁଣିବାର ୧୦ ଦିନ ମଧ୍ୟରେ ଆପଣ ଏହି ଯୋଜନା ପାଇଁ ଆବେଦନ କରିପାରିବେ। ଏଥିପାଇଁ ଆପଣଙ୍କୁ ଜମି କାଗଜପତ୍ର (ଖସରା), ଆଧାର କାର୍ଡ, ଏବଂ ବ୍ୟାଙ୍କ ପାସବୁକ୍ ଦରକାର ହେବ। ଆପଣଙ୍କ ନିକଟସ୍ଥ CSC କେନ୍ଦ୍ର ସହିତ ଯୋଗାଯୋଗ କରନ୍ତୁ।" }
+                    ],
+                    digital: [
+                        { statement: "UPI (ଯେପରି PhonePe)ରୁ ଟଙ୍କା 'ପାଇବା' (Receive) ପାଇଁ ମଧ୍ୟ ନିଜ ପିନ୍ ଦେବାକୁ ପଡେ।", isFact: false, explanation: "ଏହା ଏକ ବଡ଼ ଠକେଇ! UPI ପିନ୍ ଆପଣଙ୍କ ତିଜୋରିର ଚାବି ଭଳି, ଯାହାକୁ ଆପଣ କେବଳ ଟଙ୍କା ଦେବା ସମୟରେ ବ୍ୟବହାର କରନ୍ତି, ନେବା ସମୟରେ ନୁହେଁ।", tip: "ଆଜିକାଲି ଠକମାନେ 'କ୍ୟାସବ୍ୟାକ୍'ର ଲୋଭ ଦେଖାଇ ଆପଣଙ୍କୁ QR କୋଡ୍ ସ୍କାନ୍ କରାନ୍ତି ଏବଂ ପିନ୍ ଦେବାକୁ କୁହନ୍ତି, ଯାହାଦ୍ୱାରା ଟଙ୍କା କଟିଯାଏ। କୌଣସି ଅଜଣା QR କୋଡ୍ ସ୍କାନ୍ କରିବାରୁ ଦୂରେଇ ରୁହନ୍ତୁ।" },
+                        { statement: "ଯଦି କେହି ଆପଣଙ୍କୁ WhatsAppରେ ଲଟେରୀ ଜିତିବାର ମେସେଜ୍ ପଠାଏ, ତେବେ ସେଥିରେ ଦିଆଯାଇଥିବା ଲିଙ୍କ୍ ଉପରେ କ୍ଲିକ୍ କରିଦେବା ଉଚିତ୍।", isFact: false, explanation: "ଏହା ଭୁଲ୍। ଏହା ଏକ ଅନଲାଇନ୍ ଠକେଇ (ସ୍କାମ୍)ର ଉପାୟ। ଏପରି କୌଣସି ଅଜଣା ଲିଙ୍କ୍ ଉପରେ କ୍ଲିକ୍ କରନ୍ତୁ ନାହିଁ କିମ୍ବା କୌଣସି ତଥ୍ୟ ଦିଅନ୍ତୁ ନାହିଁ।", tip: "ଯଦି ଆପଣଙ୍କ ସହିତ କୌଣସି ଅନଲାଇନ୍ ଠକେଇ ହୁଏ, ତେବେ ତୁରନ୍ତ ହେଲ୍ପଲାଇନ୍ ନମ୍ବର ୧୯୩୦ରେ ଫୋନ୍ କରନ୍ତୁ କିମ୍ବା cybercrime.gov.inରେ ଅଭିଯୋଗ ଦାଖଲ କରନ୍ତୁ। ଯେତେ ଶୀଘ୍ର ଅଭିଯୋଗ କରିବେ, ଟଙ୍କା ଫେରି ପାଇବାର ସମ୍ଭାବନା ସେତେ ଅଧିକ।" },
+                        { statement: "ଆପଣଙ୍କ ମୋବାଇଲରେ ସର୍ବଦା ଏକ ସ୍କ୍ରିନ୍ ଲକ୍ (ପାଟର୍ନ ବା ପିନ୍) ଲଗାଇ ରଖିବା ଉଚିତ୍।", isFact: true, explanation: "ଏହା ସତ। ଏହା ଆପଣଙ୍କ ଫୋନ୍ ଏବଂ ସେଥିରେ ଥିବା ଆପଣଙ୍କ ବ୍ୟକ୍ତିଗତ ତଥ୍ୟ ଯେପରିକି ଫଟୋ, ସମ୍ପର୍କ ନମ୍ବର ଆଦିକୁ ସୁରକ୍ଷିତ ରଖେ।", tip: "ଆପଣଙ୍କ ସ୍କ୍ରିନ୍ ଲକ୍ ପିନ୍ ବା ପାଟର୍ନ ସହଜ ରଖନ୍ତୁ ନାହିଁ (ଯେପରି 1234 ବା L)। ଏହାକୁ ଟିକେ ଜଟିଳ କରନ୍ତୁ ଏବଂ କାହାକୁ କୁହନ୍ତୁ ନାହିଁ।" },
+                        { statement: "ଯଦି କୌଣସି ସରକାରୀ ଯୋଜନା ବିଷୟରେ ଜାଣିବାକୁ ଅଛି, ତେବେ ତା'ର ଅଫିସିଆଲ୍ ୱେବସାଇଟ୍ ଉପରେ ହିଁ ଭରସା କରିବା ଉଚିତ୍।", isFact: true, explanation: "ଏହା ସତ। WhatsApp ବା Facebookରେ ଆସୁଥିବା ସୂଚନା ଭୁଲ୍ ହୋଇପାରେ।", tip: "ସରକାରୀ ୱେବସାଇଟ୍‌ଗୁଡ଼ିକର ପରିଚୟ ହେଉଛି ଯେ ସେମାନଙ୍କ ଶେଷରେ '.gov.in' ବା '.nic.in' ଲାଗିଥାଏ। ଯେପରି pmkisan.gov.in। ସର୍ବଦା ଏହା ଉପରେ ଭରସା କରନ୍ତୁ।" },
+                        { statement: "ଆପଣ ନିଜର ଜରୁରୀ କାଗଜପତ୍ର ଯେପରିକି ଆଧାର, ପାନ୍ କାର୍ଡ ଆଦିକୁ ଫୋନ୍‌ରେ ସୁରକ୍ଷିତ ରଖିପାରିବେ।", isFact: true, explanation: "ଏହା ସତ। ଆପଣ 'DigiLocker' ଆପ୍ ଡାଉନଲୋଡ୍ କରି ନିଜ କାଗଜପତ୍ରକୁ ସୁରକ୍ଷିତ ରଖିପାରିବେ।", tip: "DigiLockerରେ ଆପଣ ଏବେ ନିଜର ସ୍ୱାସ୍ଥ୍ୟ ରେକର୍ଡ (ଯେପରିକି ଟିକାକରଣ ପ୍ରମାଣପତ୍ର, ଡାକ୍ତରଙ୍କ ପ୍ରେସକ୍ରିପସନ୍) ମଧ୍ୟ ସୁରକ୍ଷିତ ରଖିପାରିବେ। ଏହାକୁ 'ଆୟୁଷ୍ମାନ ଭାରତ ସ୍ୱାସ୍ଥ୍ୟ ଖାତା (ABHA)' ସହିତ ଯୋଡ଼ାଯାଇପାରିବ।" }
+                    ],
+                    adhikar: [
+                        { statement: "ଯଦି କୌଣସି ପିଲା ଅସୁବିଧାରେ ଅଛି, ତେବେ ୧୦୯୮ (ଦଶ-ନବେ-ଆଠ) ନମ୍ବରରେ ଫୋନ୍ କରି 'ଚାଇଲ୍ଡଲାଇନ୍'ର ସାହାଯ୍ୟ ନିଆଯାଇପାରେ।", isFact: true, explanation: "ଏହା ସତ। ଏହା ଏକ ମାଗଣା, ୨୪-ଘଣ୍ଟିଆ ଜରୁରୀକାଳୀନ ସେବା ଯାହା ଅସୁବିଧାରେ ଥିବା ପିଲାମାନଙ୍କୁ ସାହାଯ୍ୟ କରେ।", tip: "ଏହି ନମ୍ବରରେ ଫୋନ୍ କରୁଥିବା ବ୍ୟକ୍ତିଙ୍କ ପରିଚୟ ସମ୍ପୂର୍ଣ୍ଣ ଗୁପ୍ତ ରଖାଯାଏ। ତେଣୁ ବିନା ଭୟରେ କୌଣସି ଅସୁବିଧାରେ ଥିବା ପିଲା ପାଇଁ ଫୋନ୍ କରନ୍ତୁ।" },
+                        { statement: "ପିଲାମାନଙ୍କୁ 'ଭଲ ସ୍ପର୍ଶ' ଓ 'ଖରାପ ସ୍ପର୍ଶ' ବିଷୟରେ ଶିଖାଇବା ଜରୁରୀ ନୁହେଁ।", isFact: false, explanation: "ଏହା ଏକ ବହୁତ ଭୁଲ୍ ଓ ବିପଜ୍ଜନକ ଧାରଣା। ପିଲାମାନଙ୍କୁ ଏହା ଶିଖାଇବା ବହୁତ ଜରୁରୀ ଯାହାଫଳରେ ସେମାନେ ଯୌନ ଶୋଷଣରୁ ନିଜକୁ ରକ୍ଷା କରିପାରିବେ।", tip: "ପିଲାମାନଙ୍କୁ ସରଳ ଭାଷାରେ ବୁଝାନ୍ତୁ ଯେ ସେମାନଙ୍କ ଶରୀରର ବ୍ୟକ୍ତିଗତ ଅଙ୍ଗ (ଓଠ, ଛାତି, ଏବଂ ଦୁଇ ଗୋଡ଼ ମଝି ଅଂଶ)କୁ ସେମାନଙ୍କ ବ୍ୟତୀତ ଆଉ କେହି ଛୁଇଁପାରିବେ ନାହିଁ, ଏବଂ ଯଦି କେହି ଏପରି କରେ ତେବେ ତୁରନ୍ତ ଆପଣଙ୍କୁ ଜଣାଇବେ।" },
+                        { statement: "ଘରୋଇ ହିଂସା ଏକ ପାରିବାରିକ ମାମଲା ଏବଂ ଏହାର ଅଭିଯୋଗ ପୋଲିସରେ କରିବା ଉଚିତ୍ ନୁହେଁ।", isFact: false, explanation: "ଏହା ଭୁଲ୍। ଘରୋଇ ହିଂସା ଏକ ଅପରାଧ। ଯେକୌଣସି ମହିଳା ହେଲ୍ପଲାଇନ୍ ନମ୍ବର ୧୮୧ରେ ଏହାର ଅଭିଯୋଗ କରିପାରିବେ।", tip: "ପ୍ରତ୍ୟେକ ଜିଲ୍ଲାରେ ସରକାରଙ୍କ ଦ୍ୱାରା 'ୱାନ୍ ଷ୍ଟପ୍ ସେଣ୍ଟର' (ସଖୀ କେନ୍ଦ୍ର) ଚଲାଯାଏ, ଯେଉଁଠାରେ ହିଂସାର ଶିକାର ହୋଇଥିବା ମହିଳାମାନଙ୍କୁ ଗୋଟିଏ ସ୍ଥାନରେ ପୋଲିସ୍, ଆଇନଗତ ଏବଂ ଡାକ୍ତରୀ ସହାୟତା ମାଗଣାରେ ମିଳେ।" },
+                        { statement: "ବାପାଙ୍କ ସମ୍ପତ୍ତି ଉପରେ କେବଳ ପୁଅମାନଙ୍କର ଅଧିକାର ଅଛି, ଝିଅମାନଙ୍କର ନୁହେଁ।", isFact: false, explanation: "ଏହା ଭୁଲ୍। ୨୦୦୫ର ଆଇନ ଅନୁଯାୟୀ, ବାପାଙ୍କ ସମ୍ପତ୍ତି ଉପରେ ଝିଅର ମଧ୍ୟ ପୁଅ ସହିତ ସମାନ ଅଧିକାର ଅଛି, ଝିଅ ବିବାହିତ ହେଉ ବା ନ ହେଉ।", tip: "ଆପଣଙ୍କ ସମ୍ପତ୍ତି ଅଧିକାର ବିଷୟରେ ସଠିକ୍ ସୂଚନା ପାଇଁ ଆପଣ 'ଜିଲ୍ଲା ଆଇନ ସେବା ପ୍ରାଧିକରଣ' (DLSA)ରୁ ମାଗଣା ଆଇନଗତ ପରାମର୍ଶ ନେଇପାରିବେ। ଏହା ପ୍ରତ୍ୟେକ ଜିଲ୍ଲା କୋର୍ଟରେ ଥାଏ।" },
+                        { statement: "ଆପଣ କୌଣସି ସରକାରୀ ବିଭାଗରୁ ତା'ର କାମ ବିଷୟରେ ସୂଚନା ମାଗିପାରିବେ ନାହିଁ।", isFact: false, explanation: "ଏହା ଭୁଲ୍। 'ସୂଚନା ଅଧିକାର' (RTI) ଅଧିନିୟମ ଅନୁଯାୟୀ, ଆପଣ ଯେକୌଣସି ସରକାରୀ ବିଭାଗରୁ ସୂଚନା ମାଗିପାରିବେ।", tip: "ଯେପରିକି ଆପଣ RTI ଲଗାଇ ପଚାରିପାରିବେ ଯେ 'ଆପଣଙ୍କ ଗାଁରେ ରାସ୍ତା ତିଆରି ପାଇଁ କେତେ ଟଙ୍କା ଆସିଲା ଓ କେଉଁଠି ଖର୍ଚ୍ଚ ହେଲା?'। ଏଥିପାଇଁ ଏକ ସାଧା କାଗଜରେ ୧୦ ଟଙ୍କାର ପୋଷ୍ଟାଲ୍ ଅର୍ଡର ଲଗାଇ ଆବେଦନ କରିବାକୁ ହୁଏ।" }
+                    ]
+                },
+                mahaJaankari: {
+                    shiksha: { title: "ନୂଆ ଶିକ୍ଷା ନୀତି", text: "ସରକାର 'ନୂଆ ଶିକ୍ଷା ନୀତି ୨୦୨୦' ଆଣିଛନ୍ତି। ଏଥିରେ ଏବେ ପିଲାମାନଙ୍କୁ ୬ଷ୍ଠ ଶ୍ରେଣୀରୁ ହିଁ କମ୍ପ୍ୟୁଟର କୋଡିଂ ଏବଂ କୌଣସି ବୃତ୍ତିଗତ କୌଶଳ (ଯେପରି- ବଢ଼େଇ କାମ, ସିଲେଇ) ଶିଖାଯିବ। ଏହାର ଉଦ୍ଦେଶ୍ୟ ପିଲାମାନଙ୍କୁ କେବଳ ପୁସ୍ତକଗତ ଜ୍ଞାନ ନୁହେଁ, ବରଂ କାର୍ଯ୍ୟକାରୀ କୌଶଳ ମଧ୍ୟ ଶିଖାଇବା ଯାହାଦ୍ୱାରା ସେମାନେ ଆତ୍ମନିର୍ଭରଶୀଳ ହେବେ।" },
+                    swasthya: { title: "ଆୟୁଷ୍ମାନ ଭାରତ କାର୍ଡ", text: "ଏହି ଯୋଜନା ଦେଶର ସବୁଠାରୁ ବଡ଼ ସ୍ୱାସ୍ଥ୍ୟ ବୀମା ଯୋଜନା। ଏହା ଅଧୀନରେ ପ୍ରତ୍ୟେକ ଯୋଗ୍ୟ ପରିବାରକୁ ପ୍ରତିବର୍ଷ ୫ ଲକ୍ଷ ଟଙ୍କା ପର୍ଯ୍ୟନ୍ତ ମାଗଣା ଚିକିତ୍ସା ମିଳେ। ଆପଣ କୌଣସି ସରକାରୀ କିମ୍ବା ପ୍ୟାନେଲ୍‌ଭୁକ୍ତ ଘରୋଇ ହସ୍ପିଟାଲ୍‌ରେ ଏହାର ଲାଭ ନେଇପାରିବେ। ଆପଣଙ୍କ ରାସନ କାର୍ଡ ବା ଆଧାର କାର୍ଡ ସହିତ ନିକଟସ୍ଥ CSC କେନ୍ଦ୍ରରେ ନିଜର ଯୋଗ୍ୟତା ଯାଞ୍ଚ କରନ୍ତୁ।" },
+                    paisa: { title: "ପିଏମ୍-କିଷାନ ଯୋଜନା", text: "'ପ୍ରଧାନମନ୍ତ୍ରୀ କିଷାନ ସମ୍ମାନ ନିଧି' ଯୋଜନା ଅଧୀନରେ, ସରକାର ସମସ୍ତ ଛୋଟ ଓ ବଡ଼ କୃଷକମାନଙ୍କୁ ବର୍ଷକୁ ତିନୋଟି କିସ୍ତିରେ ୬୦୦୦ ଟଙ୍କା ସିଧାସଳଖ ସେମାନଙ୍କ ବ୍ୟାଙ୍କ ଖାତାକୁ ଦିଅନ୍ତି। ଯଦି ଆପଣ ଜଣେ କୃଷକ ଏବଂ ଏହାର ଲାଭ ପାଉନାହାନ୍ତି, ତେବେ ଆପଣଙ୍କ ତହସିଲଦାର କିମ୍ବା କୃଷି ବିଭାଗ କାର୍ଯ୍ୟାଳୟରେ ଯୋଗାଯୋଗ କରନ୍ତୁ।" },
+                    digital: { title: "ସାଇବର୍ କ୍ରାଇମ୍ ହେଲ୍ପଲାଇନ୍ ୧୯୩୦", text: "ଯଦି ଆପଣ କୌଣସି ଅନଲାଇନ୍ ଆର୍ଥିକ ଠକେଇ (UPI, ATM, Link)ର ଶିକାର ହୁଅନ୍ତି, ତେବେ ବିଳମ୍ବ ନ କରି ତୁରନ୍ତ ୧୯୩୦ ନମ୍ବରରେ ଫୋନ୍ କରନ୍ତୁ। ଆପଣ ଯେତେ ଶୀଘ୍ର ଫୋନ୍ କରିବେ, ଆପଣଙ୍କ ଟଙ୍କା ଫେରି ପାଇବାର ସମ୍ଭାବନା ସେତେ ଅଧିକ ହେବ। ଏହି ନମ୍ବର ୨୪ ଘଣ୍ଟା କାର୍ଯ୍ୟ କରେ।" },
+                    adhikar: { title: "ଚାଇଲ୍ଡ ହେଲ୍ପଲାଇନ୍ ୧୦୯୮", text: "୧୦୯୮ (ଦଶ-ନବେ-ଆଠ) ପିଲାମାନଙ୍କ ପାଇଁ ଏକ ଯାଦୁକରୀ ନମ୍ବର। ଯଦି ଆପଣ କୌଣସି ପିଲାକୁ ଅସୁବିଧାରେ ଦେଖନ୍ତି - ତାହା ଶିଶୁ ଶ୍ରମ ହେଉ, ଭିକ୍ଷା ମାଗିବା ହେଉ, କିମ୍ବା କେହି ତାକୁ ହଇରାଣ କରୁଥାଉ - ତୁରନ୍ତ ଏହି ନମ୍ବରରେ ଫୋନ୍ କରନ୍ତୁ। ଆପଣଙ୍କ ପରିଚୟ ଗୁପ୍ତ ରଖାଯିବ ଏବଂ ପିଲା ପାଖରେ ସାହାଯ୍ୟ ପହଞ୍ଚିବ।" }
+                }
+            }
+        };
+
+
+        // Sound Effects Setup
+        const correctSound = new Tone.Synth({ oscillator: { type: 'triangle' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.2 } }).toDestination();
+        const wrongSound = new Tone.Synth({ oscillator: { type: 'square' }, envelope: { attack: 0.01, decay: 0.5, sustain: 0.1, release: 0.5 } }).toDestination();
+        const clickSound = new Tone.MembraneSynth().toDestination();
+
+        // DOM Elements
+        const categorySelection = document.getElementById('category-selection');
+        const gameArea = document.getElementById('game-area');
+        const gameContent = document.getElementById('game-content');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScore = document.getElementById('final-score');
+        const gameCard = document.getElementById('game-card');
+        const statementText = document.getElementById('statement-text');
+        const feedback = document.getElementById('feedback');
+        const explanationText = document.getElementById('explanation-text');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const factBtn = document.getElementById('fact-btn');
+        const mythBtn = document.getElementById('myth-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreDisplay = document.getElementById('score');
+        const questionCounterDisplay = document.getElementById('question-counter');
+        const totalQuestionsDisplay = document.getElementById('total-questions');
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        const choiceButtons = document.getElementById('choice-buttons');
+        const celebrationContainer = document.getElementById('celebration-container');
+        const mahaJaankariTitle = document.getElementById('maha-jaankari-title');
+        const mahaJaankariText = document.getElementById('maha-jaankari-text');
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            
+            document.querySelectorAll('[data-key]').forEach(elem => {
+                const key = elem.getAttribute('data-key');
+                if (languageContent[lang].ui[key]) {
+                    elem.textContent = languageContent[lang].ui[key];
+                }
+            });
+            
+            const body = document.querySelector('body');
+            document.documentElement.lang = lang;
+            if (lang === 'hi') {
+                body.classList.add('hindi');
+                body.classList.remove('oriya');
+            } else if (lang === 'or') {
+                body.classList.add('oriya');
+                body.classList.remove('hindi');
+            } else {
+                 body.classList.remove('hindi', 'oriya');
+            }
+            
+            // Update active button
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`lang-btn-${lang}`).classList.add('active');
+        }
+
+        async function startGame(category) {
+            await Tone.start();
+            clickSound.triggerAttackRelease("C2", "8n");
+            currentCategory = category;
+            currentCategoryQuestions = [...languageContent[currentLanguage].questions[category]];
+            shuffleArray(currentCategoryQuestions);
+            totalQuestionsDisplay.textContent = currentCategoryQuestions.length;
+            categorySelection.classList.add('hidden');
+            gameArea.classList.remove('hidden');
+            gameArea.style.animation = 'fadeIn 1s';
+            nextQuestion();
+        }
+        
+        function playClickAndAdvance() {
+             clickSound.triggerAttackRelease("C2", "8n");
+             nextQuestion();
+        }
+
+        function quitGame() {
+            clickSound.triggerAttackRelease("A2", "8n");
+            gameArea.classList.add('hidden');
+            categorySelection.classList.remove('hidden');
+            categorySelection.style.animation = 'fadeIn 1s';
+            
+            currentCategory = '';
+            currentCategoryQuestions = [];
+            currentQuestionIndex = -1;
+            score = 0;
+
+            scoreDisplay.textContent = '0';
+            questionCounterDisplay.textContent = '1';
+            progressBarFill.style.width = '0%';
+            
+            gameOverScreen.classList.add('hidden');
+            gameContent.classList.remove('hidden');
+        }
+
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex >= currentCategoryQuestions.length) {
+                gameContent.classList.add('hidden');
+                finalScore.textContent = score;
+                const info = languageContent[currentLanguage].mahaJaankari[currentCategory];
+                mahaJaankariTitle.textContent = languageContent[currentLanguage].ui.maha_jaankari_prefix + info.title;
+                mahaJaankariText.textContent = info.text;
+                gameOverScreen.classList.remove('hidden');
+                correctSound.triggerAttackRelease("G5", "4n", Tone.now() + 0.1);
+                correctSound.triggerAttackRelease("E5", "4n", Tone.now() + 0.3);
+                correctSound.triggerAttackRelease("C5", "4n", Tone.now() + 0.5);
+                return;
+            }
+
+            updateUI();
+            
+            gameCard.classList.remove('card-enter');
+            void gameCard.offsetWidth;
+            gameCard.classList.add('card-enter');
+
+            const item = currentCategoryQuestions[currentQuestionIndex];
+            
+            feedback.style.display = 'none';
+            statementText.textContent = item.statement;
+            factBtn.disabled = false;
+            mythBtn.disabled = false;
+            factBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            mythBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            choiceButtons.style.display = 'flex';
+            nextBtn.style.display = 'none';
+        }
+
+        function checkAnswer(userAnswer) {
+            factBtn.disabled = true;
+            mythBtn.disabled = true;
+            factBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            mythBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            const question = currentCategoryQuestions[currentQuestionIndex];
+            const uiText = languageContent[currentLanguage].ui;
+            let explanationHTML = '';
+
+            if (userAnswer === question.isFact) {
+                score += 10;
+                correctSound.triggerAttackRelease("C5", "8n", Tone.now());
+                celebrate();
+                feedback.className = 'feedback mt-4 text-left p-4 rounded-lg border bg-green-900/50 text-green-200 border-green-400/50';
+                feedbackIcon.innerHTML = '👍';
+                explanationHTML = `<strong>${uiText.feedback_correct_strong}</strong><br>${question.explanation}`;
+            } else {
+                wrongSound.triggerAttackRelease("C3", "4n", Tone.now());
+                feedback.className = 'feedback mt-4 text-left p-4 rounded-lg border bg-red-900/50 text-red-200 border-red-400/50';
+                feedbackIcon.innerHTML = '👎';
+                const correctAns = question.isFact ? uiText.fact_btn : uiText.myth_btn;
+                explanationHTML = `<strong>${uiText.feedback_wrong_strong_prefix}${correctAns}${uiText.feedback_wrong_strong_suffix}</strong><br>${question.explanation}`;
+            }
+            
+            explanationHTML += `<div class='mt-3 pt-3 border-t border-gray-400/50'><strong class='text-amber-300'>${uiText.tip_prefix}</strong> ${question.tip}</div>`;
+            explanationText.innerHTML = explanationHTML;
+            
+            feedback.style.display = 'block';
+            choiceButtons.style.display = 'none';
+            nextBtn.style.display = 'block';
+            updateUI();
+        }
+
+        function celebrate() {
+            const confettiColors = ['#fde047', '#f97316', '#16a34a', '#0ea5e9', '#ec4899'];
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                confetti.style.animationDelay = `${Math.random() * 1.5}s`;
+                 const size = Math.random() * 8 + 6;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                }
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                celebrationContainer.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        function updateUI() {
+            scoreDisplay.textContent = score;
+            const scoreEl = document.getElementById('score');
+            scoreEl.classList.add('score-popped');
+            setTimeout(() => scoreEl.classList.remove('score-popped'), 500);
+
+            let questionNumber = currentQuestionIndex;
+            questionCounterDisplay.textContent = questionNumber + 1;
+            progressBarFill.style.width = `${((questionNumber + 1) / currentCategoryQuestions.length) * 100}%`;
+        }
+
+        // Initial language setup
+        window.onload = () => {
+            changeLanguage(currentLanguage);
+        };
+    </script>
+</body>
+</html>
+

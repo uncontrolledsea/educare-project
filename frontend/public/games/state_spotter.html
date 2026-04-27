@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Spotter - Guess the Indian State!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Confetti Animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            top: -20px;
+            opacity: 0;
+            animation: fall 2s linear forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Animated Background */
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            bottom: -150px;
+            animation: float-up 25s linear infinite;
+            opacity: 0;
+        }
+        
+        @keyframes float-up {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10%, 90% { opacity: 0.7; }
+            100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .star-static {
+            position: absolute;
+            color: #fef08a;
+            animation: twinkle 4s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+
+        /* Popping and Neon Animations */
+        @keyframes pop-in {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-pop-in {
+            animation: pop-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes score-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.25) rotate(-5deg); color: #fef08a; }
+            100% { transform: scale(1); }
+        }
+        
+        .score-popped {
+            animation: score-pop 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes neon-pulse {
+            0%, 100% { box-shadow: 0 0 5px #22d3ee, 0 0 10px #22d3ee, 0 0 15px #22d3ee; }
+            50% { box-shadow: 0 0 10px #22d3ee, 0 0 20px #22d3ee, 0 0 30px #22d3ee, 0 0 40px #06b6d4; }
+        }
+
+        .neon-border {
+            border-color: #22d3ee;
+            animation: neon-pulse 2.5s infinite ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake-life {
+            animation: shake 0.3s linear;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-sky-500 to-indigo-600 text-white flex items-center justify-center min-h-screen p-4">
+
+    <div id="background-shapes-container" class="bg-shapes"></div>
+
+    <div class="w-full max-w-4xl mx-auto bg-white/20 backdrop-blur-lg p-8 rounded-2xl shadow-2xl border border-white/30 relative z-10 animate-pop-in">
+        
+        <div class="text-center mb-4">
+            <h1 class="text-4xl font-bold text-white" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🗺️ State Spotter 🗺️</h1>
+            <p id="level-display" class="text-2xl font-bold text-yellow-300 mt-2" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Level 1 - Easy</p>
+        </div>
+        
+        <div class="flex justify-between items-center mb-4 px-4">
+            <div id="lives-display" class="text-3xl text-red-400" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">❤️❤️❤️</div>
+            <p id="score-display" class="text-3xl font-bold text-yellow-300 transition-transform duration-300" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Score: 0</p>
+            <div id="timer-display" class="text-3xl font-bold text-cyan-300" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">⏰ 20</div>
+        </div>
+
+        <div class="bg-black/20 p-6 rounded-lg min-h-[150px] mb-6 shadow-inner border-2 neon-border">
+            <div id="clue-text" class="text-xl text-center text-slate-100 transition-all duration-300"></div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4">
+            <input type="text" id="answer-input" placeholder="Type the state name..." class="flex-grow bg-white/10 border-2 border-white/40 text-white text-lg rounded-lg p-4 focus:outline-none focus:ring-4 focus:ring-yellow-300/50 focus:border-yellow-300 transition-all duration-300 placeholder-slate-300 neon-border">
+            <button id="submit-btn" class="bg-white text-purple-600 font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-yellow-300 transform hover:scale-105 transition-all duration-300">Submit</button>
+        </div>
+
+        <div id="message-box" class="hidden mt-4 text-center text-white font-semibold p-3 rounded-lg"></div>
+
+        <div id="correct-feedback" class="absolute inset-0 flex items-center justify-center pointer-events-none hidden">
+            <div id="confetti-container" class="absolute inset-0"></div>
+            <span class="text-5xl font-bold text-yellow-300 animate-ping opacity-75">🎉</span>
+            <span class="text-6xl font-bold text-yellow-300 absolute" style="text-shadow: 3px 3px 6px rgba(0,0,0,0.5);">Correct!</span>
+        </div>
+        
+        <div id="level-up-modal" class="absolute inset-0 bg-black/50 backdrop-blur-sm flex-col items-center justify-center pointer-events-none hidden z-20">
+            <h2 id="level-up-text" class="text-6xl font-extrabold text-yellow-300 animate-pop-in" style="text-shadow: 3px 3px 8px rgba(0,0,0,0.5);"></h2>
+        </div>
+    </div>
+
+    <script>
+        const levelsData = {
+            easy: [
+                { state: "Goa", clues: ["India's smallest state by area.", "Known for its beautiful beaches.", "Its capital is Panaji."] },
+                { state: "Uttar Pradesh", clues: ["The most populous state in India.", "Home to the Taj Mahal.", "Its capital is Lucknow."] },
+                { state: "Rajasthan", clues: ["The 'Land of Kings'.", "Jaipur is also known as the Pink City.", "Known for its vast desert."] },
+                { state: "West Bengal", clues: ["Famous for its Durga Puja festival.", "Often called 'The City of Joy'.", "Its capital is Kolkata."] },
+                { state: "Maharashtra", clues: ["The financial capital of India.", "Home to Bollywood.", "Its capital is Mumbai."] }
+            ],
+            moderate: [
+                { state: "Kerala", clues: ["Known as 'God's Own Country'.", "Famous for its tranquil backwaters.", "Its main language is Malayalam."] },
+                { state: "Punjab", clues: ["Known as the 'Land of Five Rivers'.", "Home to the Golden Temple.", "Famous for Bhangra dance."] },
+                { state: "Gujarat", clues: ["Home to the Statue of Unity.", "Known for the Dandiya Raas dance.", "Its capital is Gandhinagar."] },
+                { state: "Karnataka", clues: ["Often called the 'Silicon Valley of India'.", "The city of Mysore is famous for its palace.", "Its capital is Bengaluru."] },
+                { state: "Himachal Pradesh", clues: ["A Himalayan state famous for tourism.", "Shimla is a popular hill station here.", "Known for its apple orchards."] }
+            ],
+            difficult: [
+                { state: "Assam", clues: ["Famous for its vast tea gardens.", "Home to the one-horned rhinoceros.", "Bihu is its main festival."] },
+                { state: "Odisha", clues: ["Known for the Konark Sun Temple.", "Famous for its classical dance form, Odissi.", "Its capital is Bhubaneswar."] },
+                { state: "Sikkim", clues: ["One of the least populous states.", "Borders Bhutan, Tibet, and Nepal.", "Home to Kangchenjunga, India's highest peak."] },
+                { state: "Manipur", clues: ["Known as the 'Jewel of India'.", "Famous for the floating Loktak Lake.", "Its capital is Imphal."] },
+                { state: "Bihar", clues: ["This state is home to the ancient Nalanda University.", "The Mahabodhi Temple is a key pilgrimage site.", "Its capital is Patna."] }
+            ]
+        };
+
+        let gameState = {
+            currentLevel: 'easy',
+            questionsAnsweredInLevel: 0,
+            clueInterval: null,
+            timerInterval: null,
+            score: 0,
+            lives: 3,
+            timer: 20
+        };
+
+        const clueTextElement = document.getElementById('clue-text');
+        const answerInput = document.getElementById('answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const messageBox = document.getElementById('message-box');
+        const correctFeedback = document.getElementById('correct-feedback');
+        const confettiContainer = document.getElementById('confetti-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const livesDisplay = document.getElementById('lives-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const levelDisplay = document.getElementById('level-display');
+        const levelUpModal = document.getElementById('level-up-modal');
+        const levelUpText = document.getElementById('level-up-text');
+        
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            const isSuccess = type === 'success';
+            messageBox.className = `mt-4 text-center text-white font-semibold p-3 rounded-lg animate-pop-in ${isSuccess ? 'bg-green-500/80' : 'bg-red-500/80'}`;
+            answerInput.classList.toggle('border-green-500', isSuccess);
+            answerInput.classList.toggle('border-red-500', !isSuccess);
+        }
+
+        function hideMessage() {
+            messageBox.classList.add('hidden');
+            answerInput.classList.remove('border-red-500', 'border-green-500');
+        }
+
+        function showCelebration() {
+            correctFeedback.classList.remove('hidden');
+            confettiContainer.innerHTML = '';
+            Array.from({ length: 50 }).forEach(createConfetti);
+            setTimeout(() => {
+                correctFeedback.classList.add('hidden');
+            }, 1500);
+        }
+        
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`;
+            confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+            confettiContainer.appendChild(confetti);
+            confetti.addEventListener('animationend', () => confetti.remove());
+        }
+        
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `Score: ${gameState.score}`;
+            scoreDisplay.classList.add('score-popped');
+            scoreDisplay.addEventListener('animationend', () => scoreDisplay.classList.remove('score-popped'), { once: true });
+        }
+
+        function updateLivesDisplay() {
+            livesDisplay.textContent = '❤️'.repeat(gameState.lives) + '🖤'.repeat(3 - gameState.lives);
+            livesDisplay.classList.add('shake-life');
+            livesDisplay.addEventListener('animationend', () => livesDisplay.classList.remove('shake-life'), { once: true });
+        }
+        
+        function updateTimerDisplay() { timerDisplay.textContent = `⏰ ${gameState.timer}`; }
+
+        function gameOver(reason) {
+            clearInterval(gameState.clueInterval);
+            clearInterval(gameState.timerInterval);
+            clueTextElement.innerHTML = `<span class="block animate-pop-in">Game Over!<br><span class="text-2xl mt-2 block">${reason}<br>Your final score is ${gameState.score}</span></span>`;
+            answerInput.disabled = true;
+            submitBtn.textContent = 'Play Again';
+        }
+
+        function startTimer() {
+            clearInterval(gameState.timerInterval);
+            gameState.timer = 20;
+            updateTimerDisplay();
+            gameState.timerInterval = setInterval(() => {
+                gameState.timer--;
+                updateTimerDisplay();
+                if (gameState.timer <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    showMessage("Time's up! You lost a life.", 'error');
+                    gameState.lives--;
+                    updateLivesDisplay();
+                    if (gameState.lives <= 0) {
+                        gameOver("You ran out of lives!");
+                    } else {
+                        setTimeout(() => {
+                            gameState.questionsAnsweredInLevel++;
+                            loadQuestion();
+                        }, 2000);
+                    }
+                }
+            }, 1000);
+        }
+        
+        function showLevelUpMessage(level) {
+            levelUpText.textContent = `Level ${level}!`;
+            levelUpModal.classList.remove('hidden');
+            levelUpModal.classList.add('flex');
+            setTimeout(() => {
+                levelUpModal.classList.add('hidden');
+                levelUpModal.classList.remove('flex');
+            }, 2000);
+        }
+
+        function handleLevelUp() {
+            if (gameState.currentLevel === 'easy') {
+                gameState.currentLevel = 'moderate';
+                showLevelUpMessage(2);
+            } else if (gameState.currentLevel === 'moderate') {
+                gameState.currentLevel = 'difficult';
+                showLevelUpMessage(3);
+            }
+            gameState.questionsAnsweredInLevel = 0;
+            setTimeout(loadQuestion, 2500);
+        }
+
+        function loadQuestion() {
+            if (gameState.questionsAnsweredInLevel >= 5) {
+                return handleLevelUp();
+            }
+
+            hideMessage();
+            answerInput.value = '';
+            submitBtn.textContent = 'Submit';
+            answerInput.disabled = false;
+            answerInput.focus();
+            
+            const levelName = gameState.currentLevel.charAt(0).toUpperCase() + gameState.currentLevel.slice(1);
+            levelDisplay.textContent = `Level ${Object.keys(levelsData).indexOf(gameState.currentLevel) + 1} - ${levelName}`;
+
+            if (gameState.questionsAnsweredInLevel >= levelsData[gameState.currentLevel].length) {
+                gameOver("Congratulations! You've completed all levels!");
+                return;
+            }
+
+            gameState.currentClueIndex = 0;
+            clueTextElement.innerHTML = '';
+            
+            const firstClue = document.createElement('span');
+            firstClue.textContent = levelsData[gameState.currentLevel][gameState.questionsAnsweredInLevel].clues[0];
+            firstClue.className = 'block animate-pop-in';
+            clueTextElement.appendChild(firstClue);
+            
+            if (gameState.clueInterval) clearInterval(gameState.clueInterval);
+            gameState.clueInterval = setInterval(showNextClue, 1500);
+            startTimer();
+        }
+
+        function showNextClue() {
+            gameState.currentClueIndex++;
+            const currentQuestion = levelsData[gameState.currentLevel][gameState.questionsAnsweredInLevel];
+            if (gameState.currentClueIndex < currentQuestion.clues.length) {
+                const newClue = document.createElement('span');
+                newClue.textContent = currentQuestion.clues[gameState.currentClueIndex];
+                newClue.className = 'block mt-2 animate-pop-in';
+                clueTextElement.appendChild(newClue);
+            } else {
+                clearInterval(gameState.clueInterval);
+            }
+        }
+
+        function createAnimatedBackground() {
+            const container = document.getElementById('background-shapes-container');
+            const emojis = ['⭐', '☀️', '☁️', '🎈', '🦋', '🌈', '🚗', '🪁', '🚲', '🐘', '🦚', '🕌', '🌸', '🇮🇳', '🛕', '🐅'];
+            const numEmojis = 25;
+            const numStars = 40;
+
+            Array.from({ length: numEmojis }).forEach(() => {
+                const shape = document.createElement('span');
+                shape.className = 'shape';
+                shape.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                shape.style.left = `${Math.random() * 100}%`;
+                shape.style.fontSize = `${Math.random() * 2 + 1.5}rem`;
+                shape.style.animationDuration = `${Math.random() * 12 + 8}s`;
+                shape.style.animationDelay = `${Math.random() * 10}s`;
+                shape.style.opacity = '0';
+                container.appendChild(shape);
+            });
+
+            Array.from({ length: numStars }).forEach(() => {
+                const star = document.createElement('span');
+                star.className = 'star-static';
+                star.textContent = '✨';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.fontSize = `${Math.random() * 1 + 0.5}rem`;
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                container.appendChild(star);
+            });
+        }
+
+        function startNewGame() {
+            gameState.questionsAnsweredInLevel = 0;
+            gameState.currentLevel = 'easy';
+            gameState.score = 0;
+            gameState.lives = 3;
+            updateScoreDisplay();
+            updateLivesDisplay();
+            Object.values(levelsData).forEach(level => level.sort(() => Math.random() - 0.5));
+            loadQuestion();
+        }
+
+        submitBtn.addEventListener('click', () => {
+            if (submitBtn.textContent === 'Play Again') {
+                startNewGame();
+                return;
+            }
+
+            const userAnswer = answerInput.value.trim().toLowerCase();
+            if (!userAnswer) return;
+            const correctAnswer = levelsData[gameState.currentLevel][gameState.questionsAnsweredInLevel].state.toLowerCase();
+
+            if (userAnswer === correctAnswer) {
+                clearInterval(gameState.timerInterval);
+                clearInterval(gameState.clueInterval);
+                showMessage('Correct! Great job!', 'success');
+                showCelebration();
+                gameState.score += 10;
+                updateScoreDisplay();
+                
+                setTimeout(() => {
+                    gameState.questionsAnsweredInLevel++;
+                    loadQuestion();
+                }, 2000); 
+            } else {
+                gameState.lives--;
+                updateLivesDisplay();
+                answerInput.value = '';
+                
+                if (gameState.lives <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    clearInterval(gameState.clueInterval);
+                    showMessage('Incorrect! No lives left.', 'error');
+                    gameOver("You ran out of lives!");
+                } else {
+                    const lifeText = gameState.lives > 1 ? 'lives' : 'life';
+                    showMessage(`Incorrect. You have ${gameState.lives} ${lifeText} left.`, 'error');
+                }
+            }
+        });
+        
+        answerInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                submitBtn.click();
+            }
+        });
+
+        window.onload = () => {
+            createAnimatedBackground();
+            startNewGame();
+        };
+    </script>
+</body>
+</html>
+

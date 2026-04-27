@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission CET/NEET: The Final Countdown</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://www.gstatic.com">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    
+    <style>
+/* --- Animated Starfield Background --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(-45deg, #020617, #111827, #083344, #1e1b4b);
+    background-size: 400% 400%;
+    animation: gradientBG 25s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+#starfield-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+#app-container {
+    z-index: 1;
+}
+
+/* --- Polished Styles & Animations --- */
+.card {
+    background-color: rgba(31, 41, 55, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid #374151;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.btn {
+    transition: all 0.3s ease;
+}
+.btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 222, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(22, 163, 222, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 222, 0); }
+}
+#start-game-btn {
+    animation: pulse 2.5s infinite;
+}
+
+@keyframes title-fade-in {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+#start-screen h1, #start-screen h2 {
+    animation: title-fade-in 1.5s ease-out forwards;
+}
+
+/* --- New Dashboard Glow Effects --- */
+.subject-btn:hover {
+    transform: translateY(-5px);
+}
+.subject-btn[data-subject="physics"]:hover {
+    box-shadow: 0 0 25px 5px rgba(34, 211, 238, 0.3); /* Cyan glow */
+}
+.subject-btn[data-subject="chemistry"]:hover {
+    box-shadow: 0 0 25px 5px rgba(192, 132, 252, 0.3); /* Purple glow */
+}
+.subject-btn[data-subject="math"]:hover {
+    box-shadow: 0 0 25px 5px rgba(74, 222, 128, 0.3); /* Green glow */
+}
+.subject-btn[data-subject="biology"]:hover {
+    box-shadow: 0 0 25px 5px rgba(244, 114, 182, 0.3); /* Pink glow */
+}
+
+.option.correct {
+    background-color: #10B981 !important;
+    border-color: #059669 !important;
+    color: white;
+}
+.option.incorrect {
+    background-color: #EF4444 !important;
+    border-color: #DC2626 !important;
+    color: white;
+}
+.hidden {
+    display: none;
+}
+.leaderboard-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+.leaderboard-scroll::-webkit-scrollbar-track {
+    background: #1F2937;
+}
+.leaderboard-scroll::-webkit-scrollbar-thumb {
+    background: #4B5563;
+    border-radius: 4px;
+}
+.leaderboard-scroll::-webkit-scrollbar-thumb:hover {
+    background: #6B7280;
+}
+.card.correct-animation {
+    animation: correctAnswer 0.5s ease-in-out;
+}
+.card.wrong-animation {
+    animation: wrongAnswer 0.5s ease-in-out;
+}
+@keyframes correctAnswer {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
+    100% { transform: scale(1); }
+}
+@keyframes wrongAnswer {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* --- SVG Timer Clock Styles --- */
+#timer-progress {
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    stroke-dasharray: 283; /* Circumference: 2 * PI * 45 */
+    stroke-dashoffset: 0;
+}
+.timer-running #timer-progress {
+    animation: countdown 30s linear forwards;
+}
+@keyframes countdown {
+    from {
+        stroke-dashoffset: 0;
+        stroke: #22d3ee; /* cyan-400 */
+    }
+    to {
+        stroke-dashoffset: 283;
+        stroke: #f87171; /* red-400 */
+    }
+}
+</style>
+</head>
+<body class="text-white flex items-center justify-center min-h-screen p-4">
+
+<canvas id="starfield-canvas"></canvas>
+
+<div id="app-container" class="w-full max-w-6xl mx-auto relative">
+
+<div id="start-screen" class="text-center flex flex-col items-center justify-center min-h-[80vh]">
+    <div class="mb-12">
+        <h1 class="text-6xl md:text-8xl font-extrabold tracking-wider text-cyan-400">MISSION</h1>
+        <h2 class="text-5xl md:text-7xl font-bold text-white -mt-2 md:-mt-4">CET / NEET</h2>
+        <p class="text-lg text-gray-300 mt-4">The Final Countdown</p>
+    </div>
+    <p class="mt-4 mb-12 text-gray-300 text-lg max-w-md">Your rank, your friends, and your future - will be decided here.</p>
+    <button id="start-game-btn" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-4 px-16 rounded-full text-xl btn shadow-lg shadow-cyan-500/30">Start Game</button>
+</div>
+
+<div id="subject-screen" class="hidden">
+    <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold">Welcome, Challenger!</h2>
+        <p class="text-gray-400 mt-2">Choose Today's Challenge</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <button data-subject="physics" class="subject-btn card p-8 rounded-xl text-center transition-all duration-300 flex flex-col items-center justify-center">
+            <i class="fa-solid fa-atom fa-3x mb-4 text-cyan-400"></i>
+            <h3 class="text-3xl font-bold">Physics</h3>
+            <p class="text-yellow-400 mt-2 font-semibold">High Score: <span id="hs-physics">0</span></p>
+        </button>
+        <button data-subject="chemistry" class="subject-btn card p-8 rounded-xl text-center transition-all duration-300 flex flex-col items-center justify-center">
+            <i class="fa-solid fa-flask-vial fa-3x mb-4 text-purple-400"></i>
+            <h3 class="text-3xl font-bold">Chemistry</h3>
+             <p class="text-yellow-400 mt-2 font-semibold">High Score: <span id="hs-chemistry">0</span></p>
+        </button>
+        <button data-subject="math" class="subject-btn card p-8 rounded-xl text-center transition-all duration-300 flex flex-col items-center justify-center">
+            <i class="fa-solid fa-calculator fa-3x mb-4 text-green-400"></i>
+            <h3 class="text-3xl font-bold">Maths</h3>
+            <p class="text-gray-400 mt-1 text-sm">(JEE)</p>
+             <p class="text-yellow-400 mt-2 font-semibold">High Score: <span id="hs-math">0</span></p>
+        </button>
+        <button data-subject="biology" class="subject-btn card p-8 rounded-xl text-center transition-all duration-300 flex flex-col items-center justify-center">
+            <i class="fa-solid fa-dna fa-3x mb-4 text-pink-400"></i>
+            <h3 class="text-3xl font-bold">Biology</h3>
+            <p class="text-gray-400 mt-1 text-sm">(NEET)</p>
+             <p class="text-yellow-400 mt-2 font-semibold">High Score: <span id="hs-biology">0</span></p>
+        </button>
+    </div>
+    <div class="text-center mt-16">
+        <button id="view-leaderboard-btn-1" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg btn">View Leaderboard</button>
+        <button id="view-careers-btn-1" class="ml-4 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg btn">View Unlocked Careers</button>
+    </div>
+</div>
+
+<div id="difficulty-screen" class="hidden text-center">
+    <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold">Select Difficulty for <span id="difficulty-subject-title" class="capitalize text-cyan-400"></span></h2>
+        <p class="text-gray-400 mt-2">Each level has 10 questions.</p>
+    </div>
+    <div class="flex flex-col md:flex-row justify-center items-center gap-8">
+        <button data-difficulty="easy" class="difficulty-btn w-full md:w-auto card p-8 rounded-xl text-center transition-all duration-300 hover:bg-green-900/50 hover:border-green-500">
+            <h3 class="text-3xl font-bold text-green-400">Easy</h3>
+            <p class="text-gray-300 mt-1">Foundational Concepts</p>
+        </button>
+        <button data-difficulty="moderate" class="difficulty-btn w-full md:w-auto card p-8 rounded-xl text-center transition-all duration-300 hover:bg-yellow-900/50 hover:border-yellow-500">
+            <h3 class="text-3xl font-bold text-yellow-400">Moderate</h3>
+            <p class="text-gray-300 mt-1">Application Based</p>
+        </button>
+        <button data-difficulty="difficult" class="difficulty-btn w-full md:w-auto card p-8 rounded-xl text-center transition-all duration-300 hover:bg-red-900/50 hover:border-red-500">
+            <h3 class="text-3xl font-bold text-red-400">Difficult</h3>
+            <p class="text-gray-300 mt-1">Exam-Level Challenge</p>
+        </button>
+    </div>
+    <div class="text-center mt-16">
+        <button id="back-to-subject-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg btn">Back to Subjects</button>
+    </div>
+</div>
+
+<div id="quiz-screen" class="hidden w-full">
+<div class="card p-6 md:p-8 rounded-xl shadow-2xl">
+<div class="mb-6">
+    <div class="flex justify-between items-start mb-3">
+        <div>
+            <h2 id="subject-title" class="text-2xl font-bold"></h2>
+            <p id="topic-text" class="text-sm text-gray-400"></p>
+            <p class="text-lg font-bold text-yellow-400 mt-1">Score: <span id="current-score">0</span></p>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div id="timer-container" class="relative w-12 h-12">
+                <svg class="w-full h-full" viewBox="0 0 100 100">
+                    <circle class="text-gray-700" stroke-width="10" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
+                    <circle id="timer-progress" class="text-cyan-400" stroke-width="10" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
+                </svg>
+            </div>
+            <button id="quit-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg btn">Quit</button>
+        </div>
+    </div>
+    <div class="w-full bg-gray-700 rounded-full h-2.5">
+        <div id="progress-bar" class="bg-cyan-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+    </div>
+    <span id="question-counter" class="text-xs font-semibold text-gray-300 mt-1 block text-right"></span>
+</div>
+
+<p id="question-text" class="text-xl text-gray-200 min-h-[100px] my-6"></p>
+
+<div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+</div>
+
+<div class="mt-8 pt-6 border-t border-gray-700 flex justify-center space-x-4">
+<button id="powerup-5050" class="powerup-btn bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed p-3 rounded-lg btn">
+50-50 (<span id="count-5050">0</span>)
+</button>
+<button id="powerup-hint" class="powerup-btn bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed p-3 rounded-lg btn">
+    Hint (-5 Points) [<span id="count-hint">3</span>]
+</button>
+<button id="powerup-freeze" class="powerup-btn bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed p-3 rounded-lg btn">
+Freeze Time (<span id="count-freeze">0</span>)
+</button>
+</div>
+<div id="hint-box" class="mt-4 p-3 bg-gray-900/70 rounded-lg text-center text-yellow-400 hidden"></div>
+</div>
+</div>
+
+<div id="result-screen" class="hidden text-center">
+<div class="card p-8 rounded-lg">
+<h2 class="text-4xl font-bold mb-4">Quiz Complete!</h2>
+<p class="text-xl text-gray-300">Your Score</p>
+<p id="final-score" class="text-7xl font-bold my-4 text-cyan-400">0</p>
+<div id="career-unlock-notification" class="my-6 p-4 bg-green-800/50 border border-green-600 rounded-lg hidden">
+<p class="font-bold text-lg">🎉 Congratulations! You have unlocked a new career path! 🎉</p>
+</div>
+<div class="flex justify-center items-center flex-wrap gap-4 mt-8">
+<button id="next-level-btn" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-lg text-lg btn hidden">Next Level</button>
+<button id="play-again-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg btn">Another Subject</button>
+<button id="view-leaderboard-btn-2" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg text-lg btn">Leaderboard</button>
+</div>
+</div>
+</div>
+
+<div id="leaderboard-screen" class="hidden">
+<div class="card p-6 md:p-8 rounded-lg">
+<h2 class="text-3xl font-bold text-center mb-6">Leaderboard</h2>
+<div id="leaderboard-list" class="space-y-3 max-h-96 overflow-y-auto leaderboard-scroll pr-2">
+</div>
+<div class="text-center mt-6">
+<button id="back-to-menu-btn-1" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg btn">Back to Main Menu</button>
+</div>
+</div>
+</div>
+
+<div id="careers-screen" class="hidden">
+<div class="card p-6 md:p-8 rounded-lg">
+<h2 class="text-3xl font-bold text-center mb-6">Unlocked Career Paths</h2>
+<div id="unlocked-careers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+</div>
+<div class="text-center mt-6">
+<button id="back-to-menu-btn-2" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg btn">Back to Main Menu</button>
+</div>
+</div>
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, addDoc, serverTimestamp, onSnapshot, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// --- Starfield Background Logic ---
+const canvas = document.getElementById('starfield-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+const stars = [];
+const numStars = 200;
+
+for (let i = 0; i < numStars; i++) {
+    stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.5,
+        alpha: Math.random(),
+        speed: Math.random() * 0.2 + 0.1
+    });
+}
+
+function animateStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    stars.forEach(star => {
+        star.y -= star.speed;
+        if (star.y < 0) {
+            star.y = canvas.height;
+            star.x = Math.random() * canvas.width;
+        }
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+        ctx.fill();
+    });
+
+    requestAnimationFrame(animateStars);
+}
+animateStars();
+
+
+// --- Expanded Questions and Career Data (PYQ Based with Topics) ---
+const questions = {
+    physics: {
+        easy: [
+            { topic: "Units & Measurement", q: "Which of the following is a scalar quantity?", options: ["Displacement", "Electric field", "Acceleration", "Work"], answer: 3, hint: "It has magnitude but no direction." },
+            { topic: "Laws of Motion", q: "The rate of change of momentum of a body is equal to the...", options: ["Energy", "Power", "Force", "Impulse"], answer: 2, hint: "This is Newton's Second Law of Motion." },
+            { topic: "Gravitation", q: "What is the dimensional formula for gravitational constant G?", options: ["$M L T^{-2}$", "$M^{-1} L^3 T^{-2}$", "$M L^2 T^{-2}$", "$M L^2 T^{-1}$"], answer: 1, hint: "Use the formula $F = G(m1m2)/r^2$." },
+            { topic: "Optics", q: "A concave mirror gives a real, inverted and same size image if the object is placed at...", options: ["Focus", "Infinity", "Center of curvature", "Beyond C"], answer: 2, hint: "At this point, image distance equals object distance." },
+            { topic: "Current Electricity", q: "The resistance of an ideal ammeter is...", options: ["Infinite", "Zero", "High", "Depends on circuit"], answer: 1, hint: "It should not affect the current it is measuring." },
+            { topic: "Modern Physics", q: "What is the energy of a photon of wavelength $\\lambda$?", options: ["$hc/\\lambda$", "$h\\lambda/c$", "$\\lambda/hc$", "$h/c\\lambda$"], answer: 0, hint: "Remember that $E = h\\nu$ and $c = \\nu\\lambda$." },
+            { topic: "Semiconductors", q: "Which logic gate is known as the universal gate?", options: ["AND", "OR", "NOT", "NAND"], answer: 3, hint: "You can create any other gate using only this gate." },
+            { topic: "Semiconductors", q: "In a P-type semiconductor, the majority charge carriers are...", options: ["Electrons", "Protons", "Neutrons", "Holes"], answer: 3, hint: "It is created by doping with a trivalent impurity." },
+            { topic: "Waves", q: "Sound waves in air are...", options: ["Transverse", "Longitudinal", "Electromagnetic", "Polarized"], answer: 1, hint: "The particles of the medium vibrate parallel to the direction of wave propagation." },
+            { topic: "Optics", q: "The principle of an optical fiber is...", options: ["Reflection", "Refraction", "Interference", "Total Internal Reflection"], answer: 3, hint: "It occurs when light travels from a denser to a rarer medium." }
+        ],
+        moderate: [
+            { topic: "Laws of Motion", q: "A body of mass 2 kg is moving with a velocity of 8 m/s on a smooth surface. If it is to be brought to rest in 4 seconds, then the force to be applied is?", options: ["8 N", "4 N", "2 N", "16 N"], answer: 1, hint: "Use $F = ma$ and $v = u + at$ to find acceleration first." },
+            { topic: "Rotational Motion", q: "The radius of gyration of a solid sphere of mass M and radius R about its diameter is...", options: ["$(2/5)R$", "$\\sqrt{2/5}R$", "$(2/3)R$", "$\\sqrt{2/3}R$"], answer: 1, hint: "Recall that $I = (2/5)MR^2$ and $I = MK^2$." },
+            { topic: "Kinetic Theory of Gases", q: "If the temperature of a gas is doubled, its root mean square velocity will be...", options: ["Doubled", "Halved", "$\\sqrt{2}$ times", "$1/\\sqrt{2}$ times"], answer: 2, hint: "$v_{rms}$ is proportional to the square root of temperature." },
+            { topic: "Wave Optics", q: "In Young's double-slit experiment, the fringe width is 1 mm. If the distance between the screen and slit is doubled, the new fringe width will be:", options: ["1 mm", "2 mm", "0.5 mm", "4 mm"], answer: 1, hint: "Fringe width is directly proportional to D." },
+            { topic: "Modern Physics", q: "The half-life of a radioactive substance is 10 days. The time taken for (7/8)th part of the substance to decay is:", options: ["10 days", "20 days", "30 days", "40 days"], answer: 2, hint: "Remaining part is $1/8 = (1/2)^3$, which means 3 half-lives." },
+            { topic: "Modern Physics", q: "The potential difference required to stop the fastest photoelectrons emitted by a surface is 5V. The maximum kinetic energy of the electrons is:", options: ["5 J", "5 eV", "$8 \\times 10^{-19}$ J", "Both 2 and 3"], answer: 3, hint: "The formula is $K.E_{max} = e \\times V_{stop}$ where 1 eV = $1.6 \\times 10^{-19}$ J." },
+            { topic: "Electrostatics", q: "A parallel plate capacitor is charged and then the battery is disconnected. If the plates are moved further apart, the potential difference...", options: ["Increases", "Decreases", "Remains same", "Becomes zero"], answer: 0, hint: "Charge Q remains constant. $C = \\epsilon A/d$ and $V = Q/C$." },
+            { topic: "Electromagnetic Waves", q: "Which of the following electromagnetic waves has the highest frequency?", options: ["Microwaves", "UV rays", "X-rays", "Gamma rays"], answer: 3, hint: "It has the highest energy and shortest wavelength." },
+            { topic: "Current Electricity", q: "The equivalent resistance between A and B in the given circuit (3 resistors of R in parallel) is...", options: ["3R", "R/3", "2R/3", "R"], answer: 1, hint: "$1/R_{eq} = 1/R_1 + 1/R_2 + 1/R_3$." },
+            { topic: "Electromagnetic Induction", q: "Lenz's law is a consequence of the law of conservation of...", options: ["Charge", "Mass", "Momentum", "Energy"], answer: 3, hint: "The induced current opposes the change that produces it." }
+        ],
+        difficult: [
+            { topic: "Rotational Motion", q: "A solid cylinder rolls up an inclined plane of angle 30°. At the bottom, its speed is 5 m/s. How far will it travel up the plane?", options: ["2.7 m", "3.8 m", "4.2 m", "5.1 m"], answer: 1, hint: "Use conservation of energy: $(1/2)mv^2 + (1/2)I\\omega^2 = mgh$. For a solid cylinder, $I = (1/2)mR^2$." },
+            { topic: "Properties of Matter", q: "Two soap bubbles of radii $r_1$ and $r_2$ ($r_1 > r_2$) coalesce. The radius of the new bubble formed under isothermal conditions is...", options: ["$\\sqrt{r_1^2 + r_2^2}$", "$r_1 + r_2$", "$r_1r_2/(r_1+r_2)$", "$\\sqrt{r_1^2 - r_2^2}$"], answer: 0, hint: "Pressure inside a bubble is $P_{atm} + 4T/r$. Use Boyle's Law." },
+            { topic: "Alternating Current", q: "In an LCR series circuit, the potential differences across R, L and C are 40V, 80V and 40V respectively. The total potential difference across the circuit is:", options: ["160V", "80V", "$40\\sqrt{2}V$", "40V"], answer: 2, hint: "$$V = \\sqrt{V_R^2 + (V_L - V_C)^2}$$. "},
+            { topic: "Magnetism", q: "An electron is moving in a circle of radius r with speed v. The magnetic moment of the electron is:", options: ["evr", "evr/2", "$$\\pi$$r$^2$ev", "ev/2$$ \\pi$$r"], answer: 1, hint: "Magnetic moment $M = IA$. $I = q/T$ and $T = 2\\pi r/v$." },
+            { topic: "Modern Physics", q: "The de-Broglie wavelength of a neutron at 27°C is $\\lambda$. What will be its wavelength at 927°C?", options: ["$\\lambda/2$", "$\\lambda/3$", "$\\lambda/4$", "2$\\lambda$"], answer: 0, hint: "$\\lambda$ is proportional to $1/\\sqrt{T}$. Convert temperatures to Kelvin first ($T_K = T_C + 273$)." },
+            { topic: "Current Electricity", q: "A galvanometer of resistance 50 $\\Omega$ gives a full-scale deflection for a current of 0.05 A. The resistance required to convert it into a voltmeter of range 5 V is:", options: ["50 $\\Omega$", "100 $\\Omega$", "150 $\\Omega$", "200 $\\Omega$"], answer: 0, hint: "Use $R_{series}$ = ($V/I_g$) - G." },
+            { topic: "Thermodynamics", q: "A Carnot engine has an efficiency of 40% when the sink temperature is 27°C. The source temperature is:", options: ["227°C", "500°C", "273°C", "200°C"], answer: 0, hint: "Efficiency $\\eta = 1 - (T_{sink} / T_{source})$. Temperatures must be in Kelvin." },
+            { topic: "Units & Measurement", q: "If the percentage error in the measurement of radius and mass of a sphere are 1% and 2% respectively, then the percentage error in the measurement of its density is:", options: ["3%", "1%", "5%", "4%"], answer: 2, hint: "Density $\\rho$ = $M/V = M / ((4/3)\\pi R^3)$. %Error in $\\rho$ = %Error in M + 3 * %Error in R." },
+            { topic: "Kinematics", q: "A stone is dropped from a height h. Simultaneously, another stone is thrown up from the ground which reaches a height 4h. The two stones will cross each other after time:", options: ["$h/8g$", "$\\sqrt{h/8g}$", "$\\sqrt{h/2g}$", "$\\sqrt{2h/g}$"], answer: 1, hint: "Set up equations of motion for both stones and find the time when their positions are equal." },
+            { topic: "Optics", q: "The ratio of the speed of light in vacuum to the speed of light in a medium is known as...", options: ["Refractive Index", "Snell's Constant", "Permittivity", "Permeability"], answer: 0, hint: "Formula is $n = c/v$." }
+        ]
+    },
+    chemistry: {
+        easy: [
+            { topic: "Redox Reactions", q: "What is the oxidation number of Mn in $KMnO_4$?", options: ["+2", "+5", "+7", "+4"], answer: 2, hint: "Sum of oxidation states is zero. K is +1, O is -2." },
+            { topic: "Surface Chemistry", q: "Which of the following is an example of a solid sol?", options: ["Milk", "Cheese", "Gemstones", "Smoke"], answer: 2, hint: "Solid dispersed in a solid." },
+            { topic: "Chemical Bonding", q: "The shape of the $SF_6$ molecule is...", options: ["Tetrahedral", "Trigonal bipyramidal", "Octahedral", "Square planar"], answer: 2, hint: "Sulfur has 6 valence electrons, all bonded to fluorine." },
+            { topic: "Environmental Chemistry", q: "Which gas is responsible for the greenhouse effect?", options: ["$O_2$", "$N_2$", "$H_2$", "$CO_2$"], answer: 3, hint: "It traps infrared radiation." },
+            { topic: "Polymers", q: "The monomer of natural rubber is...", options: ["Isoprene", "Styrene", "Butadiene", "Ethylene"], answer: 0, hint: "2-methyl-1,3-butadiene." },
+            { topic: "Acids, Bases & Salts", q: "Which of the following is a strong acid?", options: ["$CH_3COOH$", "HCN", "$H_2SO_4$", "$H_2CO_3$"], answer: 2, hint: "It completely dissociates in water." },
+            { topic: "States of Matter", q: "The process of converting a solid directly into a gas is called...", options: ["Evaporation", "Condensation", "Sublimation", "Melting"], answer: 2, hint: "Dry ice is a common example." },
+            { topic: "Organic Chemistry", q: "What is the IUPAC name for $CH_3-O-CH_3$?", options: ["Dimethyl ether", "Methoxymethane", "Ethanol", "Methyl methanoate"], answer: 1, hint: "Alkoxyalkane naming convention." },
+            { topic: "Periodic Table", q: "Which element has the highest electronegativity?", options: ["Chlorine", "Oxygen", "Fluorine", "Nitrogen"], answer: 2, hint: "It is in the top right of the periodic table." },
+            { topic: "Solid State", q: "The number of atoms in a body-centered cubic (BCC) unit cell is...", options: ["1", "2", "4", "8"], answer: 1, hint: "8 corners (1/8 each) + 1 center." }
+        ],
+        moderate: [
+            { topic: "Chemical Bonding", q: "What is the hybridization of the central atom in $XeF_4$?", options: ["$sp^3$", "$sp^3d$", "$sp^3d^2$", "$sp^2$"], answer: 2, hint: "Xenon has 8 valence electrons, 4 for bonds and 4 as two lone pairs." },
+            { topic: "Equilibrium", q: "The pH of a 0.001 M NaOH solution is...", options: ["3", "11", "7", "14"], answer: 1, hint: "[OH-] = $10^{-3}$ M. pOH = 3. pH = 14 - pOH." },
+            { topic: "Surface Chemistry", q: "Which of the following will show the Tyndall effect?", options: ["Salt solution", "Sugar solution", "Starch solution", "Copper sulphate solution"], answer: 2, hint: "It is shown by colloidal solutions." },
+            { topic: "Chemical Kinetics", q: "The rate of a first-order reaction is 0.04 mol $L^{-1}$ $s^{-1}$ at 10 seconds. Its rate at 20 seconds is...", options: ["0.02", "0.04", "0.08", "0.03"], answer: 0, hint: "Rate = k[A]. Rate is proportional to concentration, which decreases over time." },
+            { topic: "p-Block Elements", q: "The correct order of increasing acidic strength is...", options: ["HF < HCl < HBr < HI", "HI < HBr < HCl < HF", "HCl < HF < HBr < HI", "HBr < HI < HCl < HF"], answer: 0, hint: "Acidic strength increases down the group due to weaker bond strength." },
+            { topic: "Hydrocarbons", q: "Which compound is used in the anti-knock additive in petrol?", options: ["Tetraethyl lead", "Ethanol", "Benzene", "Methanol"], answer: 0, hint: "It increases the octane number." },
+            { topic: "Chemical Bonding", q: "Which of the following pairs has the same bond order?", options: ["$O_2, N_2$", "$F_2, O_2^-$", "$N_2, CO$", "$C_2, O_2$"], answer: 2, hint: "Both have a bond order of 3 according to MOT." },
+            { topic: "Organic Chemistry", q: "What is the product when acetone reacts with Grignard reagent ($CH_3MgBr$)?", options: ["Primary alcohol", "Secondary alcohol", "Tertiary alcohol", "Alkene"], answer: 2, hint: "Ketones give tertiary alcohols with Grignard reagents." },
+            { topic: "Solutions", q: "The number of moles of solute per kilogram of solvent is called...", options: ["Molarity", "Molality", "Normality", "Mole fraction"], answer: 1, hint: "It is temperature-independent." },
+            { topic: "Solutions", q: "Which of the following is not a colligative property?", options: ["Osmotic pressure", "Vapour pressure", "Elevation in boiling point", "Depression in freezing point"], answer: 1, hint: "Colligative properties depend on the number of solute particles." }
+        ],
+        difficult: [
+            { topic: "Electrochemistry", q: "The molar conductivity of a 0.5 mol/$dm^3$ solution of $AgNO_3$ is 100 S $cm^2$ $mol^{-1}$. What is its conductivity?", options: ["50 S $cm^{-1}$", "0.05 S $cm^{-1}$", "200 S $cm^{-1}$", "0.02 S $cm^{-1}$"], answer: 1, hint: "Conductivity ($\\kappa$) = (Molar Conductivity * Molarity) / 1000." },
+            { topic: "Solid State", q: "An element crystallizes in a BCC lattice with a cell edge of 288 pm. The atomic radius is:", options: ["$(\\sqrt{3}/4) \\times 288$ pm", "$(\\sqrt{2}/4) \\times 288$ pm", "$288/2$ pm", "288 pm"], answer: 0, hint: "For BCC, the relationship is $4r = \\sqrt{3} \\times a$." },
+            { topic: "Chemical Kinetics", q: "For the reaction 2A + B -> C, the rate is given by Rate = $k[A][B]^2$. If concentration of A is doubled and B is halved, the new rate will be:", options: ["Same", "Doubled", "Halved", "One-fourth"], answer: 2, hint: "New rate = $k(2[A])(B/2)^2 = k \\times 2 \\times (1/4) \\times [A][B]^2 = (1/2) \\times$ old rate." },
+            { topic: "Organic Chemistry", q: "Which of the following will give a positive carbylamine test?", options: ["Aniline", "Dimethylamine", "Acetone", "Phenol"], answer: 0, hint: "This test is given by primary amines." },
+            { topic: "Solutions", q: "The freezing point of a 1.00 m aqueous solution of HF is -1.91°C. The value of Kf for water is 1.86 K kg $mol^{-1}$. The van't Hoff factor (i) is:", options: ["1.03", "0.97", "2.06", "1.5"], answer: 0, hint: "The formula is $\\Delta T_f = i \\times K_f \\times m$. So, $i = \\Delta T_f / (K_f \\times m)$." },
+            { topic: "Organic Chemistry", q: "In the reaction of phenol with chloroform in the presence of NaOH, the intermediate formed is:", options: ["Carbene", "Carbanion", "Carbocation", "Free radical"], answer: 0, hint: "This is the Reimer-Tiemann reaction, which involves dichlorocarbene." },
+            { topic: "Electrochemistry", q: "The standard electrode potentials of $Zn^{2+}/Zn$ and $Cu^{2+}/Cu$ are -0.76 V and +0.34 V. The EMF of the cell constructed with these electrodes is:", options: ["1.10 V", "-1.10 V", "0.42 V", "-0.42 V"], answer: 0, hint: "Use the formula $E_{cell} = E_{cathode} - E_{anode}$. The cathode is the one with higher potential." },
+            { topic: "d- and f-Block Elements", q: "The lanthanide contraction is responsible for the fact that:", options: ["Zr and Y have similar radii", "Zr and Hf have similar radii", "Zr and Nb have similar radii", "Zr and Zn have similar radii"], answer: 1, hint: "It causes elements of the second and third transition series to have similar atomic sizes." },
+            { topic: "Coordination Compounds", q: "Which of the following is an ambidentate ligand?", options: ["$H_2O$", "$NH_3$", "$CN^-$", "$Cl^-$"], answer: 2, hint: "It can link to the central metal atom through two different atoms." },
+            { topic: "Organic Chemistry", q: "Identify the final product Z in the sequence: $C_6H_5NH_2$ --($NaNO_2$+HCl, 273K)--> X --($H_2O/H^+$)--> Z", options: ["Phenol", "Benzene", "Aniline", "Chlorobenzene"], answer: 0, hint: "This is the diazotization reaction followed by hydrolysis of the diazonium salt." }
+        ]
+    },
+    math: {
+        easy: [
+            { topic: "Sets", q: "If A = {1, 2, 3} and B = {3, 4, 5}, what is $A \\cup B$?", options: ["{3}", "{1, 2, 4, 5}", "{1, 2, 3, 4, 5}", "{}"], answer: 2, hint: "The union includes all elements from both sets." },
+            { topic: "Complex Numbers", q: "The value of $i^2 + i^4$ is (where i = $\\sqrt{-1}$)", options: ["0", "1", " -1", "2"], answer: 0, hint: "Remember that $i^2 = -1$ and $i^4 = (i^2)^2 = 1$." },
+            { topic: "Straight Lines", q: "The slope of the line perpendicular to y = 3x + 5 is...", options: ["3", "-3", "1/3", "-1/3"], answer: 3, hint: "If two lines are perpendicular, $m_1 \\times m_2 = -1$." },
+            { topic: "Derivatives", q: "What is the derivative of $sin(x)$ with respect to x?", options: ["$cos(x)$", "-$cos(x)$", "$sin(x)$", "-$sin(x)$"], answer: 0, hint: "Standard differentiation formula." },
+            { topic: "Permutations & Combinations", q: "The number of ways to arrange the letters of the word 'APPLE' is...", options: ["120", "60", "24", "5"], answer: 1, hint: "5! / 2! because 'P' is repeated twice." },
+            { topic: "Probability", q: "If P(A) = 0.6, P(B) = 0.5 and P($A \\cap B$) = 0.3, then P(A|B) is...", options: ["0.6", "0.5", "0.3", "0.75"], answer: 0, hint: "$$P(A|B) = P(A \\cap B) / P(B)$$. "},
+            { topic: "Coordinate Geometry", q: "The distance of the point (3, 4) from the origin is...", options: ["3", "4", "5", "7"], answer: 2, hint: "Use the distance formula: $\\sqrt{x^2 + y^2}$." },
+            { topic: "Matrices", q: "The determinant of the matrix [[2, 1], [4, 3]] is...", options: ["2", "6", "10", "4"], answer: 0, hint: "Determinant = (a*d) - (b*c)." },
+            { topic: "Integrals", q: "The integration of 1/x dx is...", options: ["log|x| + C", "$x^2/2 + C$", "-$1/x^2 + C$", "x + C"], answer: 0, hint: "Standard integration formula." },
+            { topic: "Differential Equations", q: "The degree of the differential equation $(d^2y/dx^2)^3 + dy/dx = 0$ is...", options: ["1", "2", "3", "4"], answer: 2, hint: "The degree is the power of the highest order derivative." }
+        ],
+        moderate: [
+            { topic: "Binomial Theorem", q: "The term independent of x in the expansion of $(x + 1/x)^{10}$ is...", options: ["$10C_5$", "$10C_4$", "$10C_6$", "$10C_0$"], answer: 0, hint: "The general term is $T_{r+1} = nC_r \\times x^{n-r} \\times (1/x)^r$. Set the power of x to 0." },
+            { topic: "Conic Sections", q: "The equation of the circle with center (2, 3) and radius 5 is...", options: ["$(x-2)^2 + (y-3)^2 = 25$", "$(x+2)^2 + (y+3)^2 = 25$", "$(x-2)^2 + (y-3)^2 = 5$", "$(x+2)^2 + (y+3)^2 = 5$"], answer: 0, hint: "The standard form is $(x-h)^2 + (y-k)^2 = r^2$." },
+            { topic: "Trigonometry", q: "If sin($\\theta$) = 3/5, then cos(2$\\theta$) is...", options: ["7/25", "24/25", "16/25", "9/25"], answer: 0, hint: "$$cos(2\\theta) = 1 - 2sin^2(\\theta)$$. "},
+            { topic: "Limits", q: "The value of lim x->0 ($sin(5x) / 3x$) is...", options: ["1", "5/3", "3/5", "0"], answer: 1, hint: "Use the standard limit lim x->0 ($sin(ax)/ax$) = 1." },
+            { topic: "Application of Integrals", q: "The area of the region bounded by $y = x^2$, x = 1, x = 2 and the x-axis is...", options: ["7/3", "8/3", "1", "4/3"], answer: 0, hint: "Integrate $x^2$ from 1 to 2." },
+            { topic: "Vector Algebra", q: "The angle between the vectors a = i+j and b = j+k is...", options: ["90°", "60°", "30°", "0°"], answer: 1, hint: "$$cos(\\theta) = (a.b) / (|a||b|)$$. "},
+            { topic: "Functions", q: "If $f(x) = x^2$ and $g(x) = x+1$, then $f(g(x))$ is...", options: ["$x^2+1$", "$(x+1)^2$", "$x^2+x$", "$x^2+x+1$"], answer: 1, hint: "Replace x in $f(x)$ with $g(x)$." },
+            { topic: "Permutations & Combinations", q: "The number of diagonals in a polygon with 10 sides is...", options: ["35", "45", "90", "20"], answer: 0, hint: "Formula: $n(n-3)/2$." },
+            { topic: "Conic Sections", q: "The eccentricity of the ellipse $x^2/16 + y^2/9 = 1$ is...", options: ["$\\sqrt{7}/4$", "$\\sqrt{7}/3$", "4/3", "3/4"], answer: 0, hint: "$$e = \\sqrt{1 - b^2/a^2}$$. "},
+            { topic: "Sequences and Series", q: "The sum of the infinite geometric series 1 + 1/2 + 1/4 + 1/8 + ... is", options: ["2", "1", "1.5", "Infinity"], answer: 0, hint: "Sum = a / (1-r), where |r| < 1." }
+        ],
+        difficult: [
+            { topic: "Definite Integrals", q: "The value of $$\\int_0^{\\pi/2} (sin(x) / (sin(x) + cos(x))) dx$$ is...", options: ["$\\pi/4$", "$\\pi/2$", "$\\pi$", "0"], answer: 0, hint: "Use the property $\\int_0^a f(x)dx = \\int_0^a f(a-x)dx$ and add the two integrals." },
+            { topic: "3D Geometry", q: "The shortest distance between the lines $(x-1)/2 = (y-2)/3 = (z-3)/4$ and $(x-2)/3 = (y-4)/4 = (z-5)/5$ is...", options: ["$1/\\sqrt{6}$", "$1/\\sqrt{3}$", "0", "1/6"], answer: 2, hint: "Check if the lines are intersecting. The lines are intersecting, so shortest distance is 0." },
+            { topic: "Derivatives", q: "If y = $(sin(x))^x$, then dy/dx is...", options: ["$(sin x)^x [log(sin x) + x cot x]$", "$(sin x)^x [log(sin x) - x cot x]$", "x cot x", "log(sin x)"], answer: 0, hint: "Use logarithmic differentiation. Take log on both sides." },
+            { topic: "Probability", q: "The probability of getting exactly 6 heads in 10 tosses of a fair coin is...", options: ["105/512", "210/1024", "$10C_6 \\times (1/2)^{10}$", "All of these"], answer: 3, hint: "Use the binomial probability formula: $nC_r \\times p^r \\times q^{n-r}$." },
+            { topic: "Coordinate Geometry", q: "The vertices of a triangle are (1,2), (h,k), and (4,3). If the centroid of the triangle is at the origin, then (h,k) is...", options: ["(-5, -5)", "(5, 5)", "(-3, -1)", "(3, 1)"], answer: 0, hint: "Centroid = ($(x_1+x_2+x_3)/3$, $(y_1+y_2+y_3)/3$)." },
+            { topic: "Differential Equations", q: "The solution of the differential equation $dy/dx = e^{x-y}$ is...", options: ["$e^y = e^x + C$", "$e^x + e^{-y} = C$", "$e^{-x} + e^y = C$", "$e^x - e^{-y} = C$"], answer: 0, hint: "Separate the variables: $e^y dy = e^x dx$, and then integrate." },
+            { topic: "Complex Numbers", q: "The modulus of the complex number (1+i)/(1-i) is...", options: ["1", "$\\sqrt{2}$", "2", "$1/\\sqrt{2}$"], answer: 0, hint: "First, rationalize the denominator, then find the modulus." },
+            { topic: "Quadratic Equations", q: "The number of real solutions of the equation $|x|^2 - 3|x| + 2 = 0$ is...", options: ["4", "2", "1", "0"], answer: 0, hint: "Let y = $|x|$. Solve the quadratic $y^2 - 3y + 2 = 0$. y=1, 2. So $|x|=1, |x|=2$. This gives x = $\\pm 1, \\pm 2$." },
+            { topic: "3D Geometry", q: "The foot of the perpendicular from the point (1,3,4) to the plane $2x - y + z + 3 = 0$ is...", options: ["(-1, 4, 3)", "(1, 3, -4)", "(-3, 5, 2)", "(1, -3, 4)"], answer: 0, hint: "Find the equation of the line passing through the point and perpendicular to the plane, then find the intersection point." },
+            { topic: "Matrices", q: "If A and B are two matrices such that AB = B and BA = A, then $A^2 + B^2$ is equal to...", options: ["A+B", "2AB", "2BA", "I"], answer: 0, hint: "Remember that $A^2 = A\\times A = (BA)A = B(A^2)$. Also, $A^2=A$ and $B^2=B$." }
+        ]
+    },
+    biology: {
+        easy: [
+            { topic: "Cell Biology", q: "Which cell organelle is known as the 'suicidal bag'?", options: ["Ribosome", "Lysosome", "Mitochondrion", "Golgi apparatus"], answer: 1, hint: "It contains hydrolytic enzymes." },
+            { topic: "Human Physiology", q: "The largest gland in the human body is...", options: ["Pancreas", "Liver", "Salivary gland", "Thyroid"], answer: 1, hint: "It produces bile." },
+            { topic: "Human Health", q: "Which vitamin deficiency causes Scurvy?", options: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"], answer: 2, hint: "It is found in citrus fruits." },
+            { topic: "Human Physiology", q: "The functional unit of the kidney is...", options: ["Neuron", "Nephron", "Alveoli", "Villi"], answer: 1, hint: "It is responsible for filtering blood and forming urine." },
+            { topic: "Reproduction", q: "The process of fusion of male and female gametes is called...", options: ["Pollination", "Fertilization", "Germination", "Reproduction"], answer: 1, hint: "It results in the formation of a zygote." },
+            { topic: "Human Physiology", q: "Which part of the brain controls body temperature and urge for eating?", options: ["Cerebrum", "Cerebellum", "Hypothalamus", "Medulla"], answer: 2, hint: "It is located at the base of the brain." },
+            { topic: "Evolution", q: "What is the study of fossils called?", options: ["Paleontology", "Archaeology", "Anthropology", "Geology"], answer: 0, hint: "It helps in understanding evolution." },
+            { topic: "Human Physiology", q: "Which blood cells are responsible for fighting infection?", options: ["Red blood cells", "Platelets", "White blood cells", "Plasma"], answer: 2, hint: "Also known as leukocytes." },
+            { topic: "Plant Physiology", q: "The green pigment in plants that helps in photosynthesis is...", options: ["Xanthophyll", "Carotene", "Chlorophyll", "Hemoglobin"], answer: 2, hint: "It is located in chloroplasts." },
+            { topic: "Human Health", q: "Which of the following is a communicable disease?", options: ["Cancer", "Diabetes", "Tuberculosis", "Scurvy"], answer: 2, hint: "It can spread from one person to another." }
+        ],
+        moderate: [
+            { topic: "Genetics", q: "The sequence of the three bases on tRNA that is complementary to the codon of mRNA is called...", options: ["Codon", "Anticodon", "Gene", "Allele"], answer: 1, hint: "It binds to the codon during translation." },
+            { topic: "Human Physiology", q: "Which of the following hormones is responsible for the reabsorption of water in the kidneys?", options: ["ADH", "Insulin", "Glucagon", "Thyroxine"], answer: 0, hint: "Also known as Vasopressin." },
+            { topic: "Microbiology", q: "The process of converting milk into curd is due to the bacterium...", options: ["Lactobacillus", "Rhizobium", "Penicillium", "Streptococcus"], answer: 0, hint: "It produces lactic acid." },
+            { topic: "Cell Division", q: "Which stage of meiosis involves the crossing over of chromosomes?", options: ["Prophase I", "Metaphase I", "Anaphase I", "Telophase I"], answer: 0, hint: "Specifically, it occurs during the pachytene sub-stage." },
+            { topic: "Plant Physiology", q: "The end product of glycolysis is...", options: ["Glucose", "Pyruvic acid", "Lactic acid", "Citric acid"], answer: 1, hint: "This process occurs in the cytoplasm." },
+            { topic: "Evolution", q: "Which of the following is an example of a vestigial organ in humans?", options: ["Appendix", "Heart", "Lungs", "Kidneys"], answer: 0, hint: "It is a remnant of a once-functional organ." },
+            { topic: "Evolution", q: "The theory of 'Survival of the Fittest' was proposed by...", options: ["Lamarck", "Darwin", "Mendel", "Hugo de Vries"], answer: 1, hint: "He wrote 'On the Origin of Species'." },
+            { topic: "Ecology", q: "The flow of energy in an ecosystem is always...", options: ["Unidirectional", "Bidirectional", "Cyclic", "Multidirectional"], answer: 0, hint: "It flows from producers to consumers." },
+            { topic: "Genetics", q: "What is the cause of Down's Syndrome?", options: ["Trisomy of chromosome 21", "Monosomy of chromosome X", "Trisomy of chromosome 18", "Presence of an extra Y chromosome"], answer: 0, hint: "It is a chromosomal disorder." },
+            { topic: "Biotechnology", q: "The technique of growing plants in a nutrient solution, without soil, is called...", options: ["Aquaculture", "Horticulture", "Hydroponics", "Sericulture"], answer: 2, hint: "It is a modern farming technique." }
+        ],
+        difficult: [
+            { topic: "Genetics", q: "In the lac operon model, the repressor protein binds to the...", options: ["Promoter region", "Operator region", "Structural gene", "Regulator gene"], answer: 1, hint: "Binding of the repressor prevents RNA polymerase from transcribing the structural genes." },
+            { topic: "Genetics", q: "A man with blood group A marries a woman with blood group B. What are the possible blood groups of their offspring?", options: ["A, B only", "A, B, AB only", "A, B, AB, O", "AB only"], answer: 2, hint: "Consider the genotypes IAi and IBi." },
+            { topic: "Biotechnology", q: "The enzyme responsible for the synthesis of DNA from an RNA template is...", options: ["DNA polymerase", "RNA polymerase", "Reverse transcriptase", "Ligase"], answer: 2, hint: "This process is central to retroviruses like HIV." },
+            { topic: "Human Physiology", q: "Which part of the human ear has no role in hearing but is essential for balance?", options: ["Cochlea", "Tympanic membrane", "Vestibular apparatus", "Eustachian tube"], answer: 2, hint: "It consists of the semicircular canals and the otolith organs." },
+            { topic: "Genetics", q: "The phenomenon where a single gene exhibits multiple phenotypic expressions is called...", options: ["Polygenic inheritance", "Pleiotropy", "Codominance", "Incomplete dominance"], answer: 1, hint: "Phenylketonuria is a classic example of this." },
+            { topic: "Plant Physiology", q: "Which of the following is a C4 plant?", options: ["Rice", "Wheat", "Sugarcane", "Potato"], answer: 2, hint: "C4 plants have Kranz anatomy and are adapted to hot, dry climates." },
+            { topic: "Reproduction", q: "The process of oogenesis is initiated...", options: ["During embryonic development", "At puberty", "At menopause", "After birth"], answer: 0, hint: "A large number of oogonia are formed in the fetal ovary." },
+            { topic: "Human Physiology", q: "The correct sequence of events during a cardiac cycle is...", options: ["Atrial systole, Ventricular systole, Joint diastole", "Ventricular systole, Atrial systole, Joint diastole", "Joint diastole, Atrial systole, Ventricular systole", "Atrial systole, Joint diastole, Ventricular systole"], answer: 0, hint: "The cycle begins with the contraction of the atria." },
+            { topic: "Biotechnology", q: "Which of the following is used as a vector in genetic engineering?", options: ["Plasmid", "Mitochondria", "Ribosome", "Lysosome"], answer: 0, hint: "It is a small, extrachromosomal DNA molecule within a bacterium." },
+            { topic: "Ecology", q: "BOD (Biochemical Oxygen Demand) is a measure of...", options: ["Industrial pollution", "Air pollution", "Organic matter in water", "Noise pollution"], answer: 2, hint: "High BOD indicates a high level of water pollution." }
+        ]
+    }
+};
+
+const careerPaths = {
+    physics: [{ score: 50, name: "Mechanical Engineer" }, { score: 100, "name": "Aerospace Engineer" }, { score: 150, name: "Astrophysicist" }],
+    chemistry: [{ score: 50, name: "Chemical Engineer" }, { score: 100, name: "Pharmacist" }, { score: 150, name: "Forensic Scientist" }],
+    math: [{ score: 50, name: "Software Developer" }, { score: 100, name: "Data Scientist" }, { score: 150, name: "Investment Banker" }],
+    biology: [{ score: 50, name: "Doctor (MBBS)" }, { score: 100, name: "Biotechnologist" }, { score: 150, name: "Genetic Researcher" }],
+};
+
+// --- Firebase Config ---
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO", authDomain: "DEMO", projectId: "DEMO" };
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'mission-cet-neet-default';
+
+// --- App State ---
+let app, db, auth;
+let userId = null;
+let currentSubject = '';
+let chosenDifficulty = '';
+let currentQuestions = [];
+let questionIndex = 0;
+let score = 0; // The cumulative score for the entire session
+let timer;
+let timeLeft = 30;
+let powerups = { hint: 3, fiftyFifty: 1, freezeTime: 1 };
+
+// --- UI Elements ---
+const screens = {
+    start: document.getElementById('start-screen'),
+    subject: document.getElementById('subject-screen'),
+    difficulty: document.getElementById('difficulty-screen'),
+    quiz: document.getElementById('quiz-screen'),
+    result: document.getElementById('result-screen'),
+    leaderboard: document.getElementById('leaderboard-screen'),
+    careers: document.getElementById('careers-screen'),
+};
+const questionCounter = document.getElementById('question-counter');
+const subjectTitle = document.getElementById('subject-title');
+const topicText = document.getElementById('topic-text');
+const timerContainer = document.getElementById('timer-container');
+const questionText = document.getElementById('question-text');
+const optionsContainer = document.getElementById('options-container');
+const hintBox = document.getElementById('hint-box');
+const finalScoreDisplay = document.getElementById('final-score');
+const careerUnlockNotification = document.getElementById('career-unlock-notification');
+const currentScoreDisplay = document.getElementById('current-score');
+const nextLevelBtn = document.getElementById('next-level-btn');
+const playAgainBtn = document.getElementById('play-again-btn');
+
+// --- Main App Logic ---
+const showScreen = (screenName) => {
+    Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+    if (screens[screenName]) {
+        screens[screenName].classList.remove('hidden');
+    }
+    // Render math on new screen display
+    if (window.MathJax) {
+        window.MathJax.typeset();
+    }
+};
+
+const quitQuiz = () => {
+    clearInterval(timer);
+    score = 0; // Reset score on quitting a quiz session
+    showScreen('subject');
+};
+
+const updateDashboard = (userData) => {
+    const scores = userData.totalScores || {};
+    document.getElementById('hs-physics').textContent = scores.physics || 0;
+    document.getElementById('hs-chemistry').textContent = scores.chemistry || 0;
+    document.getElementById('hs-math').textContent = scores.math || 0;
+    document.getElementById('hs-biology').textContent = scores.biology || 0;
+
+    const savedPowerups = userData.powerups || {};
+    powerups.fiftyFifty = savedPowerups.fiftyFifty || 1;
+    powerups.freezeTime = savedPowerups.freezeTime || 1;
+    updatePowerupDisplay();
+
+    // Update careers list in the background
+    const unlockedCareers = userData.unlockedCareers || [];
+    const listEl = document.getElementById('unlocked-careers-list');
+    listEl.innerHTML = '';
+    if (unlockedCareers.length > 0) {
+        unlockedCareers.forEach(careerName => {
+            const item = document.createElement('div');
+            item.className = 'card p-4 rounded-lg text-center';
+            item.innerHTML = `<h3 class="font-bold text-lg text-green-400">${careerName}</h3>`;
+            listEl.appendChild(item);
+        });
+    } else {
+        listEl.innerHTML = `<p class="text-center text-gray-400 col-span-full">No careers unlocked yet. Score well to unlock career paths!</p>`;
+    }
+};
+
+const setupEventListeners = () => {
+    document.getElementById('start-game-btn').addEventListener('click', () => showScreen('subject'));
+    
+    document.querySelectorAll('.subject-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentSubject = btn.dataset.subject;
+            // Reset score to zero for a new subject
+            score = 0;
+            currentScoreDisplay.textContent = score;
+            document.getElementById('difficulty-subject-title').textContent = currentSubject;
+            showScreen('difficulty');
+        });
+    });
+
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            chosenDifficulty = btn.dataset.difficulty;
+            startQuiz();
+        });
+    });
+    
+    document.getElementById('back-to-subject-btn').addEventListener('click', () => showScreen('subject'));
+    document.getElementById('quit-btn').addEventListener('click', quitQuiz);
+    
+    playAgainBtn.addEventListener('click', () => showScreen('subject'));
+    nextLevelBtn.addEventListener('click', playNextLevel);
+    
+    document.getElementById('view-leaderboard-btn-1').addEventListener('click', showLeaderboard);
+    document.getElementById('view-leaderboard-btn-2').addEventListener('click', showLeaderboard);
+    document.getElementById('view-careers-btn-1').addEventListener('click', () => showScreen('careers'));
+
+    document.getElementById('back-to-menu-btn-1').addEventListener('click', () => showScreen('subject'));
+    document.getElementById('back-to-menu-btn-2').addEventListener('click', () => showScreen('subject'));
+    
+    document.getElementById('powerup-5050').addEventListener('click', useFiftyFifty);
+    document.getElementById('powerup-hint').addEventListener('click', useHint);
+    document.getElementById('powerup-freeze').addEventListener('click', useFreezeTime);
+};
+
+const playNextLevel = () => {
+    const difficulties = ['easy', 'moderate', 'difficult'];
+    const currentIndex = difficulties.indexOf(chosenDifficulty);
+
+    if (currentIndex < difficulties.length - 1) {
+        chosenDifficulty = difficulties[currentIndex + 1];
+        startQuiz();
+    }
+};
+
+const startQuiz = () => {
+    const subjectDisplayNames = {
+        physics: 'Physics',
+        chemistry: 'Chemistry',
+        math: 'Maths',
+        biology: 'Biology'
+    };
+    subjectTitle.textContent = subjectDisplayNames[currentSubject];
+    
+    const subjectQuestions = questions[currentSubject];
+    currentQuestions = [...subjectQuestions[chosenDifficulty]].sort(() => 0.5 - Math.random()).slice(0, 10);
+    
+    questionIndex = 0;
+    // Score is now cumulative, so we don't reset it here
+    powerups.hint = 3; // Reset hints for each level
+    
+    currentScoreDisplay.textContent = score;
+    updatePowerupDisplay();
+    showScreen('quiz');
+    displayQuestion();
+};
+
+const displayQuestion = () => {
+    if (questionIndex >= currentQuestions.length) {
+        endQuiz();
+        return;
+    }
+    resetQuestionState();
+    const q = currentQuestions[questionIndex];
+
+    const progressBar = document.getElementById('progress-bar');
+    const progressPercentage = ((questionIndex + 1) / currentQuestions.length) * 100;
+    progressBar.style.width = `${progressPercentage}%`;
+
+    questionCounter.textContent = `Question ${questionIndex + 1}/${currentQuestions.length}`;
+    topicText.textContent = `Topic: ${q.topic}`;
+    questionText.innerHTML = q.q;
+    optionsContainer.innerHTML = '';
+    q.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.innerHTML = option;
+        button.classList.add('option', 'w-full', 'p-4', 'rounded-lg', 'text-left', 'transition-all', 'duration-200', 'border-2', 'border-gray-600', 'bg-gray-700', 'hover:bg-gray-600', 'hover:border-cyan-500');
+        button.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(button);
+    });
+    // Rerender MathJax after new content is loaded
+    if (window.MathJax) {
+        window.MathJax.typesetPromise([questionText, optionsContainer]).then(() => {
+            startTimer();
+        });
+    } else {
+        startTimer();
+    }
+};
+
+const resetQuestionState = () => {
+    hintBox.classList.add('hidden');
+    hintBox.textContent = '';
+    document.querySelectorAll('.powerup-btn').forEach(btn => btn.disabled = false);
+    const quizCard = document.querySelector('#quiz-screen .card');
+    if(quizCard) {
+        quizCard.classList.remove('correct-animation', 'wrong-animation');
+    }
+    for (const child of optionsContainer.children) {
+        child.disabled = false;
+        child.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+    if (timerContainer) {
+        timerContainer.classList.remove('timer-running');
+    }
+}
+
+const startTimer = () => {
+    timeLeft = 30;
+    
+    if (timerContainer) {
+        void timerContainer.offsetWidth; // Force a reflow to restart the CSS animation
+        timerContainer.classList.add('timer-running');
+    }
+
+    clearInterval(timer);
+    timer = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            selectAnswer(null); // Timeout
+        }
+    }, 1000);
+};
+
+const selectAnswer = (selectedIndex) => {
+    clearInterval(timer);
+    if (timerContainer) {
+        timerContainer.classList.remove('timer-running');
+    }
+
+    const q = currentQuestions[questionIndex];
+    const options = optionsContainer.children;
+    const quizCard = document.querySelector('#quiz-screen .card');
+    let isCorrect = selectedIndex === q.answer;
+
+    Array.from(options).forEach((button, index) => {
+        button.disabled = true;
+        if (index === q.answer) {
+            button.classList.add('correct');
+        } else if (index === selectedIndex && !isCorrect) {
+            button.classList.add('incorrect');
+        }
+    });
+
+    if (isCorrect) {
+        score += 10;
+        if (currentScoreDisplay) currentScoreDisplay.textContent = score;
+        quizCard.classList.add('correct-animation');
+    } else {
+        quizCard.classList.add('wrong-animation');
+    }
+
+    setTimeout(() => {
+        questionIndex++;
+        displayQuestion();
+    }, 1500);
+};
+
+const endQuiz = async () => {
+    finalScoreDisplay.textContent = score;
+    showScreen('result');
+
+    const difficulties = ['easy', 'moderate', 'difficult'];
+    const currentIndex = difficulties.indexOf(chosenDifficulty);
+
+    if (currentIndex < difficulties.length - 1) {
+        nextLevelBtn.classList.remove('hidden');
+    } else {
+        nextLevelBtn.classList.add('hidden');
+    }
+
+    if (!userId) return;
+
+    // Save score and other data to the user's private document
+    try {
+        const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
+        const userDoc = await getDoc(userDocRef);
+        
+        let newTotalScores = userDoc.exists() ? userDoc.data().totalScores || {} : {};
+        let unlockedCareers = userDoc.exists() ? userDoc.data().unlockedCareers || [] : [];
+        let newUnlock = false;
+
+        const oldTotalScore = newTotalScores[currentSubject] || 0;
+        if (score > oldTotalScore) {
+            newTotalScores[currentSubject] = score;
+        }
+
+        const subjectCareers = careerPaths[currentSubject] || [];
+        subjectCareers.forEach(career => {
+            if (newTotalScores[currentSubject] >= career.score && !unlockedCareers.includes(career.name)) {
+                unlockedCareers.push(career.name);
+                newUnlock = true;
+            }
+        });
+        
+        if (newUnlock) {
+            careerUnlockNotification.classList.remove('hidden');
+        } else {
+            careerUnlockNotification.classList.add('hidden');
+        }
+
+        if (userDoc.exists()) {
+            await updateDoc(userDocRef, {
+                totalScores: newTotalScores,
+                unlockedCareers: unlockedCareers,
+                powerups: powerups
+            });
+        } else {
+            await setDoc(userDocRef, {
+                totalScores: newTotalScores,
+                unlockedCareers: unlockedCareers,
+                powerups: powerups
+            });
+        }
+    } catch (e) {
+        console.error("Error updating user profile:", e);
+    }
+    
+    // Save score to the public leaderboard
+    try {
+        await addDoc(collection(db, `artifacts/${appId}/public/data/leaderboard`), {
+            userId: userId,
+            score: score,
+            subject: currentSubject,
+            timestamp: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("Error adding to leaderboard:", e);
+    }
+};
+
+const updatePowerupDisplay = () => {
+    document.getElementById('count-5050').textContent = powerups.fiftyFifty;
+    document.getElementById('count-hint').textContent = powerups.hint;
+    document.getElementById('count-freeze').textContent = powerups.freezeTime;
+};
+
+const useFiftyFifty = () => {
+    if (powerups.fiftyFifty > 0) {
+        powerups.fiftyFifty--;
+        updatePowerupDisplay();
+        const q = currentQuestions[questionIndex];
+        const options = optionsContainer.children;
+        let incorrectIndexes = [];
+        Array.from(options).forEach((opt, index) => {
+            if (index !== q.answer) incorrectIndexes.push(index);
+        });
+        
+        incorrectIndexes.sort(() => 0.5 - Math.random());
+        options[incorrectIndexes[0]].disabled = true;
+        options[incorrectIndexes[0]].classList.add('opacity-50', 'cursor-not-allowed');
+        options[incorrectIndexes[1]].disabled = true;
+        options[incorrectIndexes[1]].classList.add('opacity-50', 'cursor-not-allowed');
+        document.getElementById('powerup-5050').disabled = true;
+    }
+};
+
+const useHint = () => {
+    if (powerups.hint > 0) {
+        powerups.hint--;
+        score -= 5;
+        if (score < 0) score = 0;
+        currentScoreDisplay.textContent = score;
+        updatePowerupDisplay();
+        hintBox.innerHTML = `Hint: ${currentQuestions[questionIndex].hint}`;
+        hintBox.classList.remove('hidden');
+        document.getElementById('powerup-hint').disabled = true;
+        // Rerender MathJax in hint box
+        if (window.MathJax) {
+            window.MathJax.typesetPromise([hintBox]);
+        }
+    }
+};
+
+const useFreezeTime = () => {
+    if (powerups.freezeTime > 0) {
+        powerups.freezeTime--;
+        updatePowerupDisplay();
+        clearInterval(timer);
+
+        if (timerContainer) {
+            timerContainer.classList.remove('timer-running');
+            timerContainer.classList.add('animate-pulse');
+            const timerProgress = document.getElementById('timer-progress');
+            if (timerProgress) timerProgress.classList.add('text-blue-400');
+        }
+
+        document.getElementById('powerup-freeze').disabled = true;
+
+        setTimeout(() => {
+            if (timerContainer) {
+                timerContainer.classList.remove('animate-pulse');
+                const timerProgress = document.getElementById('timer-progress');
+                if (timerProgress) timerProgress.classList.remove('text-blue-400');
+            }
+
+            const firstOption = optionsContainer.querySelector('button');
+            if (firstOption && !firstOption.disabled) {
+                startTimer();
+            }
+        }, 5000);
+    }
+};
+
+const showLeaderboard = () => {
+    showScreen('leaderboard');
+    const listEl = document.getElementById('leaderboard-list');
+    listEl.innerHTML = `<p class="text-center text-gray-400">Loading leaderboard...</p>`;
+    
+    const q = query(collection(db, `artifacts/${appId}/public/data/leaderboard`), orderBy("score", "desc"), limit(20));
+    onSnapshot(q, (querySnapshot) => {
+        if (querySnapshot.empty) {
+            listEl.innerHTML = `<p class="text-center text-gray-400">No scores yet. Be the first!</p>`;
+            return;
+        }
+
+        listEl.innerHTML = '';
+        let rank = 1;
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const item = document.createElement('div');
+            item.className = 'flex items-center justify-between p-3 rounded-lg bg-gray-800';
+            item.innerHTML = `
+                <div class="flex items-center">
+                    <span class="font-bold text-lg w-8">${rank}</span>
+                    <span class="ml-2 text-gray-300">User: ${data.userId}</span>
+                </div>
+                <span class="font-bold text-cyan-400 text-lg">${data.score} Points</span>
+            `;
+            listEl.appendChild(item);
+            rank++;
+        });
+    });
+};
+
+// --- Initialization ---
+const init = () => {
+    try {
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+        setLogLevel('debug'); // Change to 'info' or 'silent' for production
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
+                onSnapshot(userDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        updateDashboard(docSnap.data());
+                    } else {
+                        updateDashboard({});
+                    }
+                });
+            } else {
+                try {
+                    const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                    if (token) {
+                        await signInWithCustomToken(auth, token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Anonymous sign-in failed:", error);
+                }
+            }
+        });
+        
+        setupEventListeners();
+        showScreen('start');
+
+    } catch (e) {
+        console.error("Firebase initialization failed:", e);
+        console.log("Running in OFFLINE MODE - Game will work without cloud saves");
+        // Continue with game even if Firebase fails
+        setupEventListeners();
+        showScreen('start');
+    }
+};
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,3207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCare Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Vibrant Animated Kids Theme for Student Dashboard --- */
+.student-bg-animated {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -1;
+    background: linear-gradient(135deg, #ffe53b 0%, #ff2525 100%);
+    overflow: hidden;
+}
+
+/* Floating emoji animation */
+@keyframes emoji-float {
+    0% { transform: translateY(120vh) scale(0.9) rotate(-12deg); opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-120vh) scale(1.15) rotate(20deg); opacity: 0.7; }
+}
+.bg-emoji {
+    position: absolute;
+    font-size: 3.2rem;
+    pointer-events: none;
+    opacity: 0.85;
+    animation: emoji-float 12s linear infinite;
+    will-change: transform;
+}
+.bg-emoji:nth-child(2) { left: 15vw; animation-delay: 2s; font-size: 4rem;}
+.bg-emoji:nth-child(3) { left: 30vw; animation-delay: 5.5s; font-size: 3rem;}
+.bg-emoji:nth-child(4) { left: 45vw; animation-delay: 0.5s; font-size: 3.7rem;}
+.bg-emoji:nth-child(5) { left: 60vw; animation-delay: 7s; font-size: 5rem;}
+.bg-emoji:nth-child(6) { left: 80vw; animation-delay: 3.2s; font-size: 2.7rem;}
+.bg-emoji:nth-child(7) { left: 5vw; animation-delay: 8s; font-size: 4.2rem;}
+.bg-emoji:nth-child(8) { left: 72vw; animation-delay: 4.7s; font-size: 3.4rem;}
+.bg-emoji:nth-child(9) { left: 55vw; animation-delay: 10s; font-size: 3.8rem;}
+.bg-emoji:nth-child(10) { left: 22vw; animation-delay: 6s; font-size: 4.6rem; }
+
+/* Sparkle Animation */
+@keyframes sparkle {
+    0%, 100% { opacity: 0.45; transform: scale(1);}
+    50% { opacity: 1; transform: scale(1.25);}
+}
+.sparkle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle, #fff7ad 55%, #ffe53b 80%, transparent 100%);
+    border-radius: 50%;
+    opacity: 0.45;
+    animation: sparkle 3s infinite;
+}
+.sparkle:nth-child(11) { top: 10vh; left: 25vw; animation-delay: 1.5s; }
+.sparkle:nth-child(12) { top: 70vh; left: 55vw; animation-delay: 2.5s; }
+.sparkle:nth-child(13) { top: 40vh; left: 15vw; animation-delay: 0.7s; }
+.sparkle:nth-child(14) { top: 80vh; left: 85vw; animation-delay: 3.2s; }
+.sparkle:nth-child(15) { top: 60vh; left: 42vw; animation-delay: 2.8s; }
+
+/* Responsive fix for content */
+#student-dashboard {
+    position: relative;
+    z-index: 10;
+}
+
+
+        /* --- Parent Dashboard Specific Styles --- */
+        h1, h2, h3 { font-family: 'Poppins', sans-serif; font-weight: 700; }
+        .parent-dashboard-bg {
+            background: linear-gradient(135deg, #f0f9ff 0%, #eef2f7 100%);
+            color: #334155;
+        }
+        .parent-dashboard-bg .themed-header { color: #1e293b; }
+        .parent-dashboard-bg .themed-text { color: #475569; }
+        
+        .dashboard-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
+        }
+        @keyframes slide-in-up {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in-up {
+            animation: slide-in-up 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+            opacity: 0;
+        }
+
+        /* NEW Parent Animations */
+        @keyframes fill-progress {
+            from { width: 0%; }
+        }
+        .progress-bar-animated > div {
+            animation: fill-progress 1.5s ease-out forwards;
+        }
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        @keyframes pulse-avatar {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(49, 196, 141, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(49, 196, 141, 0); }
+        }
+        .avatar-pulse {
+            animation: pulse-avatar 2.5s infinite;
+        }
+        
+        /* --- Styles for the added student dashboard sections --- */
+        .spinner {
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Style for the audio icon button */
+        .audio-btn-playing svg {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* --- Monkey Animation Styles --- */
+        @keyframes fall-down {
+            from { transform: translateY(-100vh) rotate(-60deg); }
+            to { transform: translateY(0) rotate(0deg); }
+        }
+        @keyframes go-up {
+            from { transform: translateY(0) rotate(0deg); }
+            to { transform: translateY(-100vh) rotate(60deg); }
+        }
+        .animate-fall {
+            animation: fall-down 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards; /* EaseInBack curve */
+        }
+        .animate-rise {
+            animation: go-up 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards; /* EaseOutBack curve with a slight delay */
+        }
+
+        /* --- New Engagement Animations --- */
+        @keyframes jiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+        .group:hover .jiggle-on-hover {
+            animation: jiggle 0.4s;
+        }
+
+        /* Pulsing glow for AI feature buttons */
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 8px rgba(168, 85, 247, 0.5); }
+            50% { box-shadow: 0 0 16px rgba(168, 85, 247, 0.9); }
+        }
+        .ai-glow {
+            animation: glow 2s infinite ease-in-out;
+        }
+
+        /* Engaging Loading Animations */
+        @keyframes thinking {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .loader-thinking {
+            font-size: 2.5rem;
+            animation: thinking 1.5s infinite ease-in-out;
+        }
+        
+        @keyframes page-turn {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        .loader-book {
+              font-size: 2.5rem;
+              animation: page-turn 2s infinite linear;
+        }
+        
+        /* Styles for Math Bullseye game */
+        #math-game-modal #game-container {
+            background-color: #121212;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #math-game-modal canvas {
+            background-color: transparent;
+            touch-action: none;
+            display: block;
+        }
+        #math-game-modal #ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+        #math-game-modal #game-over-screen {
+            pointer-events: auto;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: rgba(10, 10, 30, 0.95);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            max-width: 90%;
+            color: #f3f4f6;
+        }
+        #math-game-modal #game-over-screen h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            color: #ffc400;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        #math-game-modal .score-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f3f4f6;
+            margin-top: 20px;
+        }
+        #math-game-modal .button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            margin: 0 10px;
+        }
+        #math-game-modal .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #math-game-modal #play-again-btn {
+            background-color: #404080;
+            color: white;
+        }
+        #math-game-modal #play-again-btn:hover {
+            background-color: #7070a0;
+        }
+        #math-game-modal #quit-btn {
+            background-color: #404080;
+            color: white;
+        }
+        #math-game-modal #quit-btn:hover {
+            background-color: #7070a0;
+        }
+        #math-game-modal .leaderboard {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 30px;
+        }
+        #math-game-modal .leaderboard h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e6e6cc;
+        }
+        #math-game-modal .leaderboard ol {
+            list-style-type: none;
+            padding: 0;
+        }
+        #math-game-modal .leaderboard li {
+            font-size: 1rem;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f3f4f6;
+        }
+        #math-game-modal .leaderboard li:last-child {
+            border-bottom: none;
+        }
+        #math-game-modal .leaderboard .top-3 {
+            color: #ffc400;
+        }
+        #math-game-modal .leaderboard .top-3:nth-child(2) {
+            color: #c0c0c0;
+        }
+        #math-game-modal .leaderboard .top-3:nth-child(3) {
+            color: #cd7f32;
+        }
+
+        /* Puzzle Mania Modal styles */
+        #puzzle-mania-modal #game-container {
+            background-color: #2c3e50;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 95%;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #puzzle-mania-modal .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            width: 100%;
+            max-width: 400px;
+        }
+        #puzzle-mania-modal .card {
+            background-color: #34495e;
+            color: white;
+            padding: 1rem;
+            font-size: 2rem;
+            text-align: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        #puzzle-mania-modal .card-inner {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        #puzzle-mania-modal .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        #puzzle-mania-modal .card-front,
+        #puzzle-mania-modal .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+        }
+        #puzzle-mania-modal .card-front {
+            background-color: #e74c3c;
+            transform: rotateY(180deg);
+        }
+        #puzzle-mania-modal .card-back {
+            background-color: #95a5a6;
+        }
+        #puzzle-mania-modal .card.matched .card-front {
+            background-color: #2ecc71;
+        }
+        #puzzle-mania-modal #game-info {
+            width: 100%;
+            max-width: 400px;
+        }
+        #puzzle-mania-modal #start-button, #puzzle-mania-modal #quit-game-btn {
+            background-color: #3498db;
+            color: white;
+            font-size: 1.25rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #puzzle-mania-modal #start-button:hover, #puzzle-mania-modal #quit-game-btn:hover {
+            background-color: #2980b9;
+        }
+
+        #chat-toggle-button {
+            position: fixed;
+            bottom: 90px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: #4f46e5; /* Indigo to match theme */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: transform 0.2s ease;
+        }
+
+        #chat-toggle-button:hover {
+            transform: scale(1.1);
+        }
+
+        #chat-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            z-index: 999;
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        #chat-window.open {
+            display: flex;
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        #chatbot-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div id="message-container" class="fixed top-5 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-6 py-3 rounded-full shadow-lg z-50 transform scale-0 opacity-0 transition-all duration-300">
+        <span id="message-text"></span>
+    </div>
+
+    <div id="role-selection-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl text-center">
+            <h2 id="role-modal-title" class="text-3xl font-bold mb-6 text-indigo-800">Select Your Role</h2>
+            <div class="flex space-x-6">
+                <button id="student-role-btn" class="px-8 py-4 rounded-full font-bold text-xl text-white bg-blue-500 hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-user-graduate mr-2"></i> <span class="role-student-text">Student</span>
+                </button>
+                <button id="teacher-role-btn" class="px-8 py-4 rounded-full font-bold text-xl text-white bg-indigo-500 hover:bg-indigo-600 transition-colors">
+                    <i class="fas fa-chalkboard-teacher mr-2"></i> <span class="role-teacher-text">Teacher</span>
+                </button>
+                <button id="parent-role-btn" class="px-8 py-4 rounded-full font-bold text-xl text-white bg-teal-500 hover:bg-teal-600 transition-colors">
+                    <i class="fas fa-user-friends mr-2"></i> <span class="role-parent-text">Parent</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <button id="role-switch-btn" class="fixed bottom-5 right-5 z-40 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg hover:bg-gray-700 transition-colors hidden">
+        Switch Role
+    </button>
+    
+    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl text-center w-full max-w-md">
+            <h2 id="login-modal-title" class="text-3xl font-bold mb-6 text-indigo-800">Login with Phone</h2>
+            <form id="login-form" class="space-y-4">
+                <input type="tel" id="phone-number" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-400 focus:outline-none" placeholder="Enter Phone Number (e.g., 919876543210)">
+                <button type="submit" id="request-otp-btn" class="w-full bg-blue-500 text-white py-3 rounded-xl font-bold hover:bg-blue-600 transition-colors duration-200">Request OTP</button>
+            </form>
+            <div id="otp-section" class="space-y-4 mt-6 hidden">
+                <p id="otp-info-text" class="text-gray-600">Enter the mock OTP to log in.</p>
+                <input type="text" id="otp-input" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-400 focus:outline-none" placeholder="Enter OTP (e.g., 123456)">
+                <button id="verify-otp-btn" class="w-full bg-indigo-500 text-white py-3 rounded-xl font-bold hover:bg-indigo-600 transition-colors duration-200">Verify OTP</button>
+            </div>
+        </div>
+    </div>
+    
+   <div class="student-bg-animated">
+    <div class="bg-emoji" style="top:80vh;">🦄</div>
+    <div class="bg-emoji" style="top:65vh;">🚀</div>
+    <div class="bg-emoji" style="top:70vh;">🔤</div>
+    <div class="bg-emoji" style="top:90vh;">🍉</div>
+    <div class="bg-emoji" style="top:85vh;">🧠</div>
+    <div class="bg-emoji" style="top:75vh;">🎈</div>
+    <div class="bg-emoji" style="top:30vh;">🌟</div>
+    <div class="bg-emoji" style="top:50vh;">🤩</div>
+    <div class="bg-emoji" style="top:20vh;">📚</div>
+    <div class="bg-emoji" style="top:15vh;">🏆</div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+</div>
+
+    <div id="student-dashboard" class="hidden">
+
+        <div class="w-full">
+            <header class="text-center animate-slide-in-up pt-4" style="animation-delay: 100ms;">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight tracking-tight">
+                    Student Dashboard
+                </h1>
+                <p class="mt-2 text-lg text-gray-600">
+                    Your one-stop place for everything academic.
+                </p>
+            </header>
+        </div>
+        
+        <div class="container mx-auto p-4 md:p-10">
+            <div class="flex justify-end mb-4">
+                <select id="language-selector" class="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700 font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </select>
+            </div>
+            
+            <div class="card bg-white p-10 mb-10 flex flex-col md:flex-row items-center space-y-8 md:space-y-0 md:space-x-16">
+                <div class="flex items-center space-x-8">
+                    <div class="w-32 h-32 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center overflow-hidden shadow-xl">
+                        <span id="student-user-avatar" class="text-white text-6xl font-extrabold"></span>
+                    </div>
+                    <div>
+                        <h1 id="student-welcome-message" class="text-5xl font-black text-gray-900 leading-tight"></h1>
+                        <p id="student-learning-message" class="text-xl text-gray-600 font-medium"></p>
+                    </div>
+                </div>
+                
+                <div class="flex-grow flex flex-col md:flex-row items-end md:items-center space-y-5 md:space-y-0 md:space-x-8">
+                    <div class="flex items-center space-x-4 bg-yellow-200 px-8 py-4 rounded-full shadow-inner">
+                        <i class="fas fa-star text-yellow-600 text-3xl"></i>
+                        <span id="student-level-text" class="font-bold text-xl text-yellow-700"></span>
+                        <span id="student-xp-text" class="font-extrabold text-3xl text-yellow-800"></span>
+                    </div>
+                    <div class="w-full md:w-80">
+                        <div class="progress-bar">
+                            <div id="student-xp-progress-fill" class="progress-fill bg-gradient-to-r from-yellow-400 to-orange-400"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                
+                <div class="lg:col-span-2 card bg-white p-8">
+                    <h2 class="text-3xl font-bold mb-8 flex items-center space-x-4 text-emerald-600">
+                        <i class="fas fa-tasks text-emerald-600 text-3xl"></i>
+                        <span id="student-daily-quests-title">Daily Quests</span>
+                    </h2>
+                    <div id="student-quest-list" class="space-y-8">
+                        </div>
+                    <div class="mt-10 text-center">
+                        <button id="student-generate-quest-btn" class="btn-generate text-green px-10 py-5 rounded-full font-bold text-xl shadow-xl bg-gradient-to-b from-blue-400 to-blue-600 text-white">
+                            <div class="flex items-center justify-center space-x-2">
+                                <span id="student-generate-quest-btn-text">✨ Generate New Quest</span>
+                                <span id="student-generate-loading" class="hidden loading-spinner"></span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card bg-white p-8">
+                    <h2 class="text-3xl font-bold mb-8 flex items-center space-x-4 text-amber-500">
+                        <i class="fas fa-trophy text-amber-500 text-3xl"></i>
+                        <span id="student-leaderboard-title">Leaderboard</span>
+                    </h2>
+                    <ul id="student-leaderboard-list" class="space-y-6">
+                        <li id="student-my-leaderboard-entry" class="hidden"></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-10 mt-10">
+    <div class="lg:col-span-2">
+        <div class="card bg-white p-8 mb-10">
+            <h2 class="text-3xl font-bold mb-8 flex items-center space-x-4 text-indigo-500">
+                <i class="fas fa-certificate text-indigo-500 text-3xl"></i>
+                <span id="student-badges-title">Achievement Badges</span>
+            </h2>
+            <div id="student-badges-grid" class="grid grid-cols-3 md:grid-cols-4 gap-8">
+            </div>
+        </div>
+        <div class="card bg-white p-4 h-1/2">
+            <h2 class="text-3xl font-bold mb-8 flex items-center space-x-4 text-indigo-500">
+                <i class="fas fa-graduation-cap text-indigo-500 text-3xl"></i>
+                <span id="career-readiness-quest-title">Career Readiness Quests</span>
+            </h2>
+            <div id="career-readiness-quest-grid" class="grid grid-cols-3 md:grid-cols-4 gap-8">
+            </div>
+        <div id="mission-CET-card"class="bg-gray-100 p-8 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+            <div class="text-5xl mb-2 jiggle-on-hover">📝</div>
+            <h3 class="font-semibold text-gray-2000">CET Tactics !🎯 Game</h3>
+            <p class="text-sm text-gray-1000">Test Your Knowledge!</p>
+        </div>
+        </div>
+    </div>
+    <div class="card bg-white p-8 lg:col-span-2">
+        <h2 class="text-3xl font-bold mb-8 flex items-center space-x-4 text-purple-600">
+            <i class="fas fa-chart-line text-purple-600 text-3xl"></i>
+            <span id="student-progress-title">Module Progress</span>
+        </h2>
+        <div id="student-module-progress-list" class="space-y-8">
+        </div>
+        <div class="mt-8">
+            <label for="voice-input" id="student-voice-label" class="block font-bold text-gray-800 mb-2">Speak your question:</label>
+            <div class="flex space-x-4">
+                <input type="text" id="voice-input" class="flex-grow p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-400 focus:outline-none" placeholder="Click mic to speak...">
+                <button id="mic-btn" class="bg-purple-500 text-white px-5 py-2 rounded-full font-bold hover:bg-purple-600 transition-colors">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+        
+        <div id="star-container"></div>
+    
+        
+
+
+            <section id="attendance-section" class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-blue-500 opacity-0 animate-slide-in-up" style="animation-delay: 200ms;">
+                <div class="flex flex-col sm:flex-row justify-between items-center">
+                    <h2 id="attendance-title" class="text-xl sm:text-2xl font-bold text-gray-800">Attendance</h2>
+                    <button id="markAttendanceBtn" class="mt-4 sm:mt-0 px-6 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105 shadow-md disabled:bg-gray-400 disabled:scale-100">
+                       <span id="mark-attendance-btn-text">Mark Attendance</span>
+                    </button>
+                </div>
+                <p id="attendance-status" class="mt-4 text-center text-gray-500 hidden">
+                    <span id="status-message" class="font-medium text-blue-600"></span>
+                </p>
+            </section>
+
+            <section id="homework-section" class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-green-500 opacity-0 animate-slide-in-up" style="animation-delay: 300ms;">
+                <h2 id="homework-title" class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Homework</h2>
+                <div class="space-y-4">
+                    
+                    <div class="bg-gray-50 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div class="flex-grow">
+                            <h3 class="font-semibold text-gray-700">Math: Algebra Chapter 3</h3>
+                            <p class="text-sm text-gray-500">Due: October 26, 2025</p>
+                        </div>
+                        <div class="flex items-center mt-3 sm:mt-0 sm:ml-4 space-x-2">
+                            <span class="text-sm font-medium text-red-500 mr-2 homework-status-text">Pending</span>
+                            <input type="file" class="hidden homework-upload" id="upload-math">
+                            <label for="upload-math" class="cursor-pointer px-3 py-1 bg-green-500 text-white text-xs rounded-full hover:bg-green-600 upload-btn-text">Upload</label>
+                             <span class="homework-marks text-xs font-semibold text-gray-600 hidden">Marks: <span>0</span></span>
+                            <button class="homework-help-btn px-4 py-2 bg-purple-500 text-white text-sm rounded-full hover:bg-purple-600 ai-glow get-help-btn-text" data-homework="Math: Algebra basics">Get Help ✨</button>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div>
+                            <h3 class="font-semibold text-gray-700">Science: Photosynthesis Lab Report</h3>
+                            <p class="text-sm text-gray-500">Due: October 20, 2025</p>
+                        </div>
+                        <div class="flex items-center mt-3 sm:mt-0 sm:ml-4 space-x-2">
+                            <span class="text-sm font-medium text-green-500 mr-2 homework-status-text">Completed</span>
+                             <span class="homework-marks text-xs font-semibold text-gray-600">Marks: <span>8</span></span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div class="flex-grow">
+                            <h3 class="font-semibold text-gray-700">History: Civil War Essay Outline</h3>
+                            <p class="text-sm text-gray-500">Due: October 28, 2025</p>
+                        </div>
+                        <div class="flex items-center mt-3 sm:mt-0 sm:ml-4 space-x-2">
+                            <span class="text-sm font-medium text-red-500 mr-2 homework-status-text">Overdue</span>
+                            <input type="file" class="hidden homework-upload" id="upload-history">
+                            <label for="upload-history" class="cursor-pointer px-3 py-1 bg-green-500 text-white text-xs rounded-full hover:bg-green-600 upload-btn-text">Upload</label>
+                             <span class="homework-marks text-xs font-semibold text-gray-600 hidden">Marks: <span>0</span></span>
+                            <button class="homework-help-btn px-4 py-2 bg-purple-500 text-white text-sm rounded-full hover:bg-purple-600 ai-glow get-help-btn-text" data-homework="History: How to outline an essay about a historical event">Get Help ✨</button>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <section id="curious-corner" class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-yellow-500 opacity-100 animate-slide-in-up" style="animation-delay: 400ms;">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Curious Corner ✨</h2>
+                <p class="text-gray-600 mb-4">Have a question about anything in the world? Ask me!</p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="curious-question-input" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 flex-grow" placeholder="e.g., Why is the sky blue?">
+                    <button id="ask-curious-question-btn" class="px-6 py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors duration-300">Ask Question</button>
+                </div>
+                <div id="curious-answer" class="mt-4 text-gray-700 p-4 bg-gray-50 rounded-lg min-h-[100px] hidden"></div>
+            </section>
+
+
+
+            <section id="gaming-section" class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-purple-500 opacity-0 animate-slide-in-up" style="animation-delay: 500ms;">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Learning Games</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div id="puzzle-mania-card" class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group"><div class="text-5xl mb-2 jiggle-on-hover">👾</div><h3 class="font-semibold text-gray-800">Puzzle Mania</h3><p class="text-sm text-gray-500">Brain-teasers for fun!</p></div>
+                    <div id="physics-nexus-card"class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">⚛️</div>
+                        <h3 class="font-semibold text-gray-800">Newton’s Nexus</h3>
+                        <p class="text-sm text-gray-500">Solve physics numericals!</p>
+                    </div>
+
+                    <div id="math-bullseye-card"class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">🎯</div>
+                        <h3 class="font-semibold text-gray-800">Math Bullseye</h3>
+                        <p class="text-sm text-gray-500">Hit the number target!</p>
+                    </div>
+
+                    <div id="grammar-galaxy-card"class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">🌌</div>
+                        <h3 class="font-semibold text-gray-800">Grammar Galaxy</h3>
+                        <p class="text-sm text-gray-500">Master your grammar skills!</p>
+                    </div>
+
+                    <div id="state-spotter-card"class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">🗺️</div>
+                        <h3 class="font-semibold text-gray-800">State Spotter</h3>
+                        <p class="text-sm text-gray-500">Find the Indian states!</p>
+                    </div>
+
+                    <div id="village-quest-card"class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">🏡</div>
+                        <h3 class="font-semibold text-gray-800">Village Quest</h3>
+                        <p class="text-sm text-gray-500">Answer & Ascend!</p>
+                    </div>
+                    <div id="history-timeline-card"class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">⏳</div>
+                        <h3 class="font-semibold text-gray-800">History Timeline</h3>
+                        <p class="text-sm text-gray-500">Order the events!</p>
+                    </div>
+
+                    <div id="shape-sorter-card"class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">🔷</div>
+                        <h3 class="font-semibold text-gray-800">Shape Sorter</h3>
+                        <p class="text-sm text-gray-500">Identify geometric shapes.</p>
+                    </div>
+
+                    <div class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group"><div class="text-5xl mb-2 jiggle-on-hover">🌾</div><h3 class="font-semibold text-gray-800">Farming Fun</h3><p class="text-sm text-gray-500">Learn about crops!</p></div>
+                    <div class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group"><div class="text-5xl mb-2 jiggle-on-hover">💧</div><h3 class="font-semibold text-gray-800">Clean Village</h3><p class="text-sm text-gray-500">A game on hygiene.</p></div>
+                    <div id="hindi-card" class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">✍️</div>
+                        <h3 class="font-semibold text-gray-800">हिंदी ज्ञान यात्रा</h3>
+                        <p class="text-sm text-gray-500">भाषा से ज्ञान तक</p>
+                    </div>
+                    <div id="storyMaker" class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">📖</div>
+                        <h3 class="font-semibold text-gray-800">Story Maker ✨</h3>
+                        <p class="text-sm text-gray-500">Create with AI!</p>
+                    </div>
+                     
+                    <div id="science-lab-card"class="bg-gray-100 p-4 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-5xl mb-2 jiggle-on-hover">🔬</div>
+                        <h3 class="font-semibold text-gray-800">Science Lab</h3>
+                        <p class="text-sm text-gray-500">Fun science experiments.</p>
+                    </div>
+
+                       </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+    <div id="teacher-dashboard" class="hidden">
+        
+        <header class="text-center mb-10 flex justify-between items-center">
+            <div>
+                <h1 class="text-5xl font-extrabold text-indigo-800">Educare</h1>
+                <p id="teacher-dashboard-title" class="text-2xl font-semibold text-gray-600 mt-2">Teacher Dashboard</p>
+            </div>
+            <select id="teacher-language-selector" class="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700 font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </select>
+        </header>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <section class="lg:col-span-2 card bg-white p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center space-x-3 text-indigo-700">
+                    <i class="fas fa-users"></i>
+                    <span id="teacher-student-progress-title">Student Progress</span>
+                </h2>
+                <div class="mb-4 flex items-center space-x-4">
+                    <label for="teacher-progress-view" id="teacher-view-label" class="block text-lg font-semibold mb-0">View:</label>
+                    <select id="teacher-progress-view" class="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+                        <option id="teacher-view-option-summary" value="class-summary">Class Summary</option>
+                        <option id="teacher-view-option-all" value="all-students">All Students</option>
+                    </select>
+                    <button id="generate-report-btn" class="px-6 py-2 bg-purple-500 text-white rounded-full font-bold hover:bg-purple-600 transition-colors">
+                        ✨ <span id="teacher-generate-report-btn-text">Generate Report</span>
+                    </button>
+                </div>
+                <div id="teacher-progress-summary" class="hidden p-4 bg-indigo-50 rounded-lg">
+                    <h3 id="teacher-summary-title" class="text-xl font-bold text-indigo-700 mb-2">Class Overall Performance</h3>
+                    <p class="text-lg text-gray-700"><span id="teacher-summary-avg-xp-label">Average XP</span>: <span id="teacher-avg-xp" class="font-semibold">0</span></p>
+                    <p class="text-lg text-gray-700"><span id="teacher-summary-avg-level-label">Average Level</span>: <span id="teacher-avg-level" class="font-semibold">0</span></p>
+                    <p class="text-lg text-gray-700"><span id="teacher-summary-total-students-label">Total Students</span>: <span id="teacher-total-students" class="font-semibold">0</span></p>
+                    <div id="teacher-report-text" class="mt-4 text-gray-800 italic"></div>
+                </div>
+                <div id="teacher-student-progress-list" class="space-y-6">
+
+                </div>
+                
+            </section>
+            
+            <section class="card bg-white p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center space-x-3 text-amber-600">
+                    <i class="fas fa-trophy"></i>
+                    <span id="teacher-leaderboard-title">Class Leaderboard</span>
+                </h2>
+                <ul id="teacher-leaderboard-list" class="space-y-4">
+                    </ul>
+            </section>
+            
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+            
+            <section class="card bg-white p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center space-x-3 text-emerald-600">
+                    <i class="fas fa-award"></i>
+                    <span id="teacher-reward-title">Reward & Recognition</span>
+                </h2>
+                <div class="space-y-4">
+                    <select id="teacher-reward-student-selector" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-400 focus:outline-none">
+                        <option value="" disabled selected>Select a student</option>
+                        </select>
+                    <div id="teacher-badge-grid" class="grid grid-cols-3 md:grid-cols-4 gap-4 p-4 rounded-xl bg-gray-50">
+                        </div>
+                    <button id="teacher-award-badge-btn" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold hover:bg-emerald-600 transition-colors duration-200" disabled>Award Badge</button>
+                </div>
+            </section>
+            
+            <section class="card bg-white p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center space-x-3 text-red-500">
+                    <i class="fas fa-paper-plane"></i>
+                    <span id="teacher-assignment-title-main">Assignment Management</span>
+                </h2>
+                <form id="teacher-assignment-form" class="space-y-4">
+                    <div>
+                        <label for="teacher-assignment-title" id="teacher-assignment-module-label" class="block font-semibold mb-2">Module Title</label>
+                        <input type="text" id="teacher-assignment-title-input" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-400 focus:outline-none" placeholder="e.g., Water Conservation Module">
+                    </div>
+                    <div>
+                        <label for="teacher-assignment-desc" id="teacher-assignment-desc-label" class="block font-semibold mb-2">Description</label>
+                        <textarea id="teacher-assignment-desc" rows="3" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-400 focus:outline-none" placeholder="Explain the key tasks for this module..."></textarea>
+                    </div>
+                    <div>
+                        <label for="teacher-assignment-group" id="teacher-assignment-assign-label" class="block font-semibold mb-2">Assign to:</label>
+                        <select id="teacher-assignment-group" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-400 focus:outline-none">
+                            <option id="teacher-assign-all" value="all">All Students</option>
+                            <option id="teacher-assign-gA" value="groupA">Group A</option>
+                            <option id="teacher-assign-gB" value="groupB">Group B</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="teacher-create-assignment-btn" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition-colors duration-200">
+                        Create Assignment
+                    </button>
+                </form>
+            </section>
+            
+            <section class="lg:col-span-1 card bg-white p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center space-x-3 text-cyan-600">
+                    <i class="fas fa-bell"></i>
+                    <span id="teacher-notifications-title">Notifications & Alerts</span>
+                </h2>
+                <div id="teacher-notification-list" class="space-y-4">
+                    </div>
+            </section>
+
+            <section class="card bg-white p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center space-x-3 text-emerald-600">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span id="teacher-puzzle-title">Teacher Development</span>
+                </h2>
+                <div id="teacher-resolve-card"class="bg-gray-100 p-10 rounded-xl text-center hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                        <div class="text-7xl mb-2 jiggle-on-hover">📈</div>
+                        <h3 class="font-semibold text-gray-2000">Teacher Resolve</h3>
+                        <p class="text-sm text-gray-1000">The Classroom Challenge!</p>
+                </div>
+            </section>
+            
+        </div>
+    </div>
+
+    
+    <div id="parent-dashboard" class="hidden">
+        <div class="container mx-auto p-4 md:p-6 max-w-4xl">
+    
+            <header class="flex justify-between items-center mb-6 animate-slide-in-up" style="animation-delay: 100ms;">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-teal-600">Educare</h1>
+                    <p id="greeting-message" class="themed-text text-sm md:text-base">Welcome, Parent!</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <select id="parent-language-selector" class="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700 font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 mr-4">
+                        </select>
+                    <span id="parent-child-dashboard-label" class="font-semibold text-right themed-header">Ujwal's Dashboard</span>
+                    <img src="https://placehold.co/60x60/31C48D/FFFFFF?text=U" alt="Ujwal's Profile Picture" class="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-teal-500 avatar-pulse">
+                </div>
+            </header>
+    
+            <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="md:col-span-2 space-y-6">
+                    
+                    <div class="dashboard-card p-6 animate-slide-in-up" style="animation-delay: 200ms;">
+                        <h2 id="parent-overall-progress-title" class="text-xl font-bold mb-4 themed-header">Overall Progress</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                            <div class="bg-teal-50 p-4 rounded-lg stat-card">
+                                <i class="fas fa-rocket text-3xl text-teal-500 mb-2"></i>
+                                <p class="text-lg font-semibold text-gray-800">Level 12</p>
+                                <p id="parent-learning-level-label" class="text-sm text-gray-600">Learning Level</p>
+                            </div>
+                            <div class="bg-amber-50 p-4 rounded-lg stat-card">
+                                <i class="fas fa-star text-3xl text-amber-500 mb-2"></i>
+                                <p class="text-lg font-semibold text-gray-800">8,450</p>
+                                <p id="parent-points-earned-label" class="text-sm text-gray-600">Points Earned</p>
+                            </div>
+                            <div class="bg-indigo-50 p-4 rounded-lg stat-card">
+                                <i class="fas fa-trophy text-3xl text-indigo-500 mb-2"></i>
+                                <p class="text-lg font-semibold text-gray-800">21</p>
+                                <p id="parent-badges-collected-label" class="text-sm text-gray-600">Badges Collected</p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="dashboard-card p-6 animate-slide-in-up" style="animation-delay: 300ms;">
+                        <h2 id="parent-subject-progress-title" class="text-xl font-bold mb-4 themed-header">Subject Progress</h2>
+                        <div class="space-y-5">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 id="parent-subject-math" class="font-semibold themed-header">Mathematics</h3>
+                                    <span class="text-sm font-medium themed-text">18 / 25 <span class="parent-lessons-label">Lessons</span></span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4 progress-bar-animated">
+                                    <div class="bg-blue-500 h-4 rounded-full" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 id="parent-subject-science" class="font-semibold themed-header">Science</h3>
+                                    <span class="text-sm font-medium themed-text">22 / 30 <span class="parent-lessons-label">Lessons</span></span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4 progress-bar-animated">
+                                    <div class="bg-green-500 h-4 rounded-full" style="width: 73.3%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 id="parent-subject-english" class="font-semibold themed-header">English</h3>
+                                    <span class="text-sm font-medium themed-text">15 / 20 <span class="parent-lessons-label">Lessons</span></span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4 progress-bar-animated">
+                                    <div class="bg-purple-500 h-4 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="dashboard-card p-6 animate-slide-in-up" style="animation-delay: 400ms;">
+                        <h2 id="parent-homework-title" class="text-xl font-bold mb-4 themed-header">Recent Homework</h2>
+                        <div class="space-y-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white/60 rounded-lg">
+                                <div>
+                                    <p id="parent-homework1-title" class="font-semibold text-gray-800">Math: Chapter 5 Problems</p>
+                                    <p class="text-sm text-gray-500"><span class="parent-due-label">Due</span>: <span class="parent-due-date1">Yesterday</span></p>
+                                </div>
+                                <span class="mt-2 sm:mt-0 text-xs font-bold uppercase px-3 py-1 bg-green-200 text-green-800 rounded-full parent-status-submitted">Submitted</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white/60 rounded-lg">
+                                <div>
+                                    <p id="parent-homework2-title" class="font-semibold text-gray-800">Science: Plant Cell Diagram</p>
+                                    <p class="text-sm text-gray-500"><span class="parent-due-label">Due</span>: <span class="parent-due-date2">Tomorrow</span></p>
+                                </div>
+                                <span class="mt-2 sm:mt-0 text-xs font-bold uppercase px-3 py-1 bg-amber-200 text-amber-800 rounded-full parent-status-pending">Pending</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white/60 rounded-lg">
+                                <div>
+                                    <p id="parent-homework3-title" class="font-semibold text-gray-800">English: Essay on "My Village"</p>
+                                    <p class="text-sm text-gray-500"><span class="parent-due-label">Due</span>: <span class="parent-due-date3">2 days ago</span></p>
+                                </div>
+                                <span class="mt-2 sm:mt-0 text-xs font-bold uppercase px-3 py-1 bg-red-200 text-red-800 rounded-full parent-status-overdue">Overdue</span>
+                            </div>
+                        </div>
+                    </div>
+    
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="dashboard-card p-6 animate-slide-in-up" style="animation-delay: 500ms;">
+                        <h2 id="parent-attendance-title" class="text-xl font-bold mb-4 themed-header">Attendance</h2>
+                        <div class="text-center bg-teal-500 text-white p-4 rounded-lg mb-4">
+                            <p class="text-3xl font-bold">92%</p>
+                            <p id="parent-attendance-month-label" class="text-sm">Present (This Month)</p>
+                        </div>
+                        <h3 id="parent-attendance-week-label" class="font-semibold text-center mb-2 themed-header">This Week</h3>
+                        <div class="flex justify-around text-center">
+                            <div class="flex flex-col items-center space-y-1">
+                                <span class="text-xs font-bold themed-text parent-day-mon">Mon</span>
+                                <span class="w-8 h-8 flex items-center justify-center bg-green-100 text-green-600 rounded-full"><i class="fas fa-check"></i></span>
+                            </div>
+                            <div class="flex flex-col items-center space-y-1">
+                                <span class="text-xs font-bold themed-text parent-day-tue">Tue</span>
+                                <span class="w-8 h-8 flex items-center justify-center bg-green-100 text-green-600 rounded-full"><i class="fas fa-check"></i></span>
+                            </div>
+                            <div class="flex flex-col items-center space-y-1">
+                                <span class="text-xs font-bold themed-text parent-day-wed">Wed</span>
+                                <span class="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full"><i class="fas fa-times"></i></span>
+                            </div>
+                            <div class="flex flex-col items-center space-y-1">
+                                <span class="text-xs font-bold themed-text parent-day-thu">Thu</span>
+                                <span class="w-8 h-8 flex items-center justify-center bg-green-100 text-green-600 rounded-full"><i class="fas fa-check"></i></span>
+                            </div>
+                            <div class="flex flex-col items-center space-y-1">
+                                <span class="text-xs font-bold themed-text parent-day-fri">Fri</span>
+                                <span class="w-8 h-8 flex items-center justify-center bg-gray-200 text-gray-500 rounded-full"><i class="fas fa-hourglass-start"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+            </main>
+    
+            <footer class="text-center mt-8 text-sm themed-text animate-slide-in-up" style="animation-delay: 600ms;">
+                <p id="parent-footer-text">&copy; 2025 Educare. Empowering rural learning.</p>
+            </footer>
+    
+        </div>
+    </div>
+    
+    <div id="messageBox" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95">
+            <h3 class="text-xl font-bold text-gray-800" id="messageBoxTitle"></h3>
+            <p class="mt-2 text-gray-600" id="messageBoxContent"></p>
+            <div class="mt-4 text-right">
+                <button id="closeMessageBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">OK</button>
+            </div>
+        </div>
+    </div>
+    <div id="homeworkHelpModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-300 scale-95">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800">Homework Helper ✨</h3>
+                <button id="closeHomeworkHelpBtn" class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
+            </div>
+            <button id="listenHelpBtn" class="hidden mt-4 px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-volume-up-fill" viewBox="0 0 16 16"><path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-1.414 1.414A6.47 6.47 0 0 1 12.025 8a6.47 6.47 0 0 1-1.903 4.596z"/><path d="M10.121 12.596A6.47 6.47 0 0 0 12.025 8a6.47 6.47 0 0 0-1.904-4.596l-1.414 1.414A4.47 4.47 0 0 1 10.025 8a4.47 4.47 0 0 1-1.318 3.182z"/><path d="M8.707 11.182A2.47 2.47 0 0 0 9.025 8a2.47 2.47 0 0 0-.318-1.182L8.707 5.404A4.47 4.47 0 0 1 10.025 8a4.47 4.47 0 0 1-1.318 3.182zM4.252 0C2.42 0 1 1.42 1 3.252v9.496C1 14.58 2.42 16 4.252 16h1.598a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1zm-1.5 4.5A1.5 1.5 0 0 1 4.252 3h1.5a1.5 1.5 0 0 1 0 3h-1.5A1.5 1.5 0 0 1 2.752 4.5"/></svg> Listen to explanation
+            </button>
+            <div id="homeworkHelpContent" class="mt-4 text-gray-600 space-y-2"></div>
+        </div>
+    </div>
+    <div id="storyMakerModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-300 scale-95 overflow-y-auto max-h-full">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800">Story Maker ✨</h3>
+                <button id="closeStoryMakerBtn" class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
+            </div>
+            <div class="mt-4 space-y-4">
+                <p class="text-gray-600">Give me one word, and I'll start a story for you!</p>
+                <input type="text" id="storyWordInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="e.g., Mango, River, Star...">
+                <button id="generateStoryBtn" class="w-full px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors duration-300">Generate Story</button>
+                <div id="storyResult" class="mt-4 text-gray-700 p-4 bg-gray-50 rounded-lg min-h-[100px]"></div>
+                <button id="visualizeStoryBtn" class="hidden w-full px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition-colors duration-300 mt-2">Visualize Story ✨</button>
+                <div id="storyImageResult" class="mt-4 w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center"></div>
+            </div>
+        </div>
+    </div>
+    <div id="attendanceAnimationOverlay" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center p-4 z-[60] pointer-events-none">
+        <div id="monkeyContainer" class="relative">
+            <div id="animatedMonkey" class="text-8xl transform">🐒</div>
+            <p id="monkeyMessage" class="absolute -bottom-12 w-max left-1/2 -translate-x-1/2 mt-4 text-xl font-bold text-white bg-green-500 rounded-full px-6 py-2 opacity-0 transition-opacity duration-300">Attendance Marked!</p>
+        </div>
+    </div>
+    
+    <div id="math-game-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div id="game-container" class="relative bg-black rounded-lg shadow-xl overflow-hidden p-6">
+            <canvas id="gameCanvas"></canvas>
+            <div id="ui-overlay">
+                <div id="game-over-screen">
+                    <h1 class="text-3xl lg:text-5xl font-bold mb-4">🏆 GAME OVER</h1>
+                    <p id="final-score" class="text-xl lg:text-3xl font-bold mb-6">Your Score: 0</p>
+                    <div class="leaderboard">
+                        <h3 class="text-lg lg:text-xl text-yellow-200 mb-2">Leaderboard (Top 5)</h3>
+                        <ol id="leaderboard-list" class="text-sm lg:text-base text-gray-200"></ol>
+                    </div>
+                    <div class="flex mt-8 space-x-4">
+                        <button id="play-again-btn" class="button">Play Again</button>
+                        <button id="quit-btn" class="button">Quit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="puzzle-mania-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div id="game-container" class="relative">
+            <div id="puzzle-mania-game-ui" class="text-white flex flex-col items-center space-y-6">
+                <div id="game-info" class="text-center">
+                    <h2 class="text-3xl font-bold">Puzzle Mania</h2>
+                    <p id="game-status" class="mt-2 text-lg">Find the matching pairs!</p>
+                    <p id="moves-counter" class="mt-1 text-md">Moves: 0</p>
+                </div>
+                <div id="game-board" class="game-board"></div>
+                <button id="start-button">Start Game</button>
+                <button id="quit-game-btn" class="hidden">Quit</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        setLogLevel('debug');
+
+        // --- Firebase Configuration & Initialization (MANDATORY) ---
+        const isGeminiPlatform = typeof __firebase_config !== 'undefined';
+        const appId = isGeminiPlatform ? __app_id : 'default-app-id';
+        const firebaseConfig = isGeminiPlatform ? JSON.parse(__firebase_config) : {
+            apiKey: "dummy-api-key",
+            authDomain: "dummy-auth-domain",
+            projectId: "dummy-project-id",
+            storageBucket: "dummy-storage-bucket",
+            messagingSenderId: "dummy-messaging-id",
+            appId: "dummy-app-id"
+        };
+        const authToken = isGeminiPlatform ? __initial_auth_token : null;
+        let app, auth, db;
+        let userId;
+
+        // --- Global State & Data Management ---
+        let currentRole = localStorage.getItem('userRole') || null;
+        let studentData = {
+            name: 'Ujwal',
+            level: 3,
+            xp: 550,
+            nextLevelXp: 800,
+            quests: [
+                { id: 'seeds', xp: 75 },
+                { id: 'water_conservation', xp: 90 }
+            ],
+            lastQuestGenerated: null
+        };
+        let students = []; // For teacher dashboard
+        const defaultLeaderboard = [
+            { id: '1', name: 'Rajesh', xp: 2100 },
+            { id: '2', name: 'Anita', xp: 1950 },
+            { id: '3', name: 'Vikram', xp: 1800 },
+            { id: '4', name: 'Suman', xp: 1750 },
+        ];
+        const studentBadges = [
+            { id: 'star', name: 'Village Star', icon: 'fas fa-seedling', color: 'green', earned: true },
+            { id: 'water', name: 'Water Warrior', icon: 'fas fa-faucet', color: 'blue', earned: true },
+            { id: 'bookworm', name: 'Bookworm', icon: 'fas fa-book-reader', color: 'pink', earned: true },
+            { id: 'locked', name: 'Locked', icon: 'fas fa-lock', color: 'gray', earned: false }
+        ];
+        const studentModules = [
+            { id: 'math', progress: 75, color: 'purple' },
+            { id: 'science', progress: 50, color: 'blue' },
+            { id: 'history', progress: 20, color: 'emerald' }
+        ];
+        
+        const teacherBadges = [
+            { id: 'star-performer', name: 'Star Performer', icon: 'fas fa-star', color: 'text-yellow-500' },
+            { id: 'helping-hand', name: 'Helping Hand', icon: 'fas fa-hand-holding-heart', color: 'text-pink-500' },
+            { id: 'problem-solver', name: 'Problem Solver', icon: 'fas fa-lightbulb', color: 'text-blue-500' },
+            { id: 'water-warrior', name: 'Water Warrior', icon: 'fas fa-water', color: 'text-cyan-500' },
+            { id: 'master-farmer', name: 'Master Farmer', icon: 'fas fa-seedling', color: 'text-green-500' }
+        ];
+
+        const languages = {
+            'en': 'English', 'hi': 'Hindi', 'as': 'Assamese', 'bn': 'Bengali', 'brx': 'Bodo',
+            'doi': 'Dogri', 'gu': 'Gujaratri', 'kn': 'Kannada', 'ks': 'Kashmiri', 'kok': 'Konkani',
+            'mai': 'Maithili', 'ml': 'Malayalam', 'mni': 'Manipuri', 'mr': 'Marathi', 'ne': 'Nepali',
+            'or': 'Odiya', 'pa': 'Punjabi', 'sa': 'Sanskrit', 'sat': 'Santhali', 'sd': 'Sindhi',
+            'ta': 'Tamil', 'te': 'Telugu', 'ur': 'Urdu'
+        };
+        const ttsVoiceMap = {
+            'en': 'Kore', 'hi': 'Algenib', 'as': 'Algenib', 'bn': 'Gacrux', 'brx': 'Kore',
+            'doi': 'Kore', 'gu': 'Sadachbia', 'kn': 'Vindemiatrix', 'ks': 'Algenib', 'kok': 'Sadachbia',
+            'mai': 'Algenib', 'ml': 'Vindemiatrix', 'mni': 'Kore', 'mr': 'Sadachbia', 'ne': 'Algenib',
+            'or': 'Gacrux', 'pa': 'Sadaltager', 'sa': 'Kore', 'sat': 'Kore', 'sd': 'Algenib',
+            'ta': 'Vindemiatrix', 'te': 'Zubenelgenubi', 'ur': 'Algenib',
+        };
+
+        // --- Internationalization (i18n) Data ---
+        let translations = {};
+        
+
+        // --- Message Box Utility ---
+        function showMessage(text, type = 'success') {
+            const container = document.getElementById('message-container');
+            const messageText = document.getElementById('message-text');
+            let bgColor = 'bg-blue-500';
+            if (type === 'error') bgColor = 'bg-red-500';
+            if (type === 'success') bgColor = 'bg-green-500';
+            container.className = `fixed top-5 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded-full shadow-lg z-50 transform scale-0 opacity-0 transition-all duration-300 ${bgColor}`;
+            messageText.textContent = text;
+            setTimeout(() => {
+                container.style.transform = 'translate(-50%, 0) scale(1)';
+                container.style.opacity = '1';
+            }, 10);
+            setTimeout(() => {
+                container.style.transform = 'translate(-50%, -20px) scale(0.9)';
+                container.style.opacity = '0';
+            }, 3000);
+        }
+        
+        // Helper function for Base64 to ArrayBuffer conversion
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        // Helper function to convert raw PCM to WAV format
+        function pcmToWav(pcmData, sampleRate) {
+            const dataLength = pcmData.byteLength;
+            const buffer = new ArrayBuffer(44 + dataLength);
+            const view = new DataView(buffer);
+            let offset = 0;
+
+            view.setUint32(offset, 0x52494646, false); offset += 4; // "RIFF"
+            view.setUint32(offset, 36 + dataLength, true); offset += 4; // file size
+            view.setUint32(offset, 0x57415645, false); offset += 4; // "WAVE"
+
+            view.setUint32(offset, 0x666d7420, false); offset += 4; // "fmt "
+            view.setUint32(offset, 16, true); offset += 4; // chunk size
+            view.setUint16(offset, 1, true); offset += 2; // channels
+            view.setUint32(offset, sampleRate, true); offset += 4; // sample rate
+            view.setUint32(offset, sampleRate * 2, true); offset += 4; // byte rate
+            view.setUint16(offset, 2, true); offset += 2; // block align
+            view.setUint16(offset, 16, true); offset += 2; // bits per sample
+
+            view.setUint32(offset, 0x64617461, false); offset += 4; // "data"
+            view.setUint32(offset, dataLength, true); offset += 4; // chunk size
+
+            const pcmBytes = new Int16Array(buffer, offset);
+            pcmBytes.set(new Int16Array(pcmData));
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+
+        // --- UI Rendering Functions for Student Dashboard ---
+        function renderStudentQuests(quests) {
+            const questList = document.getElementById('student-quest-list');
+            questList.innerHTML = '';
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+
+            if (quests.length === 0) {
+                questList.innerHTML = `<p class="text-center text-gray-500">${t.no_quests}</p>`;
+                return;
+            }
+            quests.forEach(quest => {
+                const questHtml = `
+                        <div class="bg-gray-50 rounded-lg p-8 flex flex-col sm:flex-row items-center justify-between hover:bg-gray-100 transition-colors duration-200">
+                            <div>
+                                <div class="font-extrabold text-2xl text-gray-900 mb-2">${t[`${quest.id}_title`] || quest.id}</div>
+                                <p class="text-lg text-gray-600">${t[`${quest.id}_desc`] || ''}</p>
+                            </div>
+                            <div class="mt-6 sm:mt-0 flex items-center space-x-4">
+                                <span class="text-yellow-600 font-bold text-2xl">+${quest.xp} XP</span>
+                                <button class="bg-blue-500 text-white text-lg px-4 py-2 rounded-full font-bold shadow-lg explain-quest-btn bg-gradient-to-b from-blue-400 to-blue-600" data-desc="${t[`${quest.id}_desc`] || ''}">
+                                    <span>${t.explain_concept_button}</span>
+                                </button>
+                                <button class="btn-start text-white text-lg px-8 py-4 rounded-full font-bold shadow-lg student-start-quest-btn bg-gradient-to-b from-blue-400 to-blue-600" data-xp="${quest.xp}">
+                                    <span>${t.start_button_text}</span>
+                                </button>
+                            </div>
+                        </div>
+                `;
+                questList.insertAdjacentHTML('beforeend', questHtml);
+            });
+        }
+        function renderStudentLeaderboard(leaderboardData) {
+            const leaderboardList = document.getElementById('student-leaderboard-list');
+            leaderboardList.innerHTML = '';
+            const allUsers = [...leaderboardData, { name: studentData.name, xp: studentData.xp, id: userId }];
+            const sortedUsers = allUsers.sort((a, b) => b.xp - a.xp).slice(0, 5);
+            sortedUsers.forEach((user, index) => {
+                const isCurrentUser = user.id === userId;
+                const itemClass = isCurrentUser
+                    ? 'flex items-center justify-between bg-emerald-100 rounded-xl p-5 font-semibold text-xl transform transition-transform duration-200 hover:scale-105'
+                    : 'flex items-center justify-between p-5 rounded-xl hover:bg-gray-50 transition-colors duration-200 text-xl';
+                const rankClass = isCurrentUser ? 'font-extrabold text-emerald-700 text-3xl' : 'font-bold text-gray-600 text-2xl';
+                const nameClass = 'text-gray-900';
+                const xpClass = isCurrentUser ? 'font-extrabold text-emerald-700 text-2xl' : 'font-semibold text-gray-600 text-xl';
+                const listItemHtml = `
+                        <li class="${itemClass}">
+                            <div class="flex items-center space-x-5">
+                                <span class="${rankClass}">#${index + 1}</span>
+                                <span class="${nameClass}">${user.name}</span>
+                            </div>
+                            <span class="${xpClass}">${user.xp} XP</span>
+                        </li>
+                `;
+                leaderboardList.insertAdjacentHTML('beforeend', listItemHtml);
+            });
+        }
+        function renderStudentBadges(badges) {
+            const badgesGrid = document.getElementById('student-badges-grid');
+            badgesGrid.innerHTML = '';
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+            badges.forEach(badge => {
+                const opacity = badge.earned ? 'opacity-100' : 'opacity-40';
+                const ringColor = badge.earned ? `ring-4 ring-${badge.color}-300 group-hover:ring-${badge.color}-500` : 'ring-4 ring-gray-300';
+                const bgColor = badge.earned ? `bg-${badge.color}-100` : 'bg-gray-200';
+                const textColor = badge.earned ? `text-${badge.color}-600` : 'text-gray-500';
+                const icon = badge.earned ? badge.icon : 'fas fa-lock';
+                const nameKey = badge.id;
+                const name = t[`badge_${nameKey}`] || t[`badge_locked`];
+                const badgeHtml = `
+                        <div class="flex flex-col items-center transform transition-transform duration-200 hover:scale-110 group ${opacity}">
+                            <div class="w-24 h-24 rounded-full ${bgColor} flex items-center justify-center ${textColor} text-5xl ${ringColor} transition-all duration-200 shadow-lg">
+                                <i class="${icon}"></i>
+                            </div>
+                            <span class="mt-4 text-lg text-center font-semibold text-gray-700">${name}</span>
+                        </div>
+                `;
+                badgesGrid.insertAdjacentHTML('beforeend', badgeHtml);
+            });
+        }
+        function renderStudentModules(modules) {
+            const moduleList = document.getElementById('student-module-progress-list');
+            moduleList.innerHTML = '';
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+            modules.forEach(module => {
+                const moduleHtml = `
+                        <div id="module-${module.color}">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-bold text-2xl text-gray-900">${t[`${module.id}_quest_title`]}</span>
+                                <span class="text-lg text-gray-600">${module.progress}%</span>
+                            </div>
+                            <div class="progress-bar mb-4">
+                                <div class="progress-fill bg-gradient-to-r from-${module.color}-500 to-${module.color}-500" style="width: ${module.progress}%;"></div>
+                            </div>
+                            <button class="read-aloud-btn bg-${module.color}-100 text-${module.color}-600 text-lg px-5 py-2 rounded-full font-semibold hover:bg-${module.color}-200 transition-colors duration-200" data-text="${t[`${module.id}_quest_desc`]}">
+                                <span>${t.read_aloud_button}</span>
+                            </button>
+                        </div>
+                `;
+                moduleList.insertAdjacentHTML('beforeend', moduleHtml);
+            });
+        }
+        
+        function checkLevelUp() {
+            while (studentData.xp >= studentData.nextLevelXp) {
+                studentData.level++;
+                studentData.xp -= studentData.nextLevelXp;
+                studentData.nextLevelXp = studentData.level * 100 + 500;
+                showMessage(`Level Up! You are now Level ${studentData.level}!`, 'success');
+            }
+        }
+        
+        // --- API & Firestore Functions for Student Dashboard ---
+        async function updateStudentLeaderboardData(user) {
+            if (!db || !userId) {
+                console.log('Skipping leaderboard update: Not on Gemini platform.');
+                return;
+            }
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', userId);
+            try {
+                await setDoc(docRef, { name: user.name, xp: user.xp, lastUpdated: new Date() }, { merge: true });
+            } catch (error) {
+                console.error('Error updating leaderboard:', error);
+            }
+        }
+        async function fetchInitialStudentData() {
+            if (!db || !userId) {
+                console.log('Skipping initial student data fetch: Not on Gemini platform.');
+                return;
+            }
+            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'dashboardData', 'profile');
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    studentData = { ...studentData, ...docSnap.data() };
+                } else {
+                    await setDoc(docRef, studentData);
+                }
+            } catch (error) {
+                console.error('Error fetching/setting user data:', error);
+            }
+        }
+        async function saveStudentData() {
+            if (!db || !userId) {
+                console.log('Skipping student data save: Not on Gemini platform.');
+                return;
+            }
+            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'dashboardData', 'profile');
+            try {
+                await setDoc(docRef, studentData, { merge: true });
+            } catch (error) {
+                console.error('Error saving user data:', error);
+            }
+        }
+        async function generateNewQuest() {
+            const generateBtn = document.getElementById('student-generate-quest-btn');
+            const generateLoading = document.getElementById('student-generate-loading');
+            const now = new Date();
+            const today = now.toISOString().slice(0, 10);
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+
+            if (studentData.lastQuestGenerated === today) {
+                showMessage(t.quest_already_generated, 'error');
+                return;
+            }
+            generateBtn.disabled = true;
+            generateLoading.classList.remove('hidden');
+            showMessage(t.loading_quests);
+            try {
+                if (!isGeminiPlatform) {
+                    // Mocking for local development
+                    const mockQuest = { id: 'water_conservation', xp: 90 };
+                    studentData.quests = [mockQuest];
+                    studentData.lastQuestGenerated = today;
+                    await saveStudentData();
+                    renderStudentQuests(studentData.quests);
+                    showMessage(t.quest_generated_success, 'success');
+                    console.log('Mock quest generated for local development.');
+                    return;
+                }
+
+                const prompt = "Generate a new daily learning quest for a user on a gamified learning platform. The user is in a village in India. The quest should be related to practical, real-world skills like agriculture, water conservation, local history, or traditional crafts. The quest should have a 'title' (max 6 words), a 'description' (max 15 words), and a numerical 'xp' reward between 50 and 100. Provide the response as a single JSON object with the keys 'title', 'description', and 'xp'.";
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "title": { "type": "STRING" },
+                                "description": { "type": "STRING" },
+                                "xp": { "type": "NUMBER" }
+                            }
+                        }
+                    }
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+                const result = await response.json();
+                const content = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!content) {
+                   throw new Error('No content returned from API');
+                }
+                const newQuest = JSON.parse(content);
+                studentData.quests = [{ id: newQuest.title.toLowerCase().replace(/ /g, '_'), xp: newQuest.xp }];
+                studentData.lastQuestGenerated = today;
+                await saveStudentData();
+                renderStudentQuests(studentData.quests);
+                showMessage(t.quest_generated_success, 'success');
+            } catch (error) {
+                console.error('Error generating quest:', error);
+                showMessage('Failed to generate quest. Please try again.', 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateLoading.classList.add('hidden');
+            }
+        }
+
+        async function explainQuestConcept(description) {
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+            showMessage(t.loading_explanation);
+            try {
+                if (!isGeminiPlatform) {
+                    // Mocking for local development
+                    showMessage("This is a mock explanation for local development.", 'success');
+                    console.log(`Mock explanation for: "${description}"`);
+                    return;
+                }
+                const prompt = `Explain the following concept in simple, easy-to-understand terms suitable for a student in a rural Indian village. Keep the explanation concise, no more than 3-4 sentences: ${description}`;
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    model: "gemini-2.5-flash-preview-05-20"
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+                const result = await response.json();
+                const explanation = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (explanation) {
+                    showMessage(explanation, 'success');
+                } else {
+                    throw new Error('No explanation returned from API');
+                }
+            } catch (error) {
+                console.error('Error explaining concept:', error);
+                showMessage('Failed to explain concept. Please try again.', 'error');
+            }
+        }
+
+        async function readAloud(text) {
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+            showMessage(t.loading_audio);
+            try {
+                if (!isGeminiPlatform) {
+                    // Mocking for local development
+                    showMessage("This is a mock read aloud for local development.", 'success');
+                    console.log(`Mock read aloud for: "${text}"`);
+                    return;
+                }
+                const voiceName = ttsVoiceMap[lang] || 'Kore';
+                const payload = {
+                    contents: [{ parts: [{ text: text }] }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } } },
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`TTS API call failed with status: ${response.status}`);
+                }
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    const sampleRate = sampleRateMatch ? parseInt(sampleRate[1], 10) : 16000;
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    const audio = new Audio(audioUrl);
+                    audio.play();
+                    showMessage('Playing audio...', 'success');
+                } else {
+                    throw new Error('Invalid audio data or mime type received.');
+                }
+            } catch (error) {
+                console.error('Error reading aloud:', error);
+                showMessage('Failed to read aloud. Please try again.', 'error');
+            }
+        }
+
+        async function generateClassReport() {
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+            showMessage(t.loading_report);
+            
+            if (!isGeminiPlatform) {
+                document.getElementById('teacher-report-text').textContent = "This is a mock report generated for local development. The class is doing great, with top performers setting a good example. Let's focus on improving 'Local History' with more interactive lessons.";
+                showMessage('Mock report generated successfully!', 'success');
+                console.log('Mock report generated for local development.');
+                return;
+            }
+
+            const prompt = `Based on the following student data, generate a concise, encouraging, and actionable class report for the teacher. Highlight the overall class performance, mention top-performing students, and identify a general area for improvement. The data is as follows: ${JSON.stringify(students)}.`;
+            
+            try {
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    model: "gemini-2.5-flash-preview-05-20"
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+                const result = await response.json();
+                const reportText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (reportText) {
+                    document.getElementById('teacher-report-text').textContent = reportText;
+                    showMessage('Report generated successfully!', 'success');
+                } else {
+                    throw new Error('No report text returned from API');
+                }
+            } catch (error) {
+                console.error('Error generating report:', error);
+                showMessage('Failed to generate report. Please try again.', 'error');
+            }
+        }
+
+        // --- UI Rendering Functions for Teacher Dashboard ---
+        function renderTeacherStudentProgress() {
+            const list = document.getElementById('teacher-student-progress-list');
+            const summary = document.getElementById('teacher-progress-summary');
+            const viewType = document.getElementById('teacher-progress-view').value;
+
+            if (viewType === 'class-summary') {
+                list.classList.add('hidden');
+                summary.classList.remove('hidden');
+                if (students.length > 0) {
+                    const totalXP = students.reduce((sum, s) => sum + s.xp, 0);
+                    const totalLevel = students.reduce((sum, s) => sum + s.level, 0);
+                    document.getElementById('teacher-avg-xp').textContent = (totalXP / students.length).toFixed(0);
+                    document.getElementById('teacher-avg-level').textContent = (totalLevel / students.length).toFixed(1);
+                    document.getElementById('teacher-total-students').textContent = students.length;
+                } else {
+                    document.getElementById('teacher-avg-xp').textContent = '0';
+                    document.getElementById('teacher-avg-level').textContent = '0';
+                    document.getElementById('teacher-total-students').textContent = '0';
+                }
+            } else { // 'all-students'
+                summary.classList.add('hidden');
+                list.classList.remove('hidden');
+                list.innerHTML = '';
+                students.sort((a, b) => b.progress - a.progress);
+                students.forEach(student => {
+                    const progressColor = student.progress >= 100 ? 'bg-green-500' : (student.progress > 0 ? 'bg-yellow-400' : 'bg-red-500');
+                    const progressHtml = `<div class="progress-bar"><div class="progress-fill ${progressColor}" style="width: ${student.progress}%;"></div></div>`;
+                    const studentHtml = `
+                            <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl">
+                                <div class="w-12 h-12 rounded-full bg-indigo-200 flex items-center justify-center font-bold text-indigo-700">
+                                    ${student.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold">${student.name}</h3>
+                                    <p class="text-sm text-gray-500">Level: ${student.level}</p>
+                                </div>
+                                <div class="flex-1">
+                                    ${progressHtml}
+                                    <p class="text-sm text-right mt-1 font-semibold">${student.progress}%</p>
+                                </div>
+                            </div>
+                    `;
+                    list.insertAdjacentHTML('beforeend', studentHtml);
+                });
+            }
+        }
+        function renderTeacherLeaderboard() {
+            const list = document.getElementById('teacher-leaderboard-list');
+            list.innerHTML = '';
+            const sortedStudents = [...students].sort((a, b) => b.xp - a.xp).slice(0, 5);
+            sortedStudents.forEach((student, index) => {
+                const rank = index + 1;
+                const itemHtml = `
+                        <li class="flex items-center justify-between p-4 rounded-xl bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-xl font-bold text-yellow-600">#${rank}</span>
+                                <span class="text-lg font-semibold">${student.name}</span>
+                            </div>
+                            <span class="text-lg font-bold text-gray-700">${student.xp} XP</span>
+                        </li>
+                `;
+                list.insertAdjacentHTML('beforeend', itemHtml);
+            });
+        }
+        function renderTeacherRewardBadges() {
+            const grid = document.getElementById('teacher-badge-grid');
+            grid.innerHTML = '';
+            teacherBadges.forEach(badge => {
+                const badgeHtml = `
+                        <div class="flex flex-col items-center cursor-pointer p-2 rounded-xl hover:bg-white transition-colors" data-badge-id="${badge.id}">
+                            <i class="${badge.icon} ${badge.color} badge-icon"></i>
+                            <span class="text-xs font-semibold mt-1 text-center">${badge.name}</span>
+                        </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', badgeHtml);
+            });
+        }
+        function renderTeacherStudentSelector() {
+            const selector = document.getElementById('teacher-reward-student-selector');
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+            selector.innerHTML = `<option value="" disabled selected>${t.select_student_placeholder}</option>`;
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.name;
+                selector.appendChild(option);
+            });
+        }
+        function addNotification(messageKey, context = {}) {
+            const list = document.getElementById('teacher-notification-list');
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+            let message = t[messageKey] || messageKey;
+            
+            // Replace placeholders like {name} or {badge}
+            Object.keys(context).forEach(key => {
+                message = message.replace(`{${key}}`, context[key]);
+            });
+
+            const notificationHtml = `<div class="p-4 bg-gray-100 rounded-xl font-medium">${message}</div>`;
+            list.insertAdjacentHTML('afterbegin', notificationHtml);
+        }
+
+        // --- Core Application Logic ---
+        function setRole(role) {
+            currentRole = role;
+            localStorage.setItem('userRole', role);
+
+            // Hide all modals and dashboards first
+            document.getElementById('role-selection-modal').classList.add('hidden');
+            document.getElementById('student-dashboard').classList.add('hidden');
+            document.getElementById('teacher-dashboard').classList.add('hidden');
+            document.getElementById('parent-dashboard').classList.add('hidden');
+            document.getElementById('math-game-modal').classList.add('hidden');
+            document.getElementById('math-game-modal').classList.remove('flex');
+            document.getElementById('puzzle-mania-modal').classList.add('hidden');
+            document.getElementById('puzzle-mania-modal').classList.remove('flex');
+            document.body.classList.remove('parent-dashboard-bg'); // Remove parent bg class
+
+            // Show role switch button
+            document.getElementById('role-switch-btn').classList.remove('hidden');
+            
+            if (role === 'student') {
+                document.getElementById('student-dashboard').classList.remove('hidden');
+                initStudentDashboard();
+            } else if (role === 'teacher') {
+                document.getElementById('teacher-dashboard').classList.remove('hidden');
+                initTeacherDashboard();
+            } else if (role === 'parent') {
+                document.getElementById('parent-dashboard').classList.remove('hidden');
+                initParentDashboard();
+            }
+        }
+        function toggleRole() {
+            if (currentRole === 'student') {
+                setRole('teacher');
+            } else if (currentRole === 'teacher') {
+                setRole('parent');
+            } else {
+                setRole('student');
+            }
+        }
+        
+        async function createMockStudents() {
+            const mockStudents = [
+                { name: 'Ravi', level: 5, xp: 1200, progress: 85, badges: ['helping-hand'], id: 'ravi-1' },
+                { name: 'Priya', level: 4, xp: 950, progress: 95, badges: ['star-performer'], id: 'priya-2' },
+                { name: 'Amit', level: 3, xp: 750, progress: 60, badges: [], id: 'amit-3' },
+                { name: 'Meena', level: 6, xp: 1500, progress: 100, badges: ['star-performer', 'problem-solver'], id: 'meena-4' },
+                { name: 'Suresh', level: 2, xp: 400, progress: 30, badges: [], id: 'suresh-5' },
+            ];
+            if (!isGeminiPlatform) {
+                students = mockStudents;
+                console.log("Using mock student data for local development.");
+                return;
+            }
+            const studentCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'students');
+            const snapshot = await getDocs(studentCollectionRef);
+            if (snapshot.empty) {
+                console.log("No student data found, creating mock data.");
+                for (const student of mockStudents) {
+                    await setDoc(doc(studentCollectionRef, student.id), student);
+                }
+            }
+        }
+        
+        async function initStudentDashboard() {
+            await fetchInitialStudentData();
+            updateStudentUI(); // This will handle all translations and rendering for the student dashboard
+            if (!isGeminiPlatform) {
+                renderStudentLeaderboard(defaultLeaderboard);
+                return;
+            }
+            const publicLeaderboardRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+            onSnapshot(publicLeaderboardRef, (snapshot) => {
+                const leaderboardData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderStudentLeaderboard(leaderboardData);
+            }, (error) => {
+                console.error('Error listening to leaderboard:', error);
+                renderStudentLeaderboard(defaultLeaderboard);
+            });
+        }
+        
+        async function initTeacherDashboard() {
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            translateTeacherDashboard(lang); // Translate static elements first
+            renderTeacherRewardBadges();
+            await createMockStudents();
+            document.getElementById('teacher-notification-list').innerHTML = '';
+            addNotification('notification1');
+            addNotification('notification2');
+            addNotification('notification3');
+            
+            if (!isGeminiPlatform) {
+                renderTeacherStudentProgress();
+                renderTeacherLeaderboard();
+                renderTeacherStudentSelector();
+                return;
+            }
+
+            const studentCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'students');
+            onSnapshot(studentCollectionRef, (snapshot) => {
+                students = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderTeacherStudentProgress();
+                renderTeacherLeaderboard();
+                renderTeacherStudentSelector();
+            }, (error) => {
+                console.error("Error listening to student data: ", error);
+                showMessage("Failed to get real-time student data.", "error");
+            });
+        }
+
+        async function initParentDashboard() {
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            translateParentDashboard(lang); // Translate static elements
+            setParentDashboardAppearance();
+        }
+
+        function setParentDashboardAppearance() {
+            const body = document.body;
+            const greetingMessage = document.getElementById('greeting-message');
+            const currentHour = new Date().getHours();
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            const t = translations[lang] || translations['en'];
+
+            // Set background class
+            body.classList.add('parent-dashboard-bg');
+
+            // Set greeting based on time of day
+            if (currentHour >= 5 && currentHour < 12) {
+                greetingMessage.textContent = t.parent_greeting_morning;
+            } else if (currentHour >= 12 && currentHour < 17) {
+                greetingMessage.textContent = t.parent_greeting_afternoon;
+            } else if (currentHour >= 17 && currentHour < 20) {
+                greetingMessage.textContent = t.parent_greeting_evening;
+            } else {
+                greetingMessage.textContent = t.parent_greeting_night;
+            }
+        }
+        
+        async function initializeAppAndAuth() {
+        try {
+            // Nayi file se translations load karein
+            const response = await fetch('translations.json');
+            if (!response.ok) {
+                throw new Error('translations.json file not found');
+            }
+            translations = await response.json(); // Data ko 'translations' object mein daalein
+
+            // Ab baaki ka code chalayen
+            populateLanguageSelectors();
+            
+            if (!isGeminiPlatform) {
+                console.warn("Not on Gemini platform. Using mock Firebase config.");
+                document.getElementById('login-modal').classList.remove('hidden');
+                return;
+            }
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('login-modal').classList.add('hidden');
+                        
+                        const savedLang = localStorage.getItem('userLanguage') || 'en';
+                        translateAllPages(savedLang);
+
+                        if (currentRole) {
+                            setRole(currentRole);
+                        } else {
+                            document.getElementById('role-selection-modal').classList.remove('hidden');
+                        }
+
+                    } else {
+                        document.getElementById('login-modal').classList.remove('hidden');
+                    }
+                });
+            } catch (error) {
+                console.error('Firebase initialization or authentication failed:', error);
+                showMessage('Failed to connect to the database. Check console for details.', 'error');
+            }
+        }
+
+        async function handleLogin() {
+            const phoneNumber = document.getElementById('phone-number').value;
+            // Check if the phone number is exactly 10 digits
+                if (phoneNumber.length === 10 && /^\d+$/.test(phoneNumber)) {
+                showMessage("A mock OTP has been sent. Please enter '123456'", 'success');
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('otp-section').classList.remove('hidden');
+                } else {
+                    // Show an error message if the number is not 10 digits
+                    showMessage("Wrong number. Please enter a 10-digit phone number.", 'error');
+                }
+        }
+
+        async function handleOtpVerification() {
+            const otpInput = document.getElementById('otp-input').value;
+            if (otpInput === '123456') {
+                let user;
+                if (isGeminiPlatform) {
+                    user = await signInWithCustomToken(auth, authToken);
+                } else {
+                    try {
+                        user = await signInAnonymously(auth);
+                        userId = user.user.uid;
+                    } catch(e) {
+                         console.log("Mock sign in for local dev");
+                         userId = "mock-user-id";
+                    }
+                }
+                showMessage("Login successful!", 'success');
+                document.getElementById('login-modal').classList.add('hidden');
+
+                const savedLang = localStorage.getItem('userLanguage') || 'en';
+                translateAllPages(savedLang);
+                if(currentRole) {
+                    setRole(currentRole);
+                } else {
+                    document.getElementById('role-selection-modal').classList.remove('hidden');
+                }
+            } else {
+                showMessage("Invalid OTP. Please try again.", 'error');
+            }
+        }
+
+        function handleVoiceInput() {
+            const voiceInput = document.getElementById('voice-input').value;
+            if (voiceInput) {
+                showMessage(`You said: "${voiceInput}"`, 'success');
+            } else {
+                showMessage("Please speak or type something first.", 'error');
+            }
+        }
+
+        function populateLanguageSelectors() {
+            const selectors = document.querySelectorAll('#language-selector, #teacher-language-selector, #parent-language-selector');
+            const savedLang = localStorage.getItem('userLanguage') || 'en';
+            selectors.forEach(selector => {
+                if (!selector) return;
+                selector.innerHTML = '';
+                for (const code in languages) {
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = languages[code];
+                    selector.appendChild(option);
+                }
+                selector.value = savedLang;
+            });
+        }
+
+        // Helper to safely set text content
+        const safeSetText = (id, text) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = text;
+        };
+        const safeSetTextByQuery = (query, text) => {
+            const element = document.querySelector(query);
+            if (element) element.textContent = text;
+        };
+        const safeSetAllByQuery = (query, text) => {
+            document.querySelectorAll(query).forEach(el => {
+                if (el) el.textContent = text;
+            });
+        };
+        
+        function translateStudentDashboard(lang) {
+            const t = translations[lang] || translations['en'];
+            safeSetText('student-welcome-message', t.welcome_message);
+            safeSetText('student-learning-message', t.learning_message);
+            safeSetText('student-daily-quests-title', t.daily_quests_title);
+            safeSetText('student-leaderboard-title', t.leaderboard_title);
+            safeSetText('student-badges-title', t.badges_title);
+            safeSetText('student-progress-title', t.progress_title);
+            safeSetText('student-generate-quest-btn-text', t.generate_quest_button);
+            safeSetText('student-voice-label', t.voice_question_label);
+
+            // --- YAHAN NAYI LINES ADD KAREIN ---
+            safeSetText('attendance-title', t.attendance_title);
+            safeSetText('mark-attendance-btn-text', t.mark_attendance_button);
+            safeSetText('homework-title', t.homework_title);
+            
+            // homework status (sabko ek saath update karein)
+            document.querySelectorAll('.homework-status-text').forEach(el => {
+                const currentStatus = el.textContent.trim().toLowerCase();
+                if (currentStatus === 'pending' || currentStatus === 'लंबित') {
+                    el.textContent = t.status_pending;
+                } else if (currentStatus === 'completed' || currentStatus === 'पूर्ण') {
+                    el.textContent = t.status_completed;
+                } else if (currentStatus === 'overdue' || currentStatus === 'अतिदेय') {
+                    el.textContent = t.status_overdue;
+                }
+            });
+
+            // buttons (sabko ek saath update karein)
+            safeSetAllByQuery('.upload-btn-text', t.upload_button);
+            safeSetAllByQuery('.get-help-btn-text', t.get_help_button);
+        }
+
+
+        function translateTeacherDashboard(lang) {
+            const t = translations[lang] || translations['en'];
+            safeSetText('teacher-dashboard-title', t.teacher_dashboard_title);
+            safeSetText('teacher-student-progress-title', t.student_progress_title);
+            safeSetText('teacher-view-label', t.view_label);
+            safeSetText('teacher-view-option-summary', t.view_option_summary);
+            safeSetText('teacher-view-option-all', t.view_option_all);
+            safeSetText('teacher-generate-report-btn-text', t.generate_report_button);
+            safeSetText('teacher-summary-title', t.summary_title);
+            safeSetText('teacher-summary-avg-xp-label', t.summary_avg_xp);
+            safeSetText('teacher-summary-avg-level-label', t.summary_avg_level);
+            safeSetText('teacher-summary-total-students-label', t.summary_total_students);
+            safeSetText('teacher-leaderboard-title', t.class_leaderboard_title);
+            safeSetText('teacher-reward-title', t.reward_title);
+            safeSetText('teacher-award-badge-btn', t.award_badge_button);
+            safeSetText('teacher-assignment-title-main', t.assignment_title);
+            safeSetText('teacher-assignment-module-label', t.module_title_label);
+            safeSetText('teacher-assignment-desc-label', t.description_label);
+            safeSetText('teacher-assignment-assign-label', t.assign_to_label);
+            safeSetText('teacher-assign-all', t.assign_all);
+            safeSetText('teacher-assign-gA', t.assign_group_a);
+            safeSetText('teacher-assign-gB', t.assign_group_b);
+            safeSetText('teacher-create-assignment-btn', t.create_assignment_button);
+            safeSetText('teacher-notifications-title', t.notifications_title);
+        }
+
+        function translateParentDashboard(lang) {
+            const t = translations[lang] || translations['en'];
+            safeSetText('greeting-message', t.parent_welcome);
+            safeSetText('parent-child-dashboard-label', t.child_dashboard_label);
+            safeSetText('parent-overall-progress-title', t.overall_progress_title);
+            safeSetText('parent-learning-level-label', t.learning_level_label);
+            safeSetText('parent-points-earned-label', t.points_earned_label);
+            safeSetText('parent-badges-collected-label', t.badges_collected_label);
+            safeSetText('parent-subject-progress-title', t.subject_progress_title);
+            safeSetAllByQuery('.parent-lessons-label', t.lessons_label);
+            safeSetText('parent-subject-math', t.subject_math);
+            safeSetText('parent-subject-science', t.subject_science);
+            safeSetText('parent-subject-english', t.subject_english);
+            safeSetText('parent-homework-title', t.homework_title);
+            safeSetAllByQuery('.parent-due-label', t.due_label);
+            safeSetTextByQuery('.parent-due-date1', t.due_yesterday);
+            safeSetTextByQuery('.parent-due-date2', t.due_tomorrow);
+            safeSetTextByQuery('.parent-due-date3', t.due_2_days_ago);
+            safeSetTextByQuery('.parent-status-submitted', t.status_submitted);
+            safeSetTextByQuery('.parent-status-pending', t.status_pending);
+            safeSetTextByQuery('.parent-status-overdue', t.status_overdue);
+            safeSetText('parent-homework1-title', t.homework1_title);
+            safeSetText('parent-homework2-title', t.homework2_title);
+            safeSetText('parent-homework3-title', t.homework3_title);
+            safeSetText('parent-attendance-title', t.attendance_title);
+            safeSetText('parent-attendance-month-label', t.present_month_label);
+            safeSetText('parent-attendance-week-label', t.this_week_label);
+            safeSetTextByQuery('.parent-day-mon', t.day_mon);
+            safeSetTextByQuery('.parent-day-tue', t.day_tue);
+            safeSetTextByQuery('.parent-day-wed', t.day_wed);
+            safeSetTextByQuery('.parent-day-thu', t.day_thu);
+            safeSetTextByQuery('.parent-day-fri', t.day_fri);
+            safeSetText('parent-footer-text', t.footer_text);
+        }
+
+        function updateStudentUI() {
+            const lang = localStorage.getItem('userLanguage') || 'en';
+            translateStudentDashboard(lang); // Translate static elements
+            const t = translations[lang] || translations['en'];
+            document.getElementById('student-user-avatar').textContent = studentData.name.charAt(0).toUpperCase();
+            document.getElementById('student-level-text').textContent = `${t.level_text} ${studentData.level}`;
+            document.getElementById('student-xp-text').textContent = `${studentData.xp} / ${studentData.nextLevelXp} XP`;
+            const progressPercentage = (studentData.xp / studentData.nextLevelXp) * 100;
+            document.getElementById('student-xp-progress-fill').style.width = `${Math.min(progressPercentage, 100)}%`;
+
+            // Dynamic elements are translated within their render functions
+            renderStudentQuests(studentData.quests);
+            renderStudentLeaderboard(defaultLeaderboard);
+            renderStudentBadges(studentBadges);
+            renderStudentModules(studentModules);
+        }
+
+        // CORRECTED: Central translation function
+        function translateAllPages(lang) {
+            localStorage.setItem('userLanguage', lang);
+            populateLanguageSelectors();
+
+            const t = translations[lang] || translations['en'];
+
+            // Translate common elements that are always available
+            safeSetText('login-modal-title', t.login_title);
+            safeSetText('request-otp-btn', t.request_otp);
+            safeSetText('verify-otp-btn', t.verify_otp);
+            safeSetText('otp-info-text', t.otp_info);
+            safeSetText('role-modal-title', t.role_modal_title);
+            safeSetTextByQuery('.role-student-text', t.role_student);
+            safeSetTextByQuery('.role-teacher-text', t.role_teacher);
+            safeSetTextByQuery('.role-parent-text', t.role_parent);
+            safeSetText('role-switch-btn', t.switch_role_button);
+
+            // Re-initialize/re-render the currently active dashboard to apply language changes
+            if (currentRole === 'student') {
+                updateStudentUI();
+            } else if (currentRole === 'teacher') {
+                initTeacherDashboard();
+            } else if (currentRole === 'parent') {
+                initParentDashboard();
+            }
+        }
+        
+        // --- Added from second document ---
+        let currentAudio = null;
+
+        const API_KEY = "AIzaSyDCp6dAI6S88vmyoOHaOnOO1_zYhi6Buzw";
+        const textApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${""}`;
+        const ttsApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${""}`;
+        const imageApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${""}`;
+
+        async function callGeminiText(prompt) {
+            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+            try {
+                const response = await fetch(textApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                const result = await response.json();
+                return result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response. Please try again.";
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                return "There was an error connecting to the AI helper. Please check your connection and try again.";
+            }
+        }
+
+        async function callGeminiTTS(textToSpeak) {
+            const payload = {
+                contents: [{ parts: [{ text: textToSpeak }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+            try {
+                const response = await fetch(ttsApiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`TTS API Error: ${response.statusText}`);
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const wavBlob = pcmToWav(pcmData, sampleRate);
+                    return URL.createObjectURL(wavBlob);
+                }
+                return null;
+            } catch (error) {
+                console.error("Gemini TTS call failed:", error);
+                showMessage("Audio Error", "Could not generate the audio for this text.");
+                return null;
+            }
+        }
+
+        async function callImagen(prompt) {
+            const payload = { instances: [{ prompt: prompt }], parameters: { "sampleCount": 1 } };
+            try {
+                const response = await fetch(imageApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`Imagen API Error: ${response.statusText}`);
+                const result = await response.json();
+                return result.predictions?.[0]?.bytesBase64Encoded || null;
+            } catch (error) {
+                console.error("Imagen API call failed:", error);
+                showMessage("Image Error", "Sorry, I couldn't create an image right now.");
+                return null;
+            }
+        }
+
+        // --- Event Handlers ---
+        window.onload = initializeAppAndAuth;
+        document.getElementById('student-role-btn').addEventListener('click', () => setRole('student'));
+        document.getElementById('teacher-role-btn').addEventListener('click', () => setRole('teacher'));
+        document.getElementById('parent-role-btn').addEventListener('click', () => setRole('parent'));
+        document.getElementById('role-switch-btn').addEventListener('click', toggleRole);
+        document.getElementById('language-selector').addEventListener('change', (e) => translateAllPages(e.target.value));
+        document.getElementById('teacher-language-selector').addEventListener('change', (e) => translateAllPages(e.target.value));
+        document.getElementById('parent-language-selector').addEventListener('change', (e) => translateAllPages(e.target.value));
+
+        document.getElementById('student-generate-quest-btn').addEventListener('click', generateNewQuest);
+        document.getElementById('student-quest-list').addEventListener('click', async (event) => {
+            const btn = event.target.closest('.student-start-quest-btn');
+            if (btn) {
+                const xpReward = parseInt(btn.dataset.xp, 10);
+                studentData.xp += xpReward;
+                checkLevelUp();
+                studentData.quests = [];
+                await saveStudentData();
+                await updateStudentLeaderboardData(studentData);
+                updateStudentUI();
+                const lang = localStorage.getItem('userLanguage') || 'en';
+                const message = (translations[lang] || translations['en'])['xp_gained'].replace('{xp}', xpReward);
+                showMessage(message, 'success');
+            }
+            const explainBtn = event.target.closest('.explain-quest-btn');
+            if(explainBtn) {
+                const description = explainBtn.dataset.desc;
+                explainQuestConcept(description);
+            }
+        });
+        document.getElementById('student-module-progress-list').addEventListener('click', (event) => {
+            const btn = event.target.closest('.read-aloud-btn');
+            if (btn) {
+                const textToRead = btn.dataset.text;
+                readAloud(textToRead);
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleLogin();
+        });
+        document.getElementById('verify-otp-btn').addEventListener('click', handleOtpVerification);
+        document.getElementById('mic-btn').addEventListener('click', handleVoiceInput);
+
+        
+        document.getElementById('teacher-progress-view').addEventListener('change', renderTeacherStudentProgress);
+        document.getElementById('generate-report-btn').addEventListener('click', generateClassReport);
+        document.getElementById('teacher-reward-student-selector').addEventListener('change', (e) => {
+            const awardBtn = document.getElementById('teacher-award-badge-btn');
+            awardBtn.disabled = !e.target.value;
+        });
+        let selectedBadgeId = null;
+        document.getElementById('teacher-badge-grid').addEventListener('click', (e) => {
+            const badgeElement = e.target.closest('div[data-badge-id]');
+            if (badgeElement) {
+                document.querySelectorAll('#teacher-badge-grid > div').forEach(el => el.classList.remove('bg-white', 'ring-2', 'ring-emerald-500'));
+                badgeElement.classList.add('bg-white', 'ring-2', 'ring-emerald-500');
+                selectedBadgeId = badgeElement.dataset.badgeId;
+            }
+        });
+        document.getElementById('teacher-award-badge-btn').addEventListener('click', async () => {
+            const studentId = document.getElementById('teacher-reward-student-selector').value;
+            if (!studentId || !selectedBadgeId) {
+                showMessage("Please select a student and a badge.", "error");
+                return;
+            }
+            try {
+                if (!isGeminiPlatform) {
+                    console.log(`Mock: Awarded badge ${selectedBadgeId} to student ${studentId}`);
+                    showMessage("Badge awarded successfully! (Mock)", "success");
+                    addNotification(`Mock: Awarded badge to student ${studentId}.`);
+                    return;
+                }
+                const studentDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', studentId);
+                const student = students.find(s => s.id === studentId);
+                if (student && student.badges && !student.badges.includes(selectedBadgeId)) {
+                    const updatedBadges = [...student.badges, selectedBadgeId];
+                    await setDoc(studentDocRef, { badges: updatedBadges }, { merge: true });
+                    showMessage(`${student.name} was awarded the ${selectedBadgeId} badge!`);
+                    addNotification(`New assignment "${title}" created for "${group}".`);
+                } else {
+                    showMessage("Student already has this badge or an error occurred.", "error");
+                }
+            } catch (error) {
+                console.error("Error awarding badge: ", error);
+                showMessage("Failed to award badge. Please try again.", "error");
+            }
+        });
+        document.getElementById('teacher-assignment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('teacher-assignment-title-input').value;
+            const desc = document.getElementById('teacher-assignment-desc').value;
+            const group = document.getElementById('teacher-assignment-group').value;
+            if (!title || !desc) {
+                showMessage("Please fill out all assignment fields.", "error");
+                return;
+            }
+            const newAssignment = { title, description: desc, assignedTo: group, createdAt: new Date() };
+            try {
+                if (!isGeminiPlatform) {
+                    console.log("Mock: Created new assignment", newAssignment);
+                    showMessage("Assignment created and assigned successfully! (Mock)", "success");
+                    addNotification(`Mock: New assignment "${title}" created for "${group}".`);
+                    document.getElementById('teacher-assignment-form').reset();
+                    return;
+                }
+                const assignmentsCollectionRef = collection(db, 'artifacts', appId, 'private', 'data', 'assignments');
+                await addDoc(assignmentsCollectionRef, newAssignment);
+                showMessage("Assignment created and assigned successfully!");
+                addNotification(`New assignment "${title}" created for "${group}".`);
+                document.getElementById('teacher-assignment-form').reset();
+            } catch (error) {
+                console.error("Error creating assignment: ", error);
+                showMessage("Failed to create assignment. Please try again.", "error");
+            }
+        });
+        // Curious Corner chatbot integration
+        document.getElementById("ask-curious-question-btn").addEventListener("click", async () => {
+            const questionInput = document.getElementById("curious-question-input");
+            const answerBox = document.getElementById("curious-answer");
+            const question = questionInput.value.trim();
+            if (!question) return;
+            answerBox.innerHTML = "🤔 Thinking...";
+            answerBox.classList.remove("hidden");
+            try {
+                const kb = {"sky":"Blue from Rayleigh scattering!","photo":"Plants use sunlight!","gravity":"Force attracting objects!","computer":"Processes information!","agriculture":"Growing crops!","water":"Essential for life!","conservation":"Protecting resources!"};
+                let ans = "Great question! Keep exploring!";
+                const q = questionInput.value.toLowerCase();
+                for (const [k, v] of Object.entries(kb)) { if (q.includes(k)) { ans = v; break; } }
+                answerBox.innerHTML = ans;
+                questionInput.value = "";
+            } catch (err) {
+                console.error(err);
+                answerBox.innerHTML = "Error processing question.";
+            }
+        });
+        // Curious Corner - Educational Q&A
+        // Event listener removed - combined with main student dashboard
+        
+        
+        // --- Math Bullseye Game Integration ---
+        
+        // Game configuration
+        const WIDTH = 900;
+        const HEIGHT = 720;
+        const FPS = 60;
+        const TIME_LIMIT = 45; // seconds
+        const LIVES_START = 3;
+        const OPTION_RADIUS = 40;
+        const TARGET_CENTER = { x: WIDTH / 2, y: HEIGHT / 2 + 30 };
+        const RING_RADII = [170, 120, 80, 40];
+        
+        // Colors
+        const RING_COLORS = ['#dc143c', '#ff8c00', '#ffd700', '#228b22'];
+        const RING_BORDER = '#282828';
+        const OPTION_FILL = '#2064c8';
+        const OPTION_BORDER = '#f5c83c';
+        const HOVER_BORDER = '#ffffff';
+        const FEEDBACK_POS_COLOR = '#1ec878';
+        const FEEDBACK_NEG_COLOR = '#dc3232';
+        
+        // Audio
+        let audioContext = null;
+        let clickOscillator, winOscillator;
+
+        // Initialize canvas and context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = WIDTH;
+        canvas.height = HEIGHT;
+
+        // Game state
+        let game = {};
+        let lastTime = 0;
+        let running = false;
+        let mousePos = { x: 0, y: 0 };
+        let leaderboard = [];
+
+        // Game UI elements
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScoreText = document.getElementById('final-score');
+        const leaderboardList = document.getElementById('leaderboard-list');
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            // Simple audio synthesis to avoid external files
+            clickOscillator = audioContext.createOscillator();
+            clickOscillator.type = 'sine';
+            clickOscillator.frequency.value = 250;
+            clickOscillator.start();
+
+            winOscillator = audioContext.createOscillator();
+            winOscillator.type = 'sine';
+            winOscillator.frequency.value = 520;
+            winOscillator.start();
+        }
+
+        function playClickSound() {
+            if (!audioContext) return;
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+            clickOscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            setTimeout(() => {
+                gainNode.disconnect();
+                clickOscillator.disconnect();
+                initAudio();
+            }, 100);
+        }
+
+        function playWinSound() {
+            if (!audioContext) return;
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+            winOscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            setTimeout(() => {
+                gainNode.disconnect();
+                winOscillator.disconnect();
+                initAudio();
+            }, 500);
+        }
+
+        // Utility functions
+        function saveScore(score) {
+            try {
+                let scores = JSON.parse(localStorage.getItem('mathBullseyeScores')) || [];
+                scores.push(score);
+                scores.sort((a, b) => b - a);
+                localStorage.setItem('mathBullseyeScores', JSON.stringify(scores));
+            } catch (e) {
+                console.error("Could not save score to localStorage:", e);
+            }
+        }
+
+        function loadTopScores(n = 5) {
+            try {
+                let scores = JSON.parse(localStorage.getItem('mathBullseyeScores')) || [];
+                scores.sort((a, b) => b - a);
+                leaderboard = scores.slice(0, n);
+            } catch (e) {
+                console.error("Could not load scores from localStorage:", e);
+                leaderboard = [];
+            }
+        }
+
+        function circlePointCollision(circle, point) {
+            const dx = point.x - circle.x;
+            const dy = point.y - circle.y;
+            return Math.sqrt(dx * dx + dy * dy) < circle.radius;
+        }
+
+        // Game drawing
+        function drawTarget() {
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            ctx.fillStyle = '#121212';
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            
+            const { x, y } = TARGET_CENTER;
+            RING_RADII.forEach((r, i) => {
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, 2 * Math.PI);
+                ctx.fillStyle = RING_COLORS[i];
+                ctx.fill();
+                ctx.strokeStyle = RING_BORDER;
+                ctx.lineWidth = 4;
+                ctx.stroke();
+                ctx.closePath();
+            });
+        }
+
+        function generateQuestion() {
+            const a = Math.floor(Math.random() * 12) + 1;
+            const b = Math.floor(Math.random() * 12) + 1;
+            const ops = ['+', '-', '*'];
+            const op = ops[Math.floor(Math.random() * ops.length)];
+            let ans;
+
+            if (op === '+') ans = a + b;
+            else if (op === '-') ans = a - b;
+            else ans = a * b;
+
+            const qText = `${a} ${op} ${b} = ?`;
+            const opts = [ans];
+            
+            while (opts.length < 3) {
+                const delta = Math.floor(Math.random() * 6) + 1;
+                const sign = Math.random() < 0.5 ? 1 : -1;
+                const candidate = ans + sign * delta;
+                if (!opts.includes(candidate) && candidate > -100 && candidate < 100) {
+                    opts.push(candidate);
+                }
+            }
+            opts.sort(() => Math.random() - 0.5);
+
+            const chosenRadii = [RING_RADII[0], RING_RADII[1], RING_RADII[2]];
+            const baseAngle = Math.random() * 2 * Math.PI;
+            const positions = [];
+            for (let i = 0; i < chosenRadii.length; i++) {
+                const angle = baseAngle + i * (2 * Math.PI / 3);
+                const r = chosenRadii[i] + 40; // Position options outside the bullseye
+                const x = TARGET_CENTER.x + r * Math.cos(angle);
+                const y = TARGET_CENTER.y + r * Math.sin(angle);
+                positions.push({ x: x, y: y });
+            }
+            
+            return {
+                qText,
+                answer: ans,
+                options: opts.map((value, i) => ({
+                    value,
+                    pos: positions[i],
+                    radius: OPTION_RADIUS,
+                    isHover: false,
+                    flashTimer: 0,
+                    flashColor: null
+                }))
+            };
+        }
+
+        function drawOptions() {
+            game.options.forEach(option => {
+                ctx.beginPath();
+                ctx.arc(option.pos.x, option.pos.y, option.radius, 0, 2 * Math.PI);
+                ctx.fillStyle = OPTION_FILL;
+                ctx.fill();
+                ctx.strokeStyle = option.isHover ? HOVER_BORDER : OPTION_BORDER;
+                ctx.lineWidth = option.isHover ? 6 : 4;
+                if (option.flashTimer > 0) {
+                    ctx.strokeStyle = option.flashColor;
+                    ctx.lineWidth = 6;
+                }
+                ctx.stroke();
+                ctx.closePath();
+
+                ctx.font = '700 44px Inter, sans-serif';
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(option.value, option.pos.x, option.pos.y);
+            });
+        }
+
+        function drawUI() {
+            // Question
+            ctx.font = '700 44px Inter, sans-serif';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(game.question.qText, WIDTH / 2, 30);
+
+            // Status
+            ctx.font = '700 26px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Score: ${game.score}`, 20, 18);
+            ctx.fillText(`Lives: ${game.lives}`, 20, 48);
+
+            // Timer
+            const elapsed = (Date.now() - game.startTime) / 1000;
+            const timeLeft = Math.max(0, TIME_LIMIT - elapsed);
+            ctx.textAlign = 'right';
+            ctx.fillText(`Time: ${Math.round(timeLeft)}s`, WIDTH - 20, 18);
+
+            const barW = WIDTH - 240;
+            const barH = 16;
+            const barX = 120;
+            const barY = 100;
+            ctx.fillStyle = '#f0f0f0';
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, barW, barH, 8);
+            ctx.fill();
+            ctx.fillStyle = '#3cb371';
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, barW * (timeLeft / TIME_LIMIT), barH, 8);
+            ctx.fill();
+            ctx.strokeStyle = '#505050';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, barW, barH, 8);
+            ctx.stroke();
+            
+            return timeLeft;
+        }
+
+        function drawFeedback() {
+            if (game.feedbackTimer > 0) {
+                const scale = 1.0 + 0.6 * (game.feedbackTimer / 0.9);
+                const fontSize = 36 * scale;
+                ctx.font = `700 ${fontSize}px Inter, sans-serif`;
+                ctx.fillStyle = game.feedbackColor;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Draw shadow
+                ctx.globalAlpha = 0.5;
+                ctx.fillStyle = 'black';
+                ctx.fillText(game.feedbackText, WIDTH / 2 + 3, 160 + 3);
+                
+                // Draw text
+                ctx.globalAlpha = 1.0;
+                ctx.fillStyle = game.feedbackColor;
+                ctx.fillText(game.feedbackText, WIDTH / 2, 160);
+            }
+        }
+        
+        function showGameOverScreen() {
+            loadTopScores();
+            
+            finalScoreText.textContent = `Your Score: ${game.score}`;
+            
+            leaderboardList.innerHTML = '';
+            leaderboard.forEach((score, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${index + 1}. ${score}`;
+                li.classList.add('flex', 'justify-between');
+                if (index < 3) {
+                    li.classList.add('top-3');
+                    if (index === 0) li.style.color = '#ffc400';
+                    if (index === 1) li.style.color = '#c0c0c0';
+                    if (index === 2) li.style.color = '#cd7f32';
+                }
+                leaderboardList.appendChild(li);
+            });
+
+            gameOverScreen.style.display = 'flex';
+        }
+
+        function hideGameOverScreen() {
+            gameOverScreen.style.display = 'none';
+        }
+
+        // Main game loop
+        function gameLoop(timestamp) {
+            if (!running) return;
+
+            const dt = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
+            if (game.state === 'playing') {
+                drawTarget();
+                drawOptions();
+                drawUI();
+                drawFeedback();
+
+                // Update timers
+                game.options.forEach(option => {
+                    if (option.flashTimer > 0) {
+                        option.flashTimer = Math.max(0, option.flashTimer - dt);
+                    }
+                });
+                
+                if (game.feedbackTimer > 0) {
+                    game.feedbackTimer = Math.max(0, game.feedbackTimer - dt);
+                }
+
+                if (game.pendingNext) {
+                    game.pendingTimer = Math.max(0, game.pendingTimer - dt);
+                    if (game.pendingTimer <= 0) {
+                        const timeLeft = TIME_LIMIT - (Date.now() - game.startTime) / 1000;
+                        if (game.lives <= 0 || timeLeft <= 0) {
+                            game.state = 'game_over';
+                            saveScore(game.score);
+                            showGameOverScreen();
+                        } else {
+                            resetQuestion();
+                        }
+                        game.pendingNext = false;
+                    }
+                }
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function resetQuestion() {
+            const { qText, answer, options } = generateQuestion();
+            game.question = { qText, answer };
+            game.options = options;
+            game.feedbackText = '';
+            game.feedbackTimer = 0;
+            game.pendingNext = false;
+            game.pendingTimer = 0; // Reset this too
+        }
+
+        function resetGame() {
+            game = {
+                score: 0,
+                lives: LIVES_START,
+                startTime: Date.now(),
+                state: 'playing',
+                feedbackText: '',
+                feedbackTimer: 0,
+                feedbackColor: null,
+                pendingNext: false,
+                pendingTimer: 0
+            };
+            resetQuestion();
+            hideGameOverScreen();
+            running = true;
+        }
+
+        // Event listeners for game start and quit
+        document.getElementById('math-bullseye-card').addEventListener('click', () => {
+            document.getElementById('student-dashboard').classList.add('hidden');
+            document.getElementById('math-game-modal').classList.remove('hidden');
+            document.getElementById('math-game-modal').classList.add('flex');
+            initAudio();
+            resetGame();
+            requestAnimationFrame(gameLoop);
+        });
+
+        document.getElementById('play-again-btn').addEventListener('click', () => {
+            resetGame();
+        });
+
+        document.getElementById('quit-btn').addEventListener('click', () => {
+            running = false;
+            document.getElementById('math-game-modal').classList.remove('flex');
+            document.getElementById('math-game-modal').classList.add('hidden');
+            document.getElementById('student-dashboard').classList.remove('hidden');
+            initStudentDashboard(); // Re-render the dashboard state
+        });
+        
+        // Game interaction listeners
+        canvas.addEventListener('mousemove', (event) => {
+            if (!running || game.state !== 'playing' || game.pendingNext) return;
+            const rect = canvas.getBoundingClientRect();
+            mousePos.x = event.clientX - rect.left;
+            mousePos.y = event.clientY - rect.top;
+            
+            game.options.forEach(option => {
+                option.isHover = circlePointCollision(
+                    { x: option.pos.x, y: option.pos.y, radius: option.radius },
+                    mousePos
+                );
+            });
+        });
+
+        canvas.addEventListener('click', (event) => {
+            if (game.state !== 'playing' || game.pendingNext) return;
+            
+            for (const option of game.options) {
+                if (circlePointCollision({ x: option.pos.x, y: option.pos.y, radius: option.radius }, mousePos)) {
+                    playClickSound();
+                    
+                    if (option.value === game.question.answer) {
+                        game.score++;
+                        option.flashTimer = 0.6;
+                        option.flashColor = FEEDBACK_POS_COLOR;
+                        game.feedbackText = 'Correct!';
+                        game.feedbackColor = FEEDBACK_POS_COLOR;
+                        game.feedbackTimer = 0.9;
+                        playWinSound();
+                    } else {
+                        game.lives--;
+                        option.flashTimer = 0.6;
+                        option.flashColor = FEEDBACK_NEG_COLOR;
+                        game.feedbackText = 'Wrong! -1 Life';
+                        game.feedbackColor = FEEDBACK_NEG_COLOR;
+                        game.feedbackTimer = 0.9;
+                    }
+                    game.pendingNext = true;
+                    game.pendingTimer = 0.55;
+                    break;
+                }
+            }
+        });
+        
+        // --- Puzzle Mania Game Integration ---
+        const puzzleManiaModal = document.getElementById('puzzle-mania-modal');
+        const puzzleManiaCard = document.getElementById('puzzle-mania-card');
+        const gameBoard = document.getElementById('game-board');
+        const startButton = document.getElementById('start-button');
+        const quitGameButton = document.getElementById('quit-game-btn');
+        const gameStatus = document.getElementById('game-status');
+        const movesCounter = document.getElementById('moves-counter');
+
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let lockBoard = false;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createBoard() {
+            gameBoard.innerHTML = '';
+            const emojis = ['🍉', '🥭', '🚜', '🌱', '💧', '☀️', '🐄', '🏡', '🌾', '🌸'];
+            const gameEmojis = shuffle(emojis.slice(0, 6).concat(emojis.slice(0, 6)));
+            
+            gameEmojis.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                card.innerHTML = `
+                        <div class="card-inner">
+                            <div class="card-front"></div>
+                            <div class="card-back">${emoji}</div>
+                        </div>
+                `;
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+        
+        function flipCard() {
+            if (lockBoard || this === flippedCards[0] || this.classList.contains('flipped')) return;
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+            moves++;
+            movesCounter.textContent = `Moves: ${moves}`;
+
+            if (flippedCards.length === 2) {
+                lockBoard = true;
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            const [firstCard, secondCard] = flippedCards;
+            const isMatch = firstCard.dataset.emoji === secondCard.dataset.emoji;
+
+            if (isMatch) {
+                disableCards(firstCard, secondCard);
+                matchedPairs++;
+                if (matchedPairs === 6) {
+                    setTimeout(() => {
+                        gameStatus.textContent = 'You won! 🎉';
+                        quitGameButton.classList.remove('hidden');
+                        // Add XP logic here
+                        showMessage(`Congratulations! You earned 50 XP!`, 'success');
+                    }, 1000);
+                }
+            } else {
+                unflipCards();
+            }
+        }
+
+        function disableCards(card1, card2) {
+            card1.removeEventListener('click', flipCard);
+            card2.removeEventListener('click', flipCard);
+            card1.classList.add('matched');
+            card2.classList.add('matched');
+            resetBoard();
+        }
+
+        function unflipCards() {
+            setTimeout(() => {
+                flippedCards[0].classList.remove('flipped');
+                flippedCards[1].classList.remove('flipped');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [flippedCards, lockBoard] = [[], false];
+        }
+
+        function startGame() {
+            moves = 0;
+            matchedPairs = 0;
+            movesCounter.textContent = 'Moves: 0';
+            gameStatus.textContent = 'Find the matching pairs!';
+            quitGameButton.classList.add('hidden');
+            createBoard();
+        }
+
+        puzzleManiaCard.addEventListener('click', () => {
+            document.getElementById('student-dashboard').classList.add('hidden');
+            puzzleManiaModal.classList.remove('hidden');
+            puzzleManiaModal.classList.add('flex');
+            startGame();
+        });
+
+        startButton.addEventListener('click', () => {
+            startGame();
+        });
+
+        quitGameButton.addEventListener('click', () => {
+            puzzleManiaModal.classList.add('hidden');
+            puzzleManiaModal.classList.remove('flex');
+            document.getElementById('student-dashboard').classList.remove('hidden');
+            initStudentDashboard(); // Re-render the dashboard state
+        });
+        
+        // Event listeners and logic for the newly added student dashboard sections
+        document.addEventListener('DOMContentLoaded', () => {
+            const markAttendanceBtn = document.getElementById('markAttendanceBtn');
+            const attendanceAnimationOverlay = document.getElementById('attendanceAnimationOverlay');
+            const animatedMonkey = document.getElementById('animatedMonkey');
+            const monkeyMessage = document.getElementById('monkeyMessage');
+            const homeworkHelpBtns = document.querySelectorAll('.homework-help-btn');
+            const homeworkHelpModal = document.getElementById('homeworkHelpModal');
+            const homeworkHelpContent = document.getElementById('homeworkHelpContent');
+            const closeHomeworkHelpBtn = document.getElementById('closeHomeworkHelpBtn');
+            const listenHelpBtn = document.getElementById('listenHelpBtn');
+            const storyMaker = document.getElementById('storyMaker');
+            const storyMakerModal = document.getElementById('storyMakerModal');
+            const closeStoryMakerBtn = document.getElementById('closeStoryMakerBtn');
+            const storyWordInput = document.getElementById('storyWordInput');
+            const generateStoryBtn = document.getElementById('generateStoryBtn');
+            const storyResult = document.getElementById('storyResult');
+            const visualizeStoryBtn = document.getElementById('visualizeStoryBtn');
+            const storyImageResult = document.getElementById('storyImageResult');
+            const curiousQuestionInput = document.getElementById('curious-question-input');
+            const askCuriousQuestionBtn = document.getElementById('ask-curious-question-btn');
+            const curiousAnswer = document.getElementById('curious-answer');
+
+            // Attendance Animation
+            if (markAttendanceBtn) {
+                markAttendanceBtn.addEventListener('click', () => {
+                    markAttendanceBtn.disabled = true;
+                    if (attendanceAnimationOverlay) {
+                        attendanceAnimationOverlay.classList.remove('hidden');
+                        attendanceAnimationOverlay.classList.add('flex');
+                    }
+                    if (animatedMonkey) {
+                        animatedMonkey.classList.add('animate-fall');
+                    }
+                });
+            }
+
+            if (animatedMonkey) {
+                animatedMonkey.addEventListener('animationend', (event) => {
+                    if (event.animationName === 'fall-down') {
+                        monkeyMessage.classList.remove('opacity-0');
+                        setTimeout(() => {
+                            monkeyMessage.classList.add('opacity-0');
+                            animatedMonkey.classList.remove('animate-fall');
+                            animatedMonkey.classList.add('animate-rise');
+                        }, 1500);
+                    } else if (event.animationName === 'go-up') {
+                        if (attendanceAnimationOverlay) {
+                            attendanceAnimationOverlay.classList.add('hidden');
+                            attendanceAnimationOverlay.classList.remove('flex');
+                        }
+                        animatedMonkey.classList.remove('animate-rise');
+                        showMessage('Attendance Confirmed!', `You have successfully marked your attendance.`);
+                        if (markAttendanceBtn) markAttendanceBtn.disabled = false;
+                    }
+                });
+            }
+
+            // Homework Help
+            if (homeworkHelpBtns) {
+                homeworkHelpBtns.forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        if (currentAudio) currentAudio.pause();
+                        if (listenHelpBtn) {
+                            listenHelpBtn.classList.add('hidden');
+                            listenHelpBtn.classList.remove('audio-btn-playing');
+                        }
+                        const topic = btn.dataset.homework;
+                        if (homeworkHelpModal) {
+                            homeworkHelpModal.classList.remove('hidden');
+                            homeworkHelpModal.classList.add('flex');
+                        }
+                        if (homeworkHelpContent) {
+                            homeworkHelpContent.innerHTML = '<div class="flex justify-center items-center"><div class="spinner w-8 h-8 border-4 rounded-full"></div></div>';
+                        }
+                        const prompt = `You are a friendly and encouraging tutor for a young student in a rural part of India (class 1-8). Explain the following topic in very simple, easy-to-understand English. Use short sentences and a simple analogy if possible. Topic: ${topic}`;
+                        const response = await callGeminiText(prompt);
+                        if (homeworkHelpContent) {
+                            homeworkHelpContent.innerHTML = response.replace(/\n/g, '<br>');
+                        }
+                        if (listenHelpBtn) {
+                            listenHelpBtn.classList.remove('hidden');
+                        }
+                    });
+                });
+            }
+
+            if (listenHelpBtn) {
+                listenHelpBtn.addEventListener('click', async () => {
+                    if (currentAudio && !currentAudio.paused) {
+                        currentAudio.pause(); return;
+                    }
+                    const text = homeworkHelpContent.innerText;
+                    if (!text) return;
+                    listenHelpBtn.disabled = true;
+                    listenHelpBtn.innerHTML = 'Loading Audio...';
+                    const audioUrl = await callGeminiTTS(`Say this in a helpful and clear voice: ${text}`);
+                    listenHelpBtn.disabled = false;
+                    listenHelpBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-volume-up-fill" viewBox="0 0 16 16"><path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-1.414 1.414A6.47 6.47 0 0 1 12.025 8a6.47 6.47 0 0 1-1.903 4.596z"/><path d="M10.121 12.596A6.47 6.47 0 0 0 12.025 8a6.47 6.47 0 0 0-1.904-4.596l-1.414 1.414A4.47 4.47 0 0 1 10.025 8a4.47 4.47 0 0 1-1.318 3.182z"/><path d="M8.707 11.182A2.47 2.47 0 0 0 9.025 8a2.47 2.47 0 0 0-.318-1.182L8.707 5.404A4.47 4.47 0 0 1 10.025 8a4.47 4.47 0 0 1-1.318 3.182zM4.252 0C2.42 0 1 1.42 1 3.252v9.496C1 14.58 2.42 16 4.252 16h1.598a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1zm-1.5 4.5A1.5 1.5 0 0 1 4.252 3h1.5a1.5 1.5 0 0 1 0 3h-1.5A1.5 1.5 0 0 1 2.752 4.5"/></svg> Listen to explanation`;
+                    if (audioUrl) {
+                        currentAudio = new Audio(audioUrl);
+                        currentAudio.play();
+                        listenHelpBtn.classList.add('audio-btn-playing');
+                        currentAudio.onended = () => listenHelpBtn.classList.remove('audio-btn-playing');
+                        currentAudio.onpause = () => listenHelpBtn.classList.remove('audio-btn-playing');
+                    }
+                });
+            }
+
+            if (closeHomeworkHelpBtn) {
+                closeHomeworkHelpBtn.addEventListener('click', () => {
+                    if (currentAudio) currentAudio.pause();
+                    homeworkHelpModal.classList.remove('flex');
+                    homeworkHelpModal.classList.add('hidden');
+                });
+            }
+
+            // Story Maker
+            if (storyMaker) {
+                storyMaker.addEventListener('click', () => {
+                    if (storyMakerModal) {
+                        storyMakerModal.classList.remove('hidden');
+                        storyMakerModal.classList.add('flex');
+                    }
+                });
+            }
+
+            if (closeStoryMakerBtn) {
+                closeStoryMakerBtn.addEventListener('click', () => {
+                    if (storyMakerModal) {
+                        storyMakerModal.classList.remove('flex');
+                        storyMakerModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            if (generateStoryBtn) {
+                generateStoryBtn.addEventListener('click', async () => {
+                    const word = storyWordInput.value.trim();
+                    if (!word) {
+                        if (storyResult) storyResult.textContent = 'Please enter a word first!';
+                        return;
+                    }
+                    generateStoryBtn.disabled = true;
+                    if (visualizeStoryBtn) visualizeStoryBtn.classList.add('hidden');
+                    if (storyImageResult) storyImageResult.innerHTML = '';
+                    if (storyResult) storyResult.innerHTML = '<div class="flex justify-center items-center"><div class="loader-book">📖</div></div>';
+                    
+                    const prompt = `You are a creative storyteller for a child in India (ages 6-14). Write a short, imaginative story starter (2-3 paragraphs) based on this single word: "${word}". Make it interesting and end it in a way that makes the reader wonder what happens next.`;
+                    const response = await callGeminiText(prompt);
+                    if (storyResult) storyResult.innerHTML = response.replace(/\n/g, '<br>');
+                    generateStoryBtn.disabled = false;
+                    if (visualizeStoryBtn) visualizeStoryBtn.classList.remove('hidden');
+                });
+            }
+
+            if (visualizeStoryBtn) {
+                visualizeStoryBtn.addEventListener('click', async () => {
+                    const storyText = storyResult.innerText;
+                    if (!storyText) return;
+                    visualizeStoryBtn.disabled = true;
+                    storyImageResult.innerHTML = '<div class="flex justify-center items-center"><div class="spinner w-8 h-8 border-4 rounded-full"></div></div>';
+                    const imagePrompt = `A vibrant, colorful, and cheerful illustration for a children's storybook, in a simple, friendly art style. The scene is: ${storyText}`;
+                    const base64Data = await callImagen(imagePrompt);
+                    if (base64Data) {
+                        storyImageResult.innerHTML = `<img src="data:image/png;base64,${base64Data}" alt="Visualization of the story" class="rounded-lg object-cover w-full h-full">`;
+                    } else {
+                        storyImageResult.innerHTML = '<p class="text-center text-red-500">Could not create an image.</p>';
+                    }
+                    visualizeStoryBtn.disabled = false;
+                });
+            }
+
+            // Curious Corner
+            if (askCuriousQuestionBtn) {
+                askCuriousQuestionBtn.addEventListener('click', async () => {
+                    const question = curiousQuestionInput.value.trim();
+                    if (!question) {
+                        if (curiousAnswer) {
+                            curiousAnswer.classList.remove('hidden');
+                            curiousAnswer.textContent = 'Please type a question first.';
+                        }
+                        return;
+                    }
+                    if (curiousAnswer) curiousAnswer.classList.remove('hidden');
+                    if (curiousAnswer) curiousAnswer.innerHTML = '<div class="flex justify-center items-center"><div class="loader-thinking">🤔</div></div>';
+                    askCuriousQuestionBtn.disabled = true;
+
+                    const prompt = `You are an AI teacher for a young student in rural India (class 1-8). Answer the following question in very simple, short sentences. Use an easy-to-understand analogy if it helps. Question: ${question}`;
+                    const response = await callGeminiText(prompt);
+                    if (curiousAnswer) curiousAnswer.innerHTML = response.replace(/\n/g, '<br>');
+                    askCuriousQuestionBtn.disabled = false;
+                });
+            }
+        });
+    </script>
+    <script>
+    </script>
+
+    <button id="chat-toggle-button">
+        🤖
+    </button>
+    
+    <div id="chat-window">
+        <iframe 
+            id="chatbot-iframe" 
+            src="https://first-ai-chatbot-tau.vercel.app/" 
+            title="AI Chatbot">
+        </iframe>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const chatToggleButton = document.getElementById('chat-toggle-button');
+            const chatWindow = document.getElementById('chat-window');
+
+            if (chatToggleButton && chatWindow) {
+                 chatToggleButton.addEventListener('click', () => {
+                    // This will add or remove the 'open' class to show/hide the window
+                    chatWindow.classList.toggle('open');
+                });
+            }
+        const spotterCard = document.getElementById('state-spotter-card');
+        if (spotterCard) {
+            spotterCard.addEventListener('click', () => window.open('state_spotter.html', '_blank'));
+        }
+
+        const shapeSorterCard = document.getElementById('shape-sorter-card');
+        if (shapeSorterCard) {
+            shapeSorterCard.addEventListener('click', () => window.open('shape_sorter.html', '_blank'));
+        }
+
+        const grammarGalaxyCard = document.getElementById('grammar-galaxy-card');
+        if (grammarGalaxyCard) {
+            grammarGalaxyCard.addEventListener('click', () => window.open('grammar_galaxy.html', '_blank'));
+        }
+        const historyTimelineCard = document.getElementById('history-timeline-card');
+        if (historyTimelineCard) {
+            historyTimelineCard.addEventListener('click', () => window.open('history_timeline.html', '_blank'));
+        }
+        const mathBullseyeCard = document.getElementById('math-bullseye-card');
+        if (mathBullseyeCard) {
+            mathBullseyeCard.addEventListener('click', () => window.open('maths_bullseye.html', '_blank'));
+        }
+        const scienceLabCard = document.getElementById('science-lab-card');
+        if (scienceLabCard) {
+            scienceLabCard.addEventListener('click', () => window.open('science_lab.html', '_blank'));
+        }
+        const physicsNexusCard = document.getElementById('physics-nexus-card');
+        if (physicsNexusCard) {
+            physicsNexusCard.addEventListener('click', () => window.open('phy_game.html', '_blank'));
+        }
+        const villagequestcard = document.getElementById('village-quest-card');
+        if (villagequestcard ) {
+            villagequestcard.addEventListener('click', () => window.open('village_quest.html', '_blank'));
+        }
+        const teacherresolvecard = document.getElementById('teacher-resolve-card');
+        if (teacherresolvecard) {
+            teacherresolvecard.addEventListener('click', () => window.open('teacher_resolve.html', '_blank'));
+        }
+        const hindicard = document.getElementById('hindi-card');
+        if (hindicard) {
+            hindicard.addEventListener('click', () => window.open('hindi.html', '_blank'));
+        }
+        const missionCETcard = document.getElementById('mission-CET-card');
+        if (missionCETcard) {
+            missionCETcard.addEventListener('click', () => {
+                const url = new URL('mission_CET.html', window.location.href).href;
+                const newWindow = window.open(url, 'CETGame', 'width=1200,height=800,resizable=yes,scrollbars=yes');
+                if (!newWindow || newWindow.closed) {
+                    alert('⚠️ Popup blocked! Please allow popups and try again, or click here to open in a new tab.');
+                    window.location.href = url;
+                }
+            });
+        }
+
+    });
+    document.querySelectorAll('.homework-upload').forEach(input => {
+        input.addEventListener('change', e => {
+            const container = e.target.closest('div');
+            const status = container.querySelector('span.text-sm');
+            const marksBox = container.querySelector('.homework-marks');
+            let marks = 10;
+            if (status.textContent.toLowerCase().includes('overdue')) {
+                marks = 5;
+            }
+            status.textContent = 'Submitted';
+            status.classList.remove('text-red-500');
+            status.classList.add('text-green-500');
+
+            marksBox.classList.remove('hidden');
+            marksBox.querySelector('span').textContent = marks;
+        });
+    });
+
+
+</script>
+
+
+</body>
+</html>

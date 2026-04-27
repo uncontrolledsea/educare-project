@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village Quest — Odisha Syllabus Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            touch-action: manipulation;
+            background-color: #7dd3fc; /* Sky blue */
+            overflow: hidden;
+            position: relative;
+        }
+        .background-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #7dd3fc 0%, #a5f3fc 50%, #22c55e 50%, #16a34a 100%);
+            z-index: -1;
+        }
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            filter: blur(2px);
+            animation: moveClouds linear infinite;
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        .cloud-1 { width: 200px; height: 60px; top: 10%; left: -250px; animation-duration: 75s; }
+        .cloud-1::before { width: 100px; height: 80px; top: -40px; left: 40px; }
+        .cloud-1::after { width: 80px; height: 60px; top: -30px; right: 30px; }
+        .cloud-2 { width: 300px; height: 80px; top: 20%; left: -350px; animation-duration: 90s; animation-delay: -15s; }
+        .cloud-2::before { width: 150px; height: 100px; top: -50px; left: 50px; }
+        .cloud-2::after { width: 120px; height: 80px; top: -40px; right: 40px; }
+        .cloud-3 { width: 150px; height: 50px; top: 35%; left: -200px; animation-duration: 60s; animation-delay: -30s; }
+        .cloud-3::before { width: 80px; height: 70px; top: -35px; left: 30px; }
+
+        @keyframes moveClouds {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(100vw + 400px)); }
+        }
+       
+        .screen { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .screen.active { display: flex; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 50; animation: fadeIn 0.3s ease-in-out; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { animation: slideInUp 0.3s ease-in-out; }
+        .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 9999px; color: white; z-index: 100; transition: bottom 0.5s ease-in-out; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .toast-notification.show { bottom: 20px; }
+        .progress-bar-container { background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; height: 10px; width: 100%; border: 1px solid #d1d5db;}
+        .progress-bar { background: linear-gradient(90deg, #34d399, #10b981); height: 100%; transition: width 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .choice-btn { transition: all 0.2s ease-in-out; border-bottom-width: 4px; }
+        .choice-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .choice-btn:active { transform: translateY(1px); }
+        .choice-btn.correct-answer { background-color: #34d399 !important; border-color: #10b981 !important; color: white; transform: scale(1.05); }
+        .choice-btn.incorrect-answer { background-color: #fb7185 !important; border-color: #f43f5e !important; color: white; animation: shake 0.5s; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        .topic-btn, .grade-btn, .difficulty-btn { transition: all 0.2s ease-in-out; border-bottom-width: 4px; font-weight: 800; }
+        .topic-btn:hover, .grade-btn:hover, .difficulty-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.1);}
+        .topic-btn:active, .grade-btn:active, .difficulty-btn:active { transform: translateY(1px); }
+        .grade-btn.selected { background-color: #fb923c; border-color: #f97316; color: white; }
+        .difficulty-btn.selected { background-color: #a855f7; border-color: #9333ea; color: white; }
+        .topic-btn { background-color: #60a5fa; border-color: #3b82f6; }
+        .topic-btn:disabled { background-color: #9ca3af; border-color: #6b7280; cursor: not-allowed; }
+        .topic-btn:not(:disabled) { animation: bounce 2s infinite ease-in-out; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        #confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        #timer-progress-ring { transition: stroke-dashoffset 1s linear, stroke 0.5s; }
+        .timer-danger { color: #ef4444; }
+        .sun-mascot { animation: sun-rotate 20s linear infinite; transition: transform 0.3s ease; }
+        .sun-mascot:hover { transform: scale(1.1) rotate(-10deg); }
+        @keyframes sun-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4 min-h-screen">
+    <div class="background-wrapper">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+    </div>
+
+    <div id="app-container" class="w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border-4 border-white overflow-hidden relative">
+        <canvas id="confetti-canvas"></canvas>
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen p-6 md:p-10 flex-col justify-between min-h-[600px]">
+            <div class="text-center">
+                 <div class="flex justify-center items-center gap-3">
+                    <svg class="sun-mascot w-16 h-16 drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <defs>
+                            <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                                <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+                            </radialGradient>
+                        </defs>
+                        <!-- Sun rays -->
+                        <g transform="translate(50,50)">
+                            <line x1="0" y1="-45" x2="0" y2="-35" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+                            <line x1="0" y1="35" x2="0" y2="45" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+                            <line x1="-45" y1="0" x2="-35" y2="0" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+                            <line x1="35" y1="0" x2="45" y2="0" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+                            <line x1="-31.8" y1="-31.8" x2="-24.7" y2="-24.7" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+                            <line x1="24.7" y1="24.7" x2="31.8" y2="31.8" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+                            <line x1="-31.8" y1="31.8" x2="-24.7" y2="24.7" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+                            <line x1="24.7" y1="-24.7" x2="31.8" y2="-31.8" stroke="#FFD700" stroke-width="5" stroke-linecap="round"/>
+                        </g>
+                        <!-- Sun body -->
+                        <circle cx="50" cy="50" r="30" fill="url(#sunGradient)"/>
+                        <!-- Face -->
+                        <circle cx="42" cy="45" r="2.5" fill="#2c3e50"/>
+                        <circle cx="58" cy="45" r="2.5" fill="#2c3e50"/>
+                        <path d="M 40 55 Q 50 62, 60 55" stroke="#2c3e50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    </svg>
+                    <h1 id="main-title" class="text-5xl md:text-6xl font-black text-blue-800">Village Quest</h1>
+                 </div>
+                <p id="main-subtitle" class="text-center text-blue-700 mt-2 text-xl font-bold">Odisha Syllabus Edition</p>
+            </div>
+            <div class="my-4 space-y-3">
+                <div><label id="name-label" for="name-entry" class="text-lg font-bold text-blue-900">1. Enter name:</label><input type="text" id="name-entry" class="w-full mt-1 p-3 border-2 border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition shadow-inner"></div>
+                <div><h3 id="grade-title" class="text-lg font-bold text-blue-900">2. Choose your grade:</h3><div id="grade-container" class="grid grid-cols-3 gap-3 mt-1"></div></div>
+                <div id="difficulty-selection-container" class="hidden"><h3 id="difficulty-title" class="text-lg font-bold text-blue-900">3. Choose difficulty:</h3><div id="difficulty-container" class="grid grid-cols-3 gap-3 mt-1"></div></div>
+            </div>
+            <div class="bg-blue-100/60 p-4 rounded-xl border border-blue-200">
+                 <h3 id="topics-title" class="text-xl font-bold text-center text-blue-900 mb-4">4. Choose a topic:</h3>
+                 <div id="topics-container" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                 <div class="flex justify-center items-center gap-4 mt-6"><button onclick="setLang('en')" class="px-5 py-2 rounded-xl font-bold text-slate-700 bg-white border-2 border-slate-300 hover:bg-slate-100 transition">English</button><button onclick="setLang('hi')" class="px-5 py-2 rounded-xl font-bold text-slate-700 bg-white border-2 border-slate-300 hover:bg-slate-100 transition">हिन्दी</button></div>
+            </div>
+            <div class="mt-4 flex justify-between items-center">
+                <div class="text-left"><span id="stars-label" class="text-lg font-bold text-blue-900">Total Stars:</span><div class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10 text-yellow-400 drop-shadow-lg"><path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z" clip-rule="evenodd" /></svg><span id="stars-count" class="text-5xl font-black text-blue-800">0</span></div></div>
+                <div class="flex gap-4"><button onclick="showHelpModal(true)" class="text-sm font-bold text-gray-500 hover:text-blue-600">How to Play</button><button onclick="showResetModal(true)" class="text-sm font-bold text-red-500 hover:text-red-700">Reset</button><button onclick="showGoodbyeScreen()" class="text-sm font-bold text-gray-500 hover:text-blue-600" id="quit-btn">Quit Game</button></div>
+            </div>
+        </div>
+
+        <!-- Question Screen -->
+        <div id="question-screen" class="screen p-6 md:p-8 flex-col justify-between min-h-[550px]">
+            <header>
+                <div class="flex justify-between items-start">
+                    <div class="flex-grow"><div class="flex justify-between items-center text-sm font-bold text-blue-900"><span id="player-info"></span><span id="topic-info"></span><span id="stars-info" class="flex items-center gap-1 font-semibold"></span></div><div class="progress-bar-container mt-2"><div id="progress-bar" class="progress-bar"></div></div></div>
+                    <div id="timer-container" class="relative w-20 h-20 ml-4 flex-shrink-0">
+                        <svg class="w-full h-full" viewBox="0 0 100 100"><circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" /><circle id="timer-progress-ring" class="text-green-500" stroke-width="10" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" style="transform: rotate(-90deg); transform-origin: 50% 50%;" /></svg>
+                        <span id="timer-text" class="absolute inset-0 flex items-center justify-center text-3xl font-black text-blue-800"></span>
+                    </div>
+                </div>
+            </header>
+            <div class="my-4 flex-grow flex flex-col justify-center">
+                <p id="question-text" class="text-2xl md:text-3xl font-bold text-gray-800 leading-relaxed text-center"></p>
+            </div>
+            <div id="choices-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6"></div>
+            <footer class="flex justify-between items-center mt-auto pt-4 border-t border-gray-200">
+                <div class="flex gap-4"><button id="hint-btn" onclick="useHint()" class="bg-yellow-400 border-b-4 border-yellow-600 text-white font-bold py-2 px-5 rounded-xl flex items-center gap-2 transition hover:bg-yellow-500"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 2.25a.75.75 0 01.75.75v.518l.72 1.44a.498.498 0 00.316.273l1.623.235a.75.75 0 01.52.888l-1.176 3.234a.5.5 0 00.104.499l2.25 2.25a.75.75 0 010 1.06l-2.25 2.25a.5.5 0 00-.104.499l1.176 3.234a.75.75 0 01-.52.888l-1.623.235a.498.498 0 00-.316.273l-.72 1.44v.518a.75.75 0 01-1.5 0v-.518l-.72-1.44a.498.498 0 00-.316-.273l-1.623-.235a.75.75 0 01-.52-.888l1.176-3.234a.5.5 0 00-.104-.499l-2.25-2.25a.75.75 0 010-1.06l2.25-2.25a.5.5 0 00.104-.499L4.625 6.333a.75.75 0 01.52-.888l1.623-.235a.498.498 0 00.316.273l.72-1.44V3a.75.75 0 01.75-.75z"></path></svg><span id="hint-text">Hint</span></button><button id="skip-btn" onclick="useSkip()" class="bg-slate-400 border-b-4 border-slate-600 text-white font-bold py-2 px-5 rounded-xl flex items-center gap-2 transition hover:bg-slate-500"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.647c1.295.742 1.295 2.545 0 3.286L7.279 20.99c-1.25.717-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd"></path></svg><span id="skip-text">Skip</span></button></div>
+                <div class="flex gap-2">
+                    <button onclick="requestGoToMenu()" id="menu-btn" class="bg-gray-200 border-b-4 border-gray-400 text-gray-800 font-bold py-2 px-5 rounded-xl transition hover:bg-gray-300">Menu</button>
+                    <button onclick="requestQuitGame()" id="quit-game-btn-ingame" class="bg-red-400 border-b-4 border-red-600 text-white font-bold py-2 px-5 rounded-xl transition hover:bg-red-500">Quit</button>
+                </div>
+            </footer>
+        </div>
+
+        <!-- End Round Screen -->
+        <div id="end-round-screen" class="screen p-10 flex-col justify-center items-center text-center min-h-[550px]">
+            <h2 id="end-title" class="text-5xl font-black text-orange-500 mb-4 drop-shadow-md">Round Complete!</h2><p id="end-score" class="text-3xl text-gray-700 font-bold"></p><p id="end-stars" class="text-3xl text-gray-700 font-bold mt-2"></p>
+            <div class="mt-8"><button onclick="buildWelcome()" id="play-again-btn" class="bg-green-500 border-b-4 border-green-700 text-white font-bold py-3 px-8 rounded-xl text-xl transition hover:bg-green-600 shadow-lg">Play another topic</button></div>
+        </div>
+       
+        <!-- Goodbye Screen -->
+        <div id="goodbye-screen" class="screen p-10 flex-col justify-center items-center text-center min-h-[550px]">
+            <h2 id="goodbye-title" class="text-5xl font-black text-blue-800 mb-4 drop-shadow-md">See you soon!</h2>
+            <p id="goodbye-message" class="text-2xl text-gray-700 font-bold"></p>
+            <div class="my-6 flex items-center gap-2">
+                <p id="goodbye-stars-text" class="text-2xl text-gray-700 font-bold"></p>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10 text-yellow-400 drop-shadow-lg"><path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z" clip-rule="evenodd"></path></svg>
+                <span id="goodbye-stars-count" class="text-5xl font-black text-blue-800"></span>
+            </div>
+            <div class="bg-white/60 p-4 rounded-xl border-2 border-orange-300 mt-4 max-w-md">
+                <h3 id="fun-fact-title" class="font-bold text-orange-600 text-xl">Fun Fact!</h3>
+                <p id="fun-fact" class="text-gray-700 mt-1 font-semibold"></p>
+            </div>
+            <p id="thanks-text" class="mt-8 text-gray-500 font-semibold">Thanks for playing Village Quest!</p>
+            <div class="mt-8">
+                <button onclick="buildWelcome()" id="main-menu-btn" class="bg-green-500 border-b-4 border-green-700 text-white font-bold py-3 px-8 rounded-xl text-xl transition hover:bg-green-600 shadow-lg">Main Menu</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modals -->
+    <div id="help-modal" class="modal-overlay"><div class="modal-content bg-white rounded-lg shadow-xl p-8 w-11/12 max-w-lg text-gray-700"><h3 id="help-title" class="text-2xl font-bold mb-4 text-gray-800">How to Play</h3><div id="help-content" class="space-y-4"></div><button onclick="showHelpModal(false)" id="help-close-btn" class="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition">Got it!</button></div></div>
+    <div id="reset-modal" class="modal-overlay"><div class="modal-content bg-white rounded-lg shadow-xl p-8 w-11/11 max-w-md text-center"><h3 id="reset-title" class="text-2xl font-bold text-gray-800">Reset Progress?</h3><p id="reset-text" class="text-gray-600 my-4">This will erase all your saved stars. Are you sure?</p><div class="flex justify-center gap-4 mt-6"><button onclick="showResetModal(false)" id="reset-cancel-btn" class="px-6 py-2 rounded-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 transition">Cancel</button><button onclick="performReset()" id="reset-confirm-btn" class="px-6 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition">Yes, Reset</button></div></div></div>
+    <div id="confirm-modal" class="modal-overlay"><div class="modal-content bg-white rounded-lg shadow-xl p-8 w-11/12 max-w-md text-center"><h3 id="confirm-title" class="text-2xl font-bold text-gray-800">Are you sure?</h3><p id="confirm-text" class="text-gray-600 my-4"></p><div class="flex justify-center gap-4 mt-6"><button onclick="closeConfirmModal()" id="confirm-cancel-btn" class="px-6 py-2 rounded-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 transition">Cancel</button><button id="confirm-confirm-btn" class="px-6 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition">Yes, Proceed</button></div></div></div>
+    <div id="toast" class="toast-notification"></div>
+
+    <script>
+        // --- Questions Database (Odisha Syllabus) ---
+        const QUESTIONS = [
+            // Grade 6 - Math
+            {'topic':'Math','grade':6,'difficulty':'easy','q':{'en':'What is the predecessor of 10000?','hi':'10000 का पूर्ववर्ती क्या है?'},'choices':['9999','10001','9990','9900'],'answer':0, 'hint':{'en':'Predecessor means the number that comes just before.','hi':'पूर्ववर्ती का अर्थ है ठीक पहले आने वाली संख्या।'}},
+            {'topic':'Math','grade':6,'difficulty':'easy','q':{'en':'A triangle with all three sides equal is called?','hi':'तीन समान भुजाओं वाले त्रिभुज को क्या कहते हैं?'},'choices':['Equilateral','Isosceles','Scalene','Right-angled'],'answer':0, 'hint':{'en':'"Equi" means equal.','hi':'"Equi" का अर्थ है बराबर।'}},
+            {'topic':'Math','grade':6,'difficulty':'easy','q':{'en':'What is the smallest whole number?','hi':'सबसे छोटी पूर्ण संख्या क्या है?'},'choices':['1','0','-1','2'],'answer':1, 'hint':{'en':'Whole numbers start from 0 and go up.','hi':'पूर्ण संख्याएँ 0 से शुरू होती हैं।'}},
+            {'topic':'Math','grade':6,'difficulty':'easy','q':{'en':'How many sides does a pentagon have?','hi':'एक पंचभुज की कितनी भुजाएँ होती हैं?'},'choices':['4','5','6','7'],'answer':1, 'hint':{'en':'Think of the prefix "penta".','hi':'उपसर्ग "पेंटा" के बारे में सोचें।'}},
+            {'topic':'Math','grade':6,'difficulty':'easy','q':{'en':'What is 5 x (10 - 3)?','hi':'5 x (10 - 3) क्या है?'},'choices':['50','8','35','65'],'answer':2, 'hint':{'en':'Solve the bracket first.','hi':'पहले ब्रैकेट को हल करें।'}},
+            {'topic':'Math','grade':6,'difficulty':'moderate','q':{'en':'What is the LCM of 12 and 18?','hi':'12 और 18 का ल.स. क्या है?'},'choices':['12','18','36','24'],'answer':2, 'hint':{'en':'LCM is the smallest number divisible by both.','hi':'LCM वह सबसे छोटी संख्या है जो दोनों से विभाज्य हो।'}},
+            {'topic':'Math','grade':6,'difficulty':'moderate','q':{'en':'Represent "5 less than x" algebraically.','hi':`"x से 5 कम" को बीजगणितीय रूप से प्रस्तुत करें।`},'choices':['5 - x','x - 5','x + 5','5x'],'answer':1, 'hint':{'en':'You are taking 5 away from x.','hi':'आप x में से 5 घटा रहे हैं।'}},
+            {'topic':'Math','grade':6,'difficulty':'moderate','q':{'en':'Find the perimeter of a rectangle with length 8cm and width 5cm.','hi':'8 सेमी लंबाई और 5 सेमी चौड़ाई वाले आयत का परिमाप ज्ञात कीजिए।'},'choices':['13 cm','26 cm','40 cm','21 cm'],'answer':1, 'hint':{'en':'Perimeter formula is 2 * (length + width).','hi':'परिमाप का सूत्र 2 * (लंबाई + चौड़ाई) है।'}},
+            {'topic':'Math','grade':6,'difficulty':'moderate','q':{'en':'What is the HCF of 24 and 36?','hi':'24 और 36 का म.स. क्या है?'},'choices':['6','8','12','24'],'answer':2, 'hint':{'en':'HCF is the largest number that divides both.','hi':'HCF वह सबसे बड़ी संख्या है जो दोनों को विभाजित करती है।'}},
+            {'topic':'Math','grade':6,'difficulty':'moderate','q':{'en':'Convert 0.75 into a fraction.','hi':'0.75 को भिन्न में बदलें।'},'choices':['1/2','3/4','1/4','4/3'],'answer':1, 'hint':{'en':'Think about how many quarters are in 0.75.','hi':'सोचें कि 0.75 में कितने चौथाई हैं।'}},
+            {'topic':'Math','grade':6,'difficulty':'difficult','q':{'en':'A shopkeeper bought a toy for ₹75 and sold it for ₹100. What is the profit percentage?','hi':'एक दुकानदार ने ₹75 में एक खिलौना खरीदा और उसे ₹100 में बेच दिया। लाभ प्रतिशत क्या है?'},'choices':['25%','30%','33.33%','40%'],'answer':2, 'hint':{'en':'Profit % = (Profit / Cost Price) * 100.','hi':'लाभ % = (लाभ / क्रय मूल्य) * 100।'}},
+            {'topic':'Math','grade':6,'difficulty':'difficult','q':{'en':'A train travels 120 km in 2 hours. What is its speed in m/s?','hi':'एक ट्रेन 2 घंटे में 120 किमी की यात्रा करती है। इसकी गति m/s में क्या है?'},'choices':['30 m/s','60 m/s','16.67 m/s','20 m/s'],'answer':2, 'hint':{'en':'First find speed in km/h, then convert. 1 km/h = 5/18 m/s.','hi':'पहले किमी/घंटा में गति ज्ञात करें, फिर बदलें। 1 किमी/घंटा = 5/18 मी/से.'}},
+            {'topic':'Math','grade':6,'difficulty':'difficult','q':{'en':'Find the value of x if 2x/3 = 10.','hi':'यदि 2x/3 = 10 है तो x का मान ज्ञात कीजिए।'},'choices':['10','12','15','30'],'answer':2, 'hint':{'en':'First multiply both sides by 3, then divide by 2.','hi':'पहले दोनों पक्षों को 3 से गुणा करें, फिर 2 से भाग दें।'}},
+            {'topic':'Math','grade':6,'difficulty':'difficult','q':{'en':'The ratio of boys to girls in a class is 3:2. If there are 30 students, how many are girls?','hi':'एक कक्षा में लड़कों और लड़कियों का अनुपात 3:2 है। यदि 30 छात्र हैं, तो कितनी लड़कियां हैं?'},'choices':['10','12','15','18'],'answer':1, 'hint':{'en':'Total parts are 3+2=5. Find the value of one part.','hi':'कुल भाग 3+2=5 हैं। एक भाग का मान ज्ञात कीजिए।'}},
+            {'topic':'Math','grade':6,'difficulty':'difficult','q':{'en':'What is the area of a square with a perimeter of 32 cm?','hi':'32 सेमी परिमाप वाले वर्ग का क्षेत्रफल क्या है?'},'choices':['32 cm²','64 cm²','128 cm²','256 cm²'],'answer':1, 'hint':{'en':'First find the side from the perimeter, then find the area.','hi':'पहले परिमाप से भुजा ज्ञात करें, फिर क्षेत्रफल ज्ञात करें।'}},
+           
+            // Grade 6 - Science
+            {'topic':'Science','grade':6,'difficulty':'easy','q':{'en':'Which part of a potato plant do we eat?','hi':'हम आलू के पौधे का कौन सा भाग खाते हैं?'},'choices':['Stem','Root','Leaf','Fruit'],'answer':0, 'hint':{'en':'It grows underground but it is not a root.','hi':'यह जमीन के नीचे उगता है लेकिन जड़ नहीं है।'}},
+            {'topic':'Science','grade':6,'difficulty':'easy','q':{'en':'What do we call the green pigment in leaves?','hi':'पत्तियों में हरे वर्णक को हम क्या कहते हैं?'},'choices':['Stomata','Chlorophyll','Veins','Sepal'],'answer':1, 'hint':{'en':'It helps plants make their food using sunlight.','hi':'यह पौधों को सूर्य के प्रकाश का उपयोग करके अपना भोजन बनाने में मदद करता है।'}},
+            {'topic':'Science','grade':6,'difficulty':'easy','q':{'en':'Which of these is a source of Vitamin C?','hi':'इनमें से कौन विटामिन सी का स्रोत है?'},'choices':['Milk','Orange','Egg','Ghee'],'answer':1, 'hint':{'en':'It\'s usually found in citrus fruits.','hi':'यह आमतौर पर खट्टे फलों में पाया जाता है।'}},
+            {'topic':'Science','grade':6,'difficulty':'easy','q':{'en':'The movement of Earth on its axis is called?','hi':'पृथ्वी की अपनी धुरी पर गति को क्या कहा जाता है?'},'choices':['Revolution','Rotation','Orbit','Eclipse'],'answer':1, 'hint':{'en':'This movement causes day and night.','hi':'यह गति दिन और रात का कारण बनती है।'}},
+            {'topic':'Science','grade':6,'difficulty':'easy','q':{'en':'What is the main component of our bones?','hi':'हमारी हड्डियों का मुख्य घटक क्या है?'},'choices':['Iron','Calcium','Sodium','Potassium'],'answer':1, 'hint':{'en':'Milk is a good source of this mineral.','hi':'दूध इस खनिज का एक अच्छा स्रोत है।'}},
+            {'topic':'Science','grade':6,'difficulty':'moderate','q':{'en':'The process of separating grains from the stalk is called?','hi':'डंठल से अनाज को अलग करने की प्रक्रिया को क्या कहते हैं?'},'choices':['Threshing','Weeding','Sowing','Winnowing'],'answer':0, 'hint':{'en':'It is a step in harvesting crops.','hi':'यह फसल कटाई का एक चरण है।'}},
+            {'topic':'Science','grade':6,'difficulty':'moderate','q':{'en':'What instrument is used to measure temperature?','hi':'तापमान मापने के लिए किस उपकरण का उपयोग किया जाता है?'},'choices':['Barometer','Thermometer','Speedometer','Ammeters'],'answer':1, 'hint':{'en':'It is used when you have a fever.','hi':'बुखार होने पर इसका इस्तेमाल किया जाता है।'}},
+            {'topic':'Science','grade':6,'difficulty':'moderate','q':{'en':'Deficiency of Vitamin A causes which disease?','hi':'विटामिन ए की कमी से कौन सा रोग होता है?'},'choices':['Scurvy','Rickets','Night blindness','Goitre'],'answer':2, 'hint':{'en':'It affects the ability to see in low light.','hi':'यह कम रोशनी में देखने की क्षमता को प्रभावित करता है।'}},
+            {'topic':'Science','grade':6,'difficulty':'moderate','q':{'en':'What is a habitat?','hi':'एक आवास क्या है?'},'choices':['A type of food','A piece of clothing','The natural home of an organism','A type of transport'],'answer':2, 'hint':{'en':'A fish\'s habitat is water.','hi':'मछली का आवास पानी है।'}},
+            {'topic':'Science','grade':6,'difficulty':'moderate','q':{'en':'The process of a liquid changing into a gas is called?','hi':'किसी द्रव का गैस में बदलना क्या कहलाता है?'},'choices':['Condensation','Melting','Freezing','Evaporation'],'answer':3, 'hint':{'en':'This is why wet clothes dry in the sun.','hi':'इसी वजह से गीले कपड़े धूप में सूखते हैं।'}},
+            {'topic':'Science','grade':6,'difficulty':'difficult','q':{'en':'Which of these is a conductor of electricity?','hi':'इनमें से कौन बिजली का सुचालक है?'},'choices':['Rubber','Wood','Copper','Plastic'],'answer':2, 'hint':{'en':'It is a metal used in electrical wires.','hi':'यह एक धातु है जिसका उपयोग बिजली के तारों में किया जाता है।'}},
+            {'topic':'Science','grade':6,'difficulty':'difficult','q':{'en':'What is the function of the roots of a plant?','hi':'एक पौधे की जड़ों का क्या कार्य है?'},'choices':['To anchor & absorb water','To produce food','To help in reproduction','To bear flowers'],'answer':0, 'hint':{'en':'Think about what plants need from the soil.','hi':'सोचें कि पौधों को मिट्टी से क्या चाहिए।'}},
+            {'topic':'Science','grade':6,'difficulty':'difficult','q':{'en':'Separating sand from water can be done by?','hi':'पानी से रेत को अलग किया जा सकता है?'},'choices':['Evaporation','Condensation','Filtration','Winnowing'],'answer':2, 'hint':{'en':'This method uses a barrier to stop solid particles.','hi':'यह विधि ठोस कणों को रोकने के लिए एक अवरोध का उपयोग करती है।'}},
+            {'topic':'Science','grade':6,'difficulty':'difficult','q':{'en':'What type of joint is the shoulder?','hi':'कंधा किस प्रकार का जोड़ है?'},'choices':['Hinge joint','Pivot joint','Ball and socket joint','Fixed joint'],'answer':2, 'hint':{'en':'It allows movement in almost all directions.','hi':'यह लगभग सभी दिशाओं में गति की अनुमति देता है।'}},
+            {'topic':'Science','grade':6,'difficulty':'difficult','q':{'en':'Give an example of an irreversible change.','hi':'एक अपरिवर्तनीय परिवर्तन का उदाहरण दें।'},'choices':['Melting of ice','Folding paper','Burning of paper','Boiling water'],'answer':2, 'hint':{'en':'This change creates a new substance (ash).','hi':'यह परिवर्तन एक नया पदार्थ (राख) बनाता है।'}},
+
+            // Grade 6 - Local
+            {'topic':'Local','grade':6,'difficulty':'easy','q':{'en':'The Sun Temple is located in which city of Odisha?','hi':'सूर्य मंदिर ओडिशा के किस शहर में स्थित है?'},'choices':['Konark','Puri','Bhubaneswar','Cuttack'],'answer':0, 'hint':{'en':'This city is also famous for its beach.','hi':'यह शहर अपने समुद्र तट के लिए भी प्रसिद्ध है।'}},
+            {'topic':'Local','grade':6,'difficulty':'easy','q':{'en':'What is the famous sweet from Odisha made of cheese?','hi':'ओडिशा की पनीर से बनी प्रसिद्ध मिठाई कौन सी है?'},'choices':['Peda','Rasagola','Jalebi','Barfi'],'answer':1, 'hint':{'en':'It is a soft, spongy sweet soaked in syrup.','hi':'यह सिरप में भिगोई हुई एक नरम, स्पंजी मिठाई है।'}},
+            {'topic':'Local','grade':6,'difficulty':'easy','q':{'en':'Which festival in Puri is famous for its chariots?','hi':'पुरी का कौन सा त्योहार अपने रथों के लिए प्रसिद्ध है?'},'choices':['Diwali','Holi','Ratha Yatra','Durga Puja'],'answer':2, 'hint':{'en':'It involves pulling large wooden chariots of deities.','hi':'इसमें देवताओं के बड़े लकड़ी के रथों को खींचना शामिल है।'}},
+            {'topic':'Local','grade':6,'difficulty':'easy','q':{'en':'Which sea is on the coast of Odisha?','hi':'ओडिशा के तट पर कौन सा सागर है?'},'choices':['Arabian Sea','Indian Ocean','Bay of Bengal','Red Sea'],'answer':2, 'hint':{'en':'It is on the eastern side of India.','hi':'यह भारत के पूर्वी हिस्से में है।'}},
+            {'topic':'Local','grade':6,'difficulty':'easy','q':{'en':'What is the staple food of Odisha?','hi':'ओडिशा का मुख्य भोजन क्या है?'},'choices':['Wheat','Maize','Rice','Millet'],'answer':2, 'hint':{'en':'It is grown in abundance in the state.','hi':'यह राज्य में बहुतायत में उगाया जाता है।'}},
+            {'topic':'Local','grade':6,'difficulty':'moderate','q':{'en':'Which is the classical dance of Odisha?','hi':'ओडिशा का शास्त्रीय नृत्य कौन सा है?'},'choices':['Kathak','Bharatanatyam','Odissi','Kuchipudi'],'answer':2, 'hint':{'en':'The name of the dance is similar to the name of the state.','hi':'नृत्य का नाम राज्य के नाम के समान है।'}},
+            {'topic':'Local','grade':6,'difficulty':'moderate','q':{'en':'What is the applique work of Pipili called?','hi':'पिपली के एप्लिक वर्क को क्या कहते हैं?'},'choices':['Pattachitra','Chandua','Dokra','Tarakasi'],'answer':1, 'hint':{'en':'It involves stitching colorful cloth pieces on a base cloth.','hi':'इसमें आधार कपड़े पर रंगीन कपड़े के टुकड़े सिलना शामिल है।'}},
+            {'topic':'Local','grade':6,'difficulty':'moderate','q':{'en':'The famous silver filigree work is from which city in Odisha?','hi':'प्रसिद्ध चांदी की तारकशी का काम ओडिशा के किस शहर का है?'},'choices':['Bhubaneswar','Puri','Cuttack','Sambalpur'],'answer':2, 'hint':{'en':'This city is known as the Millennium City.','hi':'इस शहर को मिलेनियम सिटी के नाम से जाना जाता है।'}},
+            {'topic':'Local','grade':6,'difficulty':'moderate','q':{'en':'What is the traditional folk art of Odisha done with rice paste?','hi':'ओडिशा की चावल के लेप से की जाने वाली पारंपरिक लोक कला कौन सी है?'},'choices':['Saura Painting','Jhoti Chita','Warli','Madhubani'],'answer':1, 'hint':{'en':'It is often drawn on floors and walls during festivals.','hi':'यह अक्सर त्योहारों के दौरान फर्श और दीवारों पर बनाया जाता है।'}},
+            {'topic':'Local','grade':6,'difficulty':'moderate','q':{'en':'Which tribal group is famous for its vibrant textiles in Odisha?','hi':'ओडिशा में कौन सा आदिवासी समूह अपने जीवंत वस्त्रों के लिए प्रसिद्ध है?'},'choices':['Santhal','Gond','Dongria Kondh','Bonda'],'answer':2, 'hint':{'en':'They are known for their embroidered shawls.','hi':'वे अपनी कढ़ाई वाली शॉल के लिए जाने जाते हैं।'}},
+            {'topic':'Local','grade':6,'difficulty':'difficult','q':{'en':'Who is known as the "Gandhi of Odisha"?','hi':'"ओडिशा का गांधी" किसे कहा जाता है?'},'choices':['Biju Patnaik','Gopabandhu Das','Madhusudan Das','Subhas Chandra Bose'],'answer':1, 'hint':{'en':'He was a freedom fighter and social worker.','hi':'वे एक स्वतंत्रता सेनानी और सामाजिक कार्यकर्ता थे।'}},
+            {'topic':'Local','grade':6,'difficulty':'difficult','q':{'en':'What is the significance of the "Boita Bandana" festival?','hi':'"बोइता बंदना" त्योहार का क्या महत्व है?'},'choices':['Harvesting crops','Celebrating ancient maritime history','Welcoming monsoon','Worshipping snakes'],'answer':1, 'hint':{'en':'It celebrates the ancient sea trade of Odisha.','hi':'यह ओडिशा के प्राचीन समुद्री व्यापार का जश्न मनाता है।'}},
+            {'topic':'Local','grade':6,'difficulty':'difficult','q':{'en':'Which national park in Odisha is a tiger reserve?','hi':'ओडिशा का कौन सा राष्ट्रीय उद्यान एक बाघ अभयारण्य है?'},'choices':['Bhitarkanika','Simlipal','Ushakothi','Nandankanan'],'answer':1, 'hint':{'en':'It is a large national park in Mayurbhanj district.','hi':'यह मयूरभंज जिले का एक बड़ा राष्ट्रीय उद्यान है।'}},
+            {'topic':'Local','grade':6,'difficulty':'difficult','q':{'en':'Who was the first Chief Minister of Odisha?','hi':'ओडिशा के पहले मुख्यमंत्री कौन थे?'},'choices':['Biju Patnaik','Nabakrushna Choudhury','Harekrushna Mahatab','Biswanath Das'],'answer':2, 'hint':{'en':'He was a prominent freedom fighter.','hi':'वे एक प्रमुख स्वतंत्रता सेनानी थे।'}},
+            {'topic':'Local','grade':6,'difficulty':'difficult','q':{'en':'The art of Pattachitra painting is traditionally done on what material?','hi':'पट्टचित्र चित्रकला पारंपरिक रूप से किस सामग्री पर की जाती है?'},'choices':['Paper','Canvas','Cloth','Wood'],'answer':2, 'hint':{'en':'The name itself means "picture on cloth".','hi':'नाम का ही अर्थ है "कपड़े पर चित्र"।'}},
+           
+            // Grade 7
+            {'topic':'Math','grade':7,'difficulty':'easy','q':{'en':'What is -8 + 5?','hi':'-8 + 5 क्या है?'},'choices':['3','-3','13','-13'],'answer':1, 'hint':{'en':'You are on -8 on the number line and move 5 steps to the right.','hi':'आप संख्या रेखा पर -8 पर हैं और 5 कदम दाईं ओर बढ़ते हैं।'}},
+            {'topic':'Math','grade':7,'difficulty':'easy','q':{'en':'What is the value of 2 to the power of 3?','hi':'2 की घात 3 का मान क्या है?'},'choices':['6','8','9','12'],'answer':1, 'hint':{'en':'It means 2 x 2 x 2.','hi':'इसका मतलब है 2 x 2 x 2।'}},
+            {'topic':'Math','grade':7,'difficulty':'easy','q':{'en':'If a number is multiplied by -1, what happens to its sign?','hi':'यदि किसी संख्या को -1 से गुणा किया जाए, तो उसके चिह्न का क्या होता है?'},'choices':['It stays same','It changes','It becomes zero','It doubles'],'answer':1, 'hint':{'en':'Positive becomes negative and negative becomes positive.','hi':'धनात्मक ऋणात्मक हो जाता है और ऋणात्मक धनात्मक हो जाता है।'}},
+            {'topic':'Math','grade':7,'difficulty':'easy','q':{'en':'What is the formula for the area of a rectangle?','hi':'आयत के क्षेत्रफल का सूत्र क्या है?'},'choices':['Length + Width','2 * (Length + Width)','Length x Width','Length / Width'],'answer':2, 'hint':{'en':'It is the space inside the shape.','hi':'यह आकार के अंदर का स्थान है।'}},
+            {'topic':'Math','grade':7,'difficulty':'easy','q':{'en':'Solve for y: y + 7 = 15','hi':'y के लिए हल करें: y + 7 = 15'},'choices':['22','8','-8','105'],'answer':1, 'hint':{'en':'Subtract 7 from both sides.','hi':'दोनों पक्षों से 7 घटाएं।'}},
+            {'topic':'Math','grade':7,'difficulty':'moderate','q':{'en':'What is the supplementary angle of 70 degrees?','hi':'70 डिग्री का संपूरक कोण क्या है?'},'choices':['110 degrees','20 degrees','90 degrees','180 degrees'],'answer':0, 'hint':{'en':'Two supplementary angles add up to 180 degrees.','hi':'दो संपूरक कोणों का योग 180 डिग्री होता है।'}},
+            {'topic':'Math','grade':7,'difficulty':'moderate','q':{'en':'What is the circumference of a circle with a radius of 7 cm? (π=22/7)','hi':'7 सेमी त्रिज्या वाले वृत्त की परिधि क्या है? (π=22/7)'},'choices':['22 cm','44 cm','154 cm','49 cm'],'answer':1, 'hint':{'en':'Formula for circumference is 2 * π * r.','hi':'परिधि का सूत्र 2 * π * r है।'}},
+            {'topic':'Math','grade':7,'difficulty':'moderate','q':{'en':'If the cost of 5 pens is ₹50, what is the cost of 8 pens?','hi':'यदि 5 पेनों की कीमत ₹50 है, तो 8 पेनों की कीमत क्या है?'},'choices':['₹70','₹80','₹90','₹100'],'answer':1, 'hint':{'en':'First find the cost of one pen.','hi':'पहले एक पेन की कीमत ज्ञात करें।'}},
+            {'topic':'Math','grade':7,'difficulty':'moderate','q':{'en':'What is the mode of the data: 2, 3, 5, 3, 4, 3, 6?','hi':'आंकड़ों का बहुलक क्या है: 2, 3, 5, 3, 4, 3, 6?'},'choices':['2','3','4','5'],'answer':1, 'hint':{'en':'Mode is the number that appears most frequently.','hi':'बहुलक वह संख्या है जो सबसे अधिक बार आती है।'}},
+            {'topic':'Math','grade':7,'difficulty':'moderate','q':{'en':'Simplify: 3x + 2y - x + 5y','hi':'सरल करें: 3x + 2y - x + 5y'},'choices':['4x + 7y','2x + 7y','2x + 3y','4x + 3y'],'answer':1, 'hint':{'en':'Combine the like terms (x with x, y with y).','hi':'समान पदों को मिलाएं (x को x के साथ, y को y के साथ)।'}},
+            {'topic':'Math','grade':7,'difficulty':'difficult','q':{'en':'The area of a circle is 154 cm². What is its radius? (Use π=22/7)','hi':'एक वृत्त का क्षेत्रफल 154 सेमी² है। इसकी त्रिज्या क्या है? (π=22/7 का प्रयोग करें)'},'choices':['7 cm','14 cm','22 cm','49 cm'],'answer':0, 'hint':{'en':'Area formula is π * r². Work backwards.','hi':'क्षेत्रफल का सूत्र π * r² है। पीछे की ओर काम करें।'}},
+            {'topic':'Math','grade':7,'difficulty':'difficult','q':{'en':'The three angles of a triangle are in the ratio 1:2:3. Find the largest angle.','hi':'एक त्रिभुज के तीन कोण 1:2:3 के अनुपात में हैं। सबसे बड़ा कोण ज्ञात कीजिए।'},'choices':['30 degrees','60 degrees','90 degrees','120 degrees'],'answer':2, 'hint':{'en':'Let the angles be x, 2x, and 3x. Their sum is 180.','hi':'मान लीजिए कोण x, 2x, और 3x हैं। उनका योग 180 है।'}},
+            {'topic':'Math','grade':7,'difficulty':'difficult','q':{'en':'A number is increased by 20% to become 240. What was the original number?','hi':'एक संख्या में 20% की वृद्धि होकर 240 हो जाती है। मूल संख्या क्या थी?'},'choices':['200','220','192','210'],'answer':0, 'hint':{'en':'Let the number be x. So, 1.20 * x = 240.','hi':'मान लीजिए संख्या x है। तो, 1.20 * x = 240।'}},
+            {'topic':'Math','grade':7,'difficulty':'difficult','q':{'en':'Find the simple interest on ₹1000 for 2 years at 5% per annum.','hi':'₹1000 पर 2 साल के लिए 5% प्रति वर्ष की दर से साधारण ब्याज ज्ञात कीजिए।'},'choices':['₹50','₹100','₹150','₹200'],'answer':1, 'hint':{'en':'SI = (P * R * T) / 100.','hi':'SI = (P * R * T) / 100।'}},
+            {'topic':'Math','grade':7,'difficulty':'difficult','q':{'en':'What is the probability of getting a prime number when a die is rolled?','hi':'एक पासा फेंके जाने पर एक अभाज्य संख्या प्राप्त करने की प्रायिकता क्या है?'},'choices':['1/3','1/2','2/3','1/6'],'answer':1, 'hint':{'en':'Prime numbers on a die are 2, 3, 5.','hi':'पासे पर अभाज्य संख्याएँ 2, 3, 5 हैं।'}},
+           
+            {'topic':'Science','grade':7,'difficulty':'easy','q':{'en':'Which gas is essential for breathing?','hi':'सांस लेने के लिए कौन सी गैस आवश्यक है?'},'choices':['Oxygen','Carbon Dioxide','Nitrogen','Hydrogen'],'answer':0, 'hint':{'en':'Plants release this gas during photosynthesis.','hi':'पौधे प्रकाश संश्लेषण के दौरान यह गैस छोड़ते हैं।'}},
+            {'topic':'Science','grade':7,'difficulty':'easy','q':{'en':'What is the chemical symbol for water?','hi':'पानी का रासायनिक प्रतीक क्या है?'},'choices':['O2','H2O','CO2','NaCl'],'answer':1, 'hint':{'en':'It contains Hydrogen and Oxygen.','hi':'इसमें हाइड्रोजन और ऑक्सीजन होता है।'}},
+            {'topic':'Science','grade':7,'difficulty':'easy','q':{'en':'Which part of the flower becomes the fruit?','hi':'फूल का कौन सा भाग फल बनता है?'},'choices':['Sepal','Petal','Stamen','Ovary'],'answer':3, 'hint':{'en':'It contains the ovules.','hi':'इसमें बीजांड होते हैं।'}},
+            {'topic':'Science','grade':7,'difficulty':'easy','q':{'en':'What is the process of taking in food called?','hi':'भोजन ग्रहण करने की प्रक्रिया को क्या कहते हैं?'},'choices':['Digestion','Absorption','Ingestion','Excretion'],'answer':2, 'hint':{'en':'It is the first step of nutrition.','hi':'यह पोषण का पहला चरण है।'}},
+            {'topic':'Science','grade':7,'difficulty':'easy','q':{'en':'The transfer of heat through direct contact is called?','hi':'सीधे संपर्क से ऊष्मा के स्थानांतरण को क्या कहते हैं?'},'choices':['Convection','Radiation','Conduction','Insulation'],'answer':2, 'hint':{'en':'This happens when you touch a hot pan.','hi':'यह तब होता है जब आप एक गर्म पैन को छूते हैं।'}},
+            {'topic':'Science','grade':7,'difficulty':'moderate','q':{'en':'The digestive acid produced in the stomach is?','hi':'पेट में उत्पन्न होने वाला पाचक अम्ल कौन सा है?'},'choices':['Hydrochloric acid','Sulphuric acid','Citric acid','Acetic acid'],'answer':0, 'hint':{'en':'Its chemical formula is HCl.','hi':'इसका रासायनिक सूत्र HCl है।'}},
+            {'topic':'Science','grade':7,'difficulty':'moderate','q':{'en':'What is the difference between an acid and a base?','hi':'अम्ल और क्षार में क्या अंतर है?'},'choices':['Acids are sour, bases are bitter','Acids are sweet, bases are sour','Acids are bitter, bases are salty','Acids are salty, bases are sweet'],'answer':0, 'hint':{'en':'Think about the taste of lemon and soap.','hi':'नींबू और साबुन के स्वाद के बारे में सोचें।'}},
+            {'topic':'Science','grade':7,'difficulty':'moderate','q':{'en':'An image that can be obtained on a screen is called a?','hi':'एक छवि जिसे स्क्रीन पर प्राप्त किया जा सकता है, उसे क्या कहा जाता है?'},'choices':['Virtual image','Real image','Shadow','Reflection'],'answer':1, 'hint':{'en':'A cinema projector forms this type of image.','hi':'एक सिनेमा प्रोजेक्टर इस प्रकार की छवि बनाता है।'}},
+            {'topic':'Science','grade':7,'difficulty':'moderate','q':{'en':'The rearing of silkworms for obtaining silk is called?','hi':'रेशम प्राप्त करने के लिए रेशम के कीड़ों का पालन क्या कहलाता है?'},'choices':['Apiculture','Sericulture','Pisciculture','Agriculture'],'answer':1, 'hint':{'en':'The word "Seri" is related to silk.','hi':'"सेरी" शब्द रेशम से संबंधित है।'}},
+            {'topic':'Science','grade':7,'difficulty':'moderate','q':{'en':'What causes weather changes?','hi':'मौसम में परिवर्तन का क्या कारण है?'},'choices':['The Moon','The Stars','The Sun','The Earth\'s rotation'],'answer':2, 'hint':{'en':'It is the ultimate source of energy for our planet.','hi':'यह हमारे ग्रह के लिए ऊर्जा का अंतिम स्रोत है।'}},
+            {'topic':'Science','grade':7,'difficulty':'difficult','q':{'en':'The change of a liquid into vapor is called?','hi':'किसी द्रव का वाष्प में बदलना क्या कहलाता है?'},'choices':['Evaporation','Condensation','Freezing','Melting'],'answer':0, 'hint':{'en':'This is how water from rivers turns into clouds.','hi':'इसी तरह नदियों का पानी बादलों में बदल जाता है।'}},
+            {'topic':'Science','grade':7,'difficulty':'difficult','q':{'en':'Explain the process of neutralization.','hi':'उदासीनीकरण की प्रक्रिया की व्याख्या करें।'},'choices':['Acid + base -> salt + water','Acid + salt -> base + water','Base + salt -> acid + water','Acid + acid -> salt'],'answer':0, 'hint':{'en':'It is a reaction between an acid and a base.','hi':'यह एक अम्ल और क्षार के बीच की प्रतिक्रिया है।'}},
+            {'topic':'Science','grade':7,'difficulty':'difficult','q':{'en':'How do amoeba move?','hi':'अमीबा कैसे चलता है?'},'choices':['Using cilia','Using flagella','Using pseudopodia','It does not move'],'answer':2, 'hint':{'en':'They use "false feet".','hi':'वे "झूठे पैर" का उपयोग करते हैं।'}},
+            {'topic':'Science','grade':7,'difficulty':'difficult','q':{'en':'What is the difference between speed and velocity?','hi':'गति और वेग में क्या अंतर है?'},'choices':['They are same','Velocity has direction','Speed has direction','Velocity is always greater'],'answer':1, 'hint':{'en':'One is a scalar quantity, the other is a vector.','hi':'एक अदिश राशि है, दूसरी सदिश है।'}},
+            {'topic':'Science','grade':7,'difficulty':'difficult','q':{'en':'Why are clinical thermometers marked from 35°C to 42°C?','hi':'क्लिनिकल थर्मामीटर पर 35°C से 42°C तक के निशान क्यों होते हैं?'},'choices':['It is boiling range','It is freezing range','It is human body temperature range','It is room temperature range'],'answer':2, 'hint':{'en':'It is designed to measure the temperature of the human body only.','hi':'इसे केवल मानव शरीर के तापमान को मापने के लिए डिज़ाइन किया गया है।'}},
+           
+            {'topic':'Local','grade':7,'difficulty':'easy','q':{'en':'What is the capital of Odisha?','hi':'ओडिशा की राजधानी क्या है?'},'choices':['Cuttack','Puri','Bhubaneswar','Rourkela'],'answer':2, 'hint':{'en':'It is known as the Temple City of India.','hi':'इसे भारत का मंदिर शहर कहा जाता है।'}},
+            {'topic':'Local','grade':7,'difficulty':'easy','q':{'en':'Which district in Odisha is known for its hot springs?','hi':'ओडिशा का कौन सा जिला अपने गर्म झरनों के लिए जाना जाता है?'},'choices':['Puri','Ganjam','Khordha','Cuttack'],'answer':2, 'hint':{'en':'The capital city is located in this district.','hi':'राजधानी शहर इसी जिले में स्थित है।'}},
+            {'topic':'Local','grade':7,'difficulty':'easy','q':{'en':'The state animal of Odisha is?','hi':'ओडिशा का राजकीय पशु है?'},'choices':['Tiger','Elephant','Sambar Deer','Lion'],'answer':2, 'hint':{'en':'It is a type of deer found in forests.','hi':'यह जंगलों में पाया जाने वाला एक प्रकार का हिरण है।'}},
+            {'topic':'Local','grade':7,'difficulty':'easy','q':{'en':'What is the main language spoken in Odisha?','hi':'ओडिशा में बोली जाने वाली मुख्य भाषा कौन सी है?'},'choices':['Hindi','Bengali','Odia','Telugu'],'answer':2, 'hint':{'en':'Its name is very similar to the state\'s name.','hi':'इसका नाम राज्य के नाम से बहुत मिलता-जुलता है।'}},
+            {'topic':'Local','grade':7,'difficulty':'easy','q':{'en':'Which is the biggest festival celebrated in Odisha?','hi':'ओडिशा में मनाया जाने वाला सबसे बड़ा त्योहार कौन सा है?'},'choices':['Holi','Ratha Jatra','Christmas','Eid'],'answer':1, 'hint':{'en':'It is famously celebrated in Puri.','hi':'यह पुरी में प्रसिद्ध रूप से मनाया जाता है।'}},
+            {'topic':'Local','grade':7,'difficulty':'moderate','q':{'en':'Chilika Lake in Odisha is famous for which migratory birds?','hi':'ओडिशा की चिल्का झील किन प्रवासी पक्षियों के लिए प्रसिद्ध है?'},'choices':['Flamingos','Penguins','Kiwis','Ostriches'],'answer':0, 'hint':{'en':'These birds are pink in color.','hi':'ये पक्षी गुलाबी रंग के होते हैं।'}},
+            {'topic':'Local','grade':7,'difficulty':'moderate','q':{'en':'The Biju Patnaik Airport is located in which city?','hi':'बीजू पटनायक हवाई अड्डा किस शहर में स्थित है?'},'choices':['Cuttack','Rourkela','Bhubaneswar','Puri'],'answer':2, 'hint':{'en':'It is in the capital city of Odisha.','hi':'यह ओडिशा की राजधानी में है।'}},
+            {'topic':'Local','grade':7,'difficulty':'moderate','q':{'en':'What are the rock-cut caves near Bhubaneswar called?','hi':'भुवनेश्वर के पास की चट्टानों को काटकर बनाई गई गुफाओं को क्या कहा जाता है?'},'choices':['Ajanta & Ellora','Udayagiri & Khandagiri','Elephanta Caves','Barabar Caves'],'answer':1, 'hint':{'en':'These are twin hills.','hi':'ये जुड़वां पहाड़ियाँ हैं।'}},
+            {'topic':'Local','grade':7,'difficulty':'moderate','q':{'en':'The famous "Dhanu Jatra" is held in which town of Odisha?','hi':'प्रसिद्ध "धनु जात्रा" ओडिशा के किस शहर में आयोजित की जाती है?'},'choices':['Puri','Bargarh','Sambalpur','Bolangir'],'answer':1, 'hint':{'en':'It is considered the world\'s largest open-air theatre.','hi':'इसे दुनिया का सबसे बड़ा ओपन-एयर थिएटर माना जाता है।'}},
+            {'topic':'Local','grade':7,'difficulty':'moderate','q':{'en':'What is the traditional percussion instrument of Odisha?','hi':'ओडिशा का पारंपरिक ताल वाद्य कौन सा है?'},'choices':['Tabla','Dholak','Sitar','Mardala'],'answer':3, 'hint':{'en':'It is the primary percussion instrument in Odissi music.','hi':'यह ओडिसी संगीत में प्राथमिक ताल वाद्य है।'}},
+            {'topic':'Local','grade':7,'difficulty':'difficult','q':{'en':'Which is the largest river in Odisha?','hi':'ओडिशा की सबसे बड़ी नदी कौन सी है?'},'choices':['Brahmani','Baitarani','Mahanadi','Rushikulya'],'answer':2, 'hint':{'en':'The Hirakud Dam is built on this river.','hi':'हीराकुंड बांध इसी नदी पर बनाया गया है।'}},
+            {'topic':'Local','grade':7,'difficulty':'difficult','q':{'en':'Who built the Konark Sun Temple?','hi':'कोणार्क सूर्य मंदिर किसने बनवाया था?'},'choices':['King Ashoka','King Kharavela','King Narasimhadeva I','King Anangabhima Deva'],'answer':2, 'hint':{'en':'He was a king of the Eastern Ganga Dynasty.','hi':'वह पूर्वी गंगा राजवंश का राजा था।'}},
+            {'topic':'Local','grade':7,'difficulty':'difficult','q':{'en':'The "Gotipua" dance is a precursor to which classical dance form?','hi':'"गोटीपुआ" नृत्य किस शास्त्रीय नृत्य का अग्रदूत है?'},'choices':['Kathak','Odissi','Manipuri','Sattriya'],'answer':1, 'hint':{'en':'Young boys dress up as girls to perform this dance.','hi':'इस नृत्य को करने के लिए युवा लड़के लड़कियों के रूप में तैयार होते हैं।'}},
+            {'topic':'Local','grade':7,'difficulty':'difficult','q':{'en':'Which poet is known as "Kabi Samrata" in Odisha?','hi':'ओडिशा में किस कवि को "कवि सम्राट" के नाम से जाना जाता है?'},'choices':['Sarala Das','Jagannath Das','Upendra Bhanja','Radhanath Ray'],'answer':2, 'hint':{'en':'He was a medieval poet known for his ornate style.','hi':'वह एक मध्ययुगीन कवि थे जो अपनी अलंकृत शैली के लिए जाने जाते थे।'}},
+            {'topic':'Local','grade':7,'difficulty':'difficult','q':{'en':'The Nandankanan Zoological Park is famous for which rare animal?','hi':'नंदनकानन प्राणी उद्यान किस दुर्लभ जानवर के लिए प्रसिद्ध है?'},'choices':['Bengal Tiger','White Tiger','Asiatic Lion','Indian Rhinoceros'],'answer':1, 'hint':{'en':'It was the world\'s first captive breeding center for this animal.','hi':'यह इस जानवर के लिए दुनिया का पहला बंदी प्रजनन केंद्र था।'}},
+
+            // Grade 8
+            {'topic':'Math','grade':8,'difficulty':'easy','q':{'en':'What is the cube root of 27?','hi':'27 का घनमूल क्या है?'},'choices':['3','9','6','27'],'answer':0, 'hint':{'en':'Which number multiplied by itself 3 times gives 27?','hi':'किस संख्या को 3 बार गुणा करने पर 27 मिलता है?'}},
+            {'topic':'Math','grade':8,'difficulty':'easy','q':{'en':'What is a number that has only two factors, 1 and itself, called?','hi':'एक संख्या जिसके केवल दो गुणनखंड होते हैं, 1 और वह स्वयं, क्या कहलाती है?'},'choices':['Even','Odd','Prime','Composite'],'answer':2, 'hint':{'en':'Examples are 2, 3, 5, 7, 11...','hi':'उदाहरण हैं 2, 3, 5, 7, 11...'}},
+            {'topic':'Math','grade':8,'difficulty':'easy','q':{'en':'What is the square of 11?','hi':'11 का वर्ग क्या है?'},'choices':['100','121','144','22'],'answer':1, 'hint':{'en':'It is 11 multiplied by 11.','hi':'यह 11 को 11 से गुणा करने पर है।'}},
+            {'topic':'Math','grade':8,'difficulty':'easy','q':{'en':'If x/4 = 5, what is x?','hi':'यदि x/4 = 5, तो x क्या है?'},'choices':['1','9','20','1.25'],'answer':2, 'hint':{'en':'Multiply both sides of the equation by 4.','hi':'समीकरण के दोनों पक्षों को 4 से गुणा करें।'}},
+            {'topic':'Math','grade':8,'difficulty':'easy','q':{'en':'What is the sum of the angles in a quadrilateral?','hi':'एक चतुर्भुज के कोणों का योग क्या है?'},'choices':['180 degrees','270 degrees','360 degrees','540 degrees'],'answer':2, 'hint':{'en':'A quadrilateral can be divided into two triangles.','hi':'एक चतुर्भुज को दो त्रिभुजों में विभाजित किया जा सकता है।'}},
+            {'topic':'Math','grade':8,'difficulty':'moderate','q':{'en':'What is the value of (a+b)²?','hi':'(a+b)² का मान क्या है?'},'choices':['a²+2ab+b²','a²-2ab+b²','a²+b²','a²-b²'],'answer':0, 'hint':{'en':'It is a standard algebraic identity.','hi':'यह एक मानक बीजगणितीय सर्वसमिका है।'}},
+            {'topic':'Math','grade':8,'difficulty':'moderate','q':{'en':'The list price of a frock is ₹220. A discount of 20% is announced. What is the sale price?','hi':'एक फ्रॉक का अंकित मूल्य ₹220 है। 20% की छूट की घोषणा की जाती है। बिक्री मूल्य क्या है?'},'choices':['₹200','₹176','₹198','₹44'],'answer':1, 'hint':{'en':'First calculate the discount amount, then subtract it from the list price.','hi':'पहले छूट की राशि की गणना करें, फिर उसे अंकित मूल्य से घटाएं।'}},
+            {'topic':'Math','grade':8,'difficulty':'moderate','q':{'en':'Solve the linear equation: 2y + 9 = 4','hi':'रैखिक समीकरण हल करें: 2y + 9 = 4'},'choices':['y = 5','y = -5','y = 2.5','y = -2.5'],'answer':3, 'hint':{'en':'First subtract 9 from both sides.','hi':'पहले दोनों पक्षों से 9 घटाएं।'}},
+            {'topic':'Math','grade':8,'difficulty':'moderate','q':{'en':'What is the area of a rhombus whose diagonals are 10 cm and 8.2 cm?','hi':'एक समचतुर्भुज का क्षेत्रफल क्या है जिसके विकर्ण 10 सेमी और 8.2 सेमी हैं?'},'choices':['82 cm²','18.2 cm²','41 cm²','410 cm²'],'answer':2, 'hint':{'en':'Area = (1/2) * (product of diagonals).','hi':'क्षेत्रफल = (1/2) * (विकर्णों का गुणनफल)।'}},
+            {'topic':'Math','grade':8,'difficulty':'moderate','q':{'en':'Express 0.000064 in standard form.','hi':'0.000064 को मानक रूप में व्यक्त करें।'},'choices':['6.4 x 10^5','6.4 x 10^-5','0.64 x 10^-4','64 x 10^-6'],'answer':1, 'hint':{'en':'Move the decimal point to the right of the first non-zero digit.','hi':'दशमलव बिंदु को पहले गैर-शून्य अंक के दाईं ओर ले जाएं।'}},
+            {'topic':'Math','grade':8,'difficulty':'difficult','q':{'en':'Factorize: x² + 5x + 6','hi':'गुणनखंड करें: x² + 5x + 6'},'choices':['(x+6)(x-1)','(x+2)(x+3)','(x-2)(x-3)','(x+5)(x+1)'],'answer':1, 'hint':{'en':'Find two numbers that add up to 5 and multiply to 6.','hi':'दो संख्याएँ खोजें जिनका योग 5 हो और गुणनफल 6 हो।'}},
+            {'topic':'Math','grade':8,'difficulty':'difficult','q':{'en':'A man got a 10% increase in his salary. If his new salary is ₹1,54,000, find his original salary.','hi':'एक व्यक्ति के वेतन में 10% की वृद्धि हुई। यदि उसका नया वेतन ₹1,54,000 है, तो उसका मूल वेतन ज्ञात कीजिए।'},'choices':['₹1,40,000','₹1,38,600','₹1,69,400','₹1,50,000'],'answer':0, 'hint':{'en':'New salary = 110% of original salary. So, divide the new salary by 1.1.','hi':'नया वेतन = मूल वेतन का 110%। तो, नए वेतन को 1.1 से विभाजित करें।'}},
+            {'topic':'Math','grade':8,'difficulty':'difficult','q':{'en':'The population of a city was 20,000 in 2020. It increased at 5% p.a. Find the population in 2022.','hi':'एक शहर की जनसंख्या 2020 में 20,000 थी। इसमें 5% प्रति वर्ष की दर से वृद्धि हुई। 2022 में जनसंख्या ज्ञात कीजिए।'},'choices':['21000','22000','22050','22500'],'answer':2, 'hint':{'en':'Use the formula for compound growth: P(1 + R/100)^n.','hi':'चक्रवृद्धि वृद्धि के सूत्र का प्रयोग करें: P(1 + R/100)^n।'}},
+            {'topic':'Math','grade':8,'difficulty':'difficult','q':{'en':'Find the compound interest on ₹12,600 for 2 years at 10% p.a. compounded annually.','hi':'₹12,600 पर 2 साल के लिए 10% प्रति वर्ष की दर से चक्रवृद्धि ब्याज ज्ञात कीजिए।'},'choices':['₹2520','₹2646','₹1260','₹13860'],'answer':1, 'hint':{'en':'First find the Amount, then subtract the Principal.','hi':'पहले मिश्रधन ज्ञात करें, फिर मूलधन घटाएं।'}},
+            {'topic':'Math','grade':8,'difficulty':'difficult','q':{'en':'If a box has 6 red marbles and 4 blue marbles, what is the probability of drawing a red marble?','hi':'यदि एक बॉक्स में 6 लाल कंचे और 4 नीले कंचे हैं, तो एक लाल कंचा निकालने की प्रायिकता क्या है?'},'choices':['2/5','3/5','1/2','1/10'],'answer':1, 'hint':{'en':'Probability = (Number of favorable outcomes) / (Total number of outcomes).','hi':'प्रायिकता = (अनुकूल परिणामों की संख्या) / (कुल परिणामों की संख्या)।'}},
+           
+            {'topic':'Science','grade':8,'difficulty':'easy','q':{'en':'Which of the following is a microorganism?','hi':'निम्नलिखित में से कौन एक सूक्ष्मजीव है?'},'choices':['Amoeba','Ant','Earthworm','Mosquito'],'answer':0, 'hint':{'en':'It is a single-celled organism.','hi':'यह एककोशिकीय जीव है।'}},
+            {'topic':'Science','grade':8,'difficulty':'easy','q':{'en':'The nucleus of a cell was discovered by?','hi':'एक कोशिका के नाभिक की खोज किसने की थी?'},'choices':['Robert Hooke','Robert Brown','Louis Pasteur','Alexander Fleming'],'answer':1, 'hint':{'en':'Robert Hooke discovered the cell itself.','hi':'रॉबर्ट हुक ने कोशिका की खोज की थी।'}},
+            {'topic':'Science','grade':8,'difficulty':'easy','q':{'en':'Which force is responsible for objects falling to the ground?','hi':'वस्तुओं के जमीन पर गिरने के लिए कौन सा बल जिम्मेदार है?'},'choices':['Magnetic force','Frictional force','Gravitational force','Muscular force'],'answer':2, 'hint':{'en':'It is the force of attraction between any two masses.','hi':'यह किन्हीं दो द्रव्यमानों के बीच का आकर्षण बल है।'}},
+            {'topic':'Science','grade':8,'difficulty':'easy','q':{'en':'What is the unit of pressure?','hi':'दाब की इकाई क्या है?'},'choices':['Newton','Joule','Watt','Pascal'],'answer':3, 'hint':{'en':'It is named after a famous French mathematician.','hi':'इसका नाम एक प्रसिद्ध फ्रांसीसी गणितज्ञ के नाम पर रखा गया है।'}},
+            {'topic':'Science','grade':8,'difficulty':'easy','q':{'en':'The growth of a baby into an adult is an example of?','hi':'एक बच्चे का वयस्क में बदलना किसका उदाहरण है?'},'choices':['Reversible change','Irreversible change','Periodic change','Chemical change'],'answer':1, 'hint':{'en':'You cannot change an adult back into a baby.','hi':'आप एक वयस्क को वापस बच्चे में नहीं बदल सकते।'}},
+            {'topic':'Science','grade':8,'difficulty':'moderate','q':{'en':'The force of friction always __ the motion.','hi':'घर्षण बल हमेशा गति का __ करता है।'},'choices':['opposes','supports','increases','balances'],'answer':0, 'hint':{'en':'It acts in the direction opposite to the movement.','hi':'यह गति की विपरीत दिशा में कार्य करता है।'}},
+            {'topic':'Science','grade':8,'difficulty':'moderate','q':{'en':'What is the difference between metals and non-metals?','hi':'धातुओं और अधातुओं में क्या अंतर है?'},'choices':['Metals are conductors, non-metals are insulators','Metals are insulators, non-metals are conductors','Metals are soft, non-metals are hard','All are same'],'answer':0, 'hint':{'en':'Think about which material is used for electrical wires.','hi':'सोचें कि बिजली के तारों के लिए कौन सी सामग्री का उपयोग किया जाता है।'}},
+            {'topic':'Science','grade':8,'difficulty':'moderate','q':{'en':'The production of an exact copy of an animal by a single parent is called?','hi':'एक ही माता-पिता द्वारा किसी जानवर की सटीक प्रतिलिपि का उत्पादन क्या कहलाता है?'},'choices':['Fertilization','Cloning','Budding','Fusion'],'answer':1, 'hint':{'en':'Dolly the sheep was the first mammal created by this process.','hi':'डॉली भेड़ इस प्रक्रिया से बनाया गया पहला स्तनपायी था।'}},
+            {'topic':'Science','grade':8,'difficulty':'moderate','q':{'en':'What is an alloy? Give an example.','hi':'मिश्र धातु क्या है? एक उदाहरण दें।'},'choices':['A mixture of liquids, e.g., Juice','A mixture of metals, e.g., Brass','A type of plastic, e.g., PVC','A pure element, e.g., Gold'],'answer':1, 'hint':{'en':'It is done to improve the properties of metals.','hi':'यह धातुओं के गुणों को बेहतर बनाने के लिए किया जाता है।'}},
+            {'topic':'Science','grade':8,'difficulty':'moderate','q':{'en':'Why is a dam\'s wall thicker at the bottom?','hi':'बांध की दीवार नीचे से मोटी क्यों होती है?'},'choices':['For decoration','Because pressure increases with depth','Because pressure decreases with depth','To save material'],'answer':1, 'hint':{'en':'The pressure exerted by a liquid depends on its height.','hi':'किसी द्रव द्वारा लगाया गया दाब उसकी ऊंचाई पर निर्भर करता है।'}},
+            {'topic':'Science','grade':8,'difficulty':'difficult','q':{'en':'Sound cannot travel through __.','hi':'ध्वनि __ से यात्रा नहीं कर सकती है।'},'choices':['air','water','steel','vacuum'],'answer':3, 'hint':{'en':'Sound needs a medium to travel. This option has no medium.','hi':'ध्वनि को यात्रा करने के लिए एक माध्यम की आवश्यकता होती है। इस विकल्प में कोई माध्यम नहीं है।'}},
+            {'topic':'Science','grade':8,'difficulty':'difficult','q':{'en':'What is fermentation and who discovered it?','hi':'किण्वन क्या है और इसकी खोज किसने की?'},'choices':['Sugar to salt by bacteria, Marie Curie','Sugar to alcohol by yeast, Louis Pasteur','Protein to fat by virus, C.V. Raman','Fat to acid by fungi, A.P.J. Abdul Kalam'],'answer':1, 'hint':{'en':'This process is used to make bread and wine.','hi':'इस प्रक्रिया का उपयोग ब्रेड और वाइन बनाने के लिए किया जाता है।'}},
+            {'topic':'Science','grade':8,'difficulty':'difficult','q':{'en':'Explain the working of an electroscope.','hi':'एक इलेक्ट्रोस्कोप के काम करने की व्याख्या करें।'},'choices':['It detects charge using induction','It measures current','It measures voltage','It detects magnetic fields'],'answer':0, 'hint':{'en':'When a charged object is brought near, its leaves repel each other.','hi':'जब कोई आवेशित वस्तु पास लाई जाती है, तो उसकी पत्तियां एक दूसरे को प्रतिकर्षित करती हैं।'}},
+            {'topic':'Science','grade':8,'difficulty':'difficult','q':{'en':'What is the difference between a star and a planet?','hi':'एक तारे और एक ग्रह में क्या अंतर है?'},'choices':['Planets are bigger','Stars have their own light','Stars revolve around planets','Planets have rings'],'answer':1, 'hint':{'en':'The Sun is a star. Earth is a planet.','hi':'सूर्य एक तारा है। पृथ्वी एक ग्रह है।'}},
+            {'topic':'Science','grade':8,'difficulty':'difficult','q':{'en':'What are antibiotics? What precautions must be taken while taking them?','hi':'एंटीबायोटिक्स क्या हैं? उन्हें लेते समय क्या सावधानियां बरतनी चाहिए?'},'choices':['Drugs for viruses, no precautions','Drugs for pain, take anytime','Drugs that kill bacteria, take on doctor\'s advice','Drugs for fever, take with milk'],'answer':2, 'hint':{'en':'They are not effective against viral infections like the common cold.','hi':'वे सामान्य सर्दी जैसे वायरल संक्रमण के खिलाफ प्रभावी नहीं हैं।'}},
+           
+            {'topic':'Local','grade':8,'difficulty':'easy','q':{'en':'Which famous temple is in Puri?','hi':'पुरी में कौन सा प्रसिद्ध मंदिर है?'},'choices':['Lingaraj Temple','Jagannath Temple','Sun Temple','Rajarani Temple'],'answer':1, 'hint':{'en':'It is one of the Char Dham pilgrimage sites.','hi':'यह चार धाम तीर्थ स्थलों में से एक है।'}},
+            {'topic':'Local','grade':8,'difficulty':'easy','q':{'en':'Which beach in Odisha is a famous nesting site for Olive Ridley turtles?','hi':'ओडिशा का कौन सा समुद्र तट ओलिव रिडले कछुओं के लिए एक प्रसिद्ध घोंसला बनाने का स्थल है?'},'choices':['Puri Beach','Gopalpur Beach','Gahirmatha Beach','Chandrabhaga Beach'],'answer':2, 'hint':{'en':'It is a protected marine sanctuary.','hi':'यह एक संरक्षित समुद्री अभयारण्य है।'}},
+            {'topic':'Local','grade':8,'difficulty':'easy','q':{'en':'The state bird of Odisha is?','hi':'ओडिशा का राजकीय पक्षी है?'},'choices':['Peacock','Sparrow','Indian Roller','Parrot'],'answer':2, 'hint':{'en':'It is a colourful bird also known as "Neelkanth".','hi':'यह एक रंगीन पक्षी है जिसे "नीलकंठ" के नाम से भी जाना जाता है।'}},
+            {'topic':'Local','grade':8,'difficulty':'easy','q':{'en':'Which is the main port of Odisha?','hi':'ओडिशा का मुख्य बंदरगाह कौन सा है?'},'choices':['Dhamra Port','Gopalpur Port','Paradip Port','Astaranga Port'],'answer':2, 'hint':{'en':'It is one of the major ports of India.','hi':'यह भारत के प्रमुख बंदरगाहों में से एक है।'}},
+            {'topic':'Local','grade':8,'difficulty':'easy','q':{'en':'What is the famous stone carving art of Odisha known for?','hi':'ओडिशा की प्रसिद्ध पत्थर की नक्काशी कला किसके लिए जानी जाती है?'},'choices':['Pottery','Jewellery','Temple architecture','Furniture'],'answer':2, 'hint':{'en':'Many ancient temples in Odisha showcase this art.','hi':'ओडिशा के कई प्राचीन मंदिर इस कला का प्रदर्शन करते हैं।'}},
+            {'topic':'Local','grade':8,'difficulty':'moderate','q':{'en':'The Hirakud Dam in Odisha is built on which river?','hi':'ओडिशा में हीराकुंड बांध किस नदी पर बनाया गया है?'},'choices':['Mahanadi','Brahmani','Baitarani','Godavari'],'answer':0, 'hint':{'en':'It is the longest dam in India.','hi':'यह भारत का सबसे लंबा बांध है।'}},
+            {'topic':'Local','grade':8,'difficulty':'moderate','q':{'en':'Who is the creator of the modern Odia language?','hi':'आधुनिक ओडिया भाषा के निर्माता कौन हैं?'},'choices':['Sarala Das','Gopabandhu Das','Fakir Mohan Senapati','Radhanath Ray'],'answer':2, 'hint':{'en':'He is considered the father of modern Odia literature.','hi':'उन्हें आधुनिक ओडिया साहित्य का जनक माना जाता है।'}},
+            {'topic':'Local','grade':8,'difficulty':'moderate','q':{'en':'The "Kalinga War" was fought by which emperor?','hi':'"कलिंग युद्ध" किस सम्राट द्वारा लड़ा गया था?'},'choices':['Chandragupta Maurya','Ashoka','Samudragupta','Harshavardhana'],'answer':1, 'hint':{'en':'This war prompted him to embrace Buddhism.','hi':'इस युद्ध ने उन्हें बौद्ध धर्म अपनाने के लिए प्रेरित किया।'}},
+            {'topic':'Local','grade':8,'difficulty':'moderate','q':{'en':'What is the "Chhau" dance of Mayurbhanj?','hi':'मयूरभंज का "छऊ" नृत्य क्या है?'},'choices':['A classical dance','A harvest festival dance','A martial folk dance','A prayer ritual'],'answer':2, 'hint':{'en':'It is a semi-classical dance with martial, tribal and folk origins.','hi':'यह मार्शल, आदिवासी और लोक मूल के साथ एक अर्ध-शास्त्रीय नृत्य है।'}},
+            {'topic':'Local','grade':8,'difficulty':'moderate','q':{'en':'Which mineral is found in abundance in Odisha?','hi':'ओडिशा में कौन सा खनिज प्रचुर मात्रा में पाया जाता है?'},'choices':['Gold','Diamond','Copper','Iron Ore'],'answer':3, 'hint':{'en':'Odisha is a leading producer of this mineral in India.','hi':'ओडिशा भारत में इस खनिज का एक प्रमुख उत्पादक है।'}},
+            {'topic':'Local','grade':8,'difficulty':'difficult','q':{'en':'What is "Pakhala" in Odisha?','hi':'ओडिशा में "पखाल" क्या है?'},'choices':['A type of sweet','A type of dance','Water rice','A festival'],'answer':2, 'hint':{'en':'It is a popular summer dish.','hi':'यह एक लोकप्रिय ग्रीष्मकालीन व्यंजन है।'}},
+            {'topic':'Local','grade':8,'difficulty':'difficult','q':{'en':'What is the "Bonda" tribe of Odisha known for?','hi':'ओडिशा की "बोंडा" जनजाति किसके लिए जानी जाती है?'},'choices':['Their hunting skills','Their unique attire and culture','Their metal work','Their boat making'],'answer':1, 'hint':{'en':'They are one of the most primitive tribes in India.','hi':'वे भारत की सबसे आदिम जनजातियों में से एक हैं।'}},
+            {'topic':'Local','grade':8,'difficulty':'difficult','q':{'en':'Which Odia film was the first to win a National Award?','hi':'राष्ट्रीय पुरस्कार जीतने वाली पहली ओडिया फिल्म कौन सी थी?'},'choices':['Maya Miriga','Sita Bibaha','Sri Lokanath','Pranaballav'],'answer':2, 'hint':{'en':'This film was released in 1960.','hi':'यह फिल्म 1960 में रिलीज हुई थी।'}},
+            {'topic':'Local','grade':8,'difficulty':'difficult','q':{'en':'The concept of "Zero" is believed to be depicted in which Odisha temple?','hi':'माना जाता है कि "शून्य" की अवधारणा को ओडिशा के किस मंदिर में दर्शाया गया है?'},'choices':['Jagannath Temple','Lingaraj Temple','Konark Sun Temple','Mukteswara Temple'],'answer':2, 'hint':{'en':'It is depicted in the wheels of the chariot.','hi':'इसे रथ के पहियों में दर्शाया गया है।'}},
+            {'topic':'Local','grade':8,'difficulty':'difficult','q':{'en':'Who led the Paika Rebellion of 1817 in Odisha?','hi':'ओडिशा में 1817 के पाइका विद्रोह का नेतृत्व किसने किया था?'},'choices':['Surendra Sai','Bakshi Jagabandhu','Birsa Munda','Laxman Nayak'],'answer':1, 'hint':{'en':'He was the commander of the forces of the King of Khurda.','hi':'वह खुर्दा के राजा की सेना का सेनापति था।'}},
+
+            // Language Module (Existing 20 Qs per grade with difficulty)
+            {'topic':'Language','grade':6,'difficulty':'easy','q':{'en':'Identify the noun: The DOG is barking.','hi':'संज्ञा पहचानें: DOG भौंक रहा है।'},'choices':['The','is','barking','DOG'],'answer':3, 'hint':{'en':'A noun is a name of a person, place, animal, or thing.','hi':'संज्ञा किसी व्यक्ति, स्थान, जानवर या वस्तु का नाम है।'}},
+            {'topic':'Language','grade':6,'difficulty':'easy','q':{'en':'Which word is a verb? They PLAY cricket.','hi':'क्रिया कौन सा शब्द है? वे क्रिकेट PLAY करते हैं।'},'choices':['They','PLAY','cricket','a'],'answer':1, 'hint':{'en':'A verb is an action word.','hi':'क्रिया एक क्रिया शब्द है।'}},
+            {'topic':'Language','grade':6,'difficulty':'easy','q':{'en':'What is the plural of "boy"?','hi':'"boy" का बहुवचन क्या है?'},'choices':['boyes','boys','boies','boy'],'answer':1, 'hint':{'en':'Usually, we add "s" to make a plural.','hi':'आमतौर पर, हम बहुवचन बनाने के लिए "s" जोड़ते हैं।'}},
+            {'topic':'Language','grade':6,'difficulty':'easy','q':{'en':'Choose the correct article: __ apple a day.','hi':'सही आर्टिकल चुनें: __ apple a day.'},'choices':['a','an','the','is'],'answer':1, 'hint':{'en':'Use "an" before a vowel sound.','hi':'स्वर ध्वनि से पहले "an" का प्रयोग करें।'}},
+            {'topic':'Language','grade':6,'difficulty':'easy','q':{'en':'Identify the pronoun: SHE is a good singer.','hi':'सर्वनाम पहचानें: SHE एक अच्छी गायिका है।'},'choices':['is','a','good','SHE'],'answer':3, 'hint':{'en':'A pronoun is used in place of a noun.','hi':'सर्वनाम का प्रयोग संज्ञा के स्थान पर किया जाता है।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'Which sentence is in the present tense?','hi':'कौन सा वाक्य वर्तमान काल में है?'},'choices':['He played football.','He is playing football.','He will play football.','He had played football.'],'answer':1, 'hint':{'en':'Present tense describes an action happening now.','hi':'वर्तमान काल अभी हो रही क्रिया का वर्णन करता है।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'Find the adjective: The RED car is fast.','hi':'विशेषण खोजें: RED कार तेज है।'},'choices':['car','is','fast','RED'],'answer':3, 'hint':{'en':'An adjective describes a noun.','hi':'एक विशेषण एक संज्ञा का वर्णन करता है।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'Choose the correct preposition: The book is __ the table.','hi':'सही पूर्वसर्ग चुनें: किताब __ मेज पर है।'},'choices':['on','in','at','under'],'answer':0, 'hint':{'en':'It shows the position of the book.','hi':'यह किताब की स्थिति को दर्शाता है।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'What is the opposite of "happy"?','hi':'"happy" का विलोम क्या है?'},'choices':['sad','joyful','angry','glad'],'answer':0, 'hint':{'en':'It means feeling sorrow.','hi':'इसका अर्थ है दुःख महसूस करना।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'Which of these is a proper noun?','hi':'इनमें से व्यक्तिवाचक संज्ञा कौन सी है?'},'choices':['boy','city','Cuttack','river'],'answer':2, 'hint':{'en':'A proper noun is a specific name and starts with a capital letter.','hi':'एक व्यक्तिवाचक संज्ञा एक विशिष्ट नाम है और एक बड़े अक्षर से शुरू होती है।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'"I am writing a letter." The action is:','hi':'"मैं एक पत्र लिख रहा हूं।" क्रिया है:'},'choices':['finished','ongoing','future','past'],'answer':1, 'hint':{'en':'The "ing" form of the verb shows continuation.','hi':'क्रिया का "ing" रूप निरंतरता को दर्शाता है।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'Which is not a vowel?','hi':'कौन सा स्वर नहीं है?'},'choices':['a','e','i','b'],'answer':3, 'hint':{'en':'Vowels are a, e, i, o, u.','hi':'स्वर a, e, i, o, u हैं।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'A person who writes books is an __.','hi':'किताबें लिखने वाला व्यक्ति एक __ होता है।'},'choices':['author','actor','artist','teacher'],'answer':0, 'hint':{'en':'They create stories and characters.','hi':'वे कहानियां और पात्र बनाते हैं।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'Plural of "leaf" is?','hi':'"leaf" का बहुवचन है?'},'choices':['leafs','leafes','leaves','leafe'],'answer':2, 'hint':{'en':'For words ending in "f", we often change "f" to "ves".','hi':'"f" में समाप्त होने वाले शब्दों के लिए, हम अक्सर "f" को "ves" में बदलते हैं।'}},
+            {'topic':'Language','grade':6,'difficulty':'moderate','q':{'en':'Opposite of "big" is?','hi':'"big" का विलोम है?'},'choices':['large','huge','small','tall'],'answer':2, 'hint':{'en':'An ant is a small insect.','hi':'एक चींटी एक छोटा कीड़ा है।'}},
+            {'topic':'Language','grade':6,'difficulty':'difficult','q':{'en':'Choose the correct form: She __ to school daily.','hi':'सही रूप चुनें: वह रोज स्कूल __ है।'},'choices':['go','goes','went','going'],'answer':1, 'hint':{'en':'For third person singular in simple present, we add "s" or "es".','hi':'साधारण वर्तमान में तीसरे व्यक्ति एकवचन के लिए, हम "s" या "es" जोड़ते हैं।'}},
+            {'topic':'Language','grade':6,'difficulty':'difficult','q':{'en':'Which is a collective noun? A __ of sheep.','hi':'समूहवाचक संज्ञा कौन सी है? भेड़ों का एक __।'},'choices':['pack','herd','flock','bunch'],'answer':2, 'hint':{'en':'This word is also used for a group of birds.','hi':'यह शब्द पक्षियों के समूह के लिए भी प्रयोग किया जाता है।'}},
+            {'topic':'Language','grade':6,'difficulty':'difficult','q':{'en':'Identify the adverb: He runs QUICKLY.','hi':'क्रियाविशेषण पहचानें: वह QUICKLY दौड़ता है।'},'choices':['He','runs','QUICKLY','fast'],'answer':2, 'hint':{'en':'An adverb tells us how an action is done. Many end in "-ly".','hi':'एक क्रियाविशेषण हमें बताता है कि कोई क्रिया कैसे की जाती है। कई "-ly" में समाप्त होते हैं।'}},
+            {'topic':'Language','grade':6,'difficulty':'difficult','q':{'en':'Past tense of "eat" is?','hi':'"eat" का भूतकाल है?'},'choices':['eated','aten','ate','eats'],'answer':2, 'hint':{'en':'It is an irregular verb.','hi':'यह एक अनियमित क्रिया है।'}},
+            {'topic':'Language','grade':6,'difficulty':'difficult','q':{'en':'Choose the correct conjunction: I waited __ he arrived.','hi':'सही संयोजक चुनें: मैंने इंतजार किया __ वह आया।'},'choices':['because','until','so','but'],'answer':1, 'hint':{'en':'This word indicates up to a certain point in time.','hi':'यह शब्द समय में एक निश्चित बिंदु तक इंगित करता है।'}},
+            {'topic':'Language','grade':7,'difficulty':'easy','q':{'en':'Identify the type of sentence: What is your name?','hi':'वाक्य का प्रकार पहचानें: तुम्हारा नाम क्या है?'},'choices':['Declarative','Imperative','Interrogative','Exclamatory'],'answer':2, 'hint':{'en':'It asks a question.','hi':'यह एक प्रश्न पूछता है।'}},
+            {'topic':'Language','grade':7,'difficulty':'easy','q':{'en':'Which is an abstract noun?','hi':'भाववाचक संज्ञा कौन सी है?'},'choices':['book','honesty','chair','Bhubaneswar'],'answer':1, 'hint':{'en':'It is a quality that you cannot see or touch.','hi':'यह एक ऐसा गुण है जिसे आप देख या छू नहीं सकते।'}},
+            {'topic':'Language','grade':7,'difficulty':'easy','q':{'en':'Past participle of "write" is?','hi':'"write" का पास्ट पार्टिसिपल है?'},'choices':['wrote','written','writing','writes'],'answer':1, 'hint':{'en':'It is used with "has" or "have". e.g., I have __ a letter.','hi':'इसका उपयोग "has" या "have" के साथ किया जाता है। जैसे, मैंने एक पत्र __ है।'}},
+            {'topic':'Language','grade':7,'difficulty':'easy','q':{'en':'A, E, I, O, U are called __.','hi':'A, E, I, O, U को __ कहते हैं।'},'choices':['consonants','vowels','articles','pronouns'],'answer':1, 'hint':{'en':'All other letters are consonants.','hi':'अन्य सभी अक्षर व्यंजन हैं।'}},
+            {'topic':'Language','grade':7,'difficulty':'easy','q':{'en':'The comparative degree of "good" is?','hi':'"good" का तुलनात्मक रूप है?'},'choices':['better','best','gooder','goodest'],'answer':0, 'hint':{'en':'We use it to compare two things.','hi':'हम इसका उपयोग दो चीजों की तुलना करने के लिए करते हैं।'}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'Fill in the blank: He is __ honest man.','hi':'रिक्त स्थान भरें: वह __ ईमानदार आदमी है।'},'choices':['a','an','the','-'],'answer':1, 'hint':{'en':'The "h" in honest is silent, so it starts with a vowel sound.','hi':'honest में "h" मूक है, इसलिए यह एक स्वर ध्वनि से शुरू होता है।'}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'Identify the gerund: SWIMMING is a good exercise.','hi':'जेरंड पहचानें: SWIMMING एक अच्छा व्यायाम है।'},'choices':['good','exercise','is','SWIMMING'],'answer':3, 'hint':{'en':'A gerund is a verb ending in "-ing" that acts as a noun.','hi':'जेरंड एक क्रिया है जो "-ing" में समाप्त होती है और संज्ञा के रूप में कार्य करती है।'}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'Which sentence uses an apostrophe correctly?','hi':'किस वाक्य में एपोस्ट्रोफी का सही उपयोग हुआ है?'},'choices':["Its a nice day.","It's a nice day.","Its' a nice day.","It is a nices day."],'answer':1, 'hint':{'en':'"It\'s" is a contraction of "it is".','hi':`"It's" "it is" का संकुचन है।`}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'Choose the correct verb: The team __ playing well.','hi':'सही क्रिया चुनें: टीम अच्छा खेल __ है।'},'choices':['is','are','am','have'],'answer':0, 'hint':{'en':'"Team" is considered a single unit here.','hi':'"टीम" को यहां एक इकाई माना जाता है।'}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'A place where books are kept is called a __.','hi':'जिस स्थान पर किताबें रखी जाती हैं उसे __ कहते हैं।'},'choices':['museum','library','zoo','aquarium'],'answer':1, 'hint':{'en':'You can borrow books from there.','hi':'आप वहां से किताबें उधार ले सकते हैं।'}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'What is the feminine gender of "horse"?','hi':'"horse" का स्त्रीलिंग क्या है?'},'choices':['mare','doe','vixen','hen'],'answer':0, 'hint':{'en':'A female horse.','hi':'एक मादा घोड़ा।'}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'Which one is a synonym for "beautiful"?','hi':'"beautiful" का पर्यायवाची कौन सा है?'},'choices':['ugly','pretty','dark','heavy'],'answer':1, 'hint':{'en':'Synonyms are words with similar meanings.','hi':'पर्यायवाची समान अर्थ वाले शब्द हैं।'}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'I have been waiting __ two hours.','hi':'मैं दो घंटे __ इंतजार कर रहा हूं।'},'choices':['since','for','from','at'],'answer':1, 'hint':{'en':'"For" is used for a duration of time.','hi':'"For" का उपयोग समय की अवधि के लिए किया जाता है।'}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'The superlative degree of "heavy" is?','hi':'"heavy" का सुपरलेटिव रूप है?'},'choices':['heavier','heaviest','more heavy','most heavy'],'answer':1, 'hint':{'en':'It is used to compare more than two things.','hi':'इसका उपयोग दो से अधिक चीजों की तुलना करने के लिए किया जाता है।'}},
+            {'topic':'Language','grade':7,'difficulty':'moderate','q':{'en':'This is the boy __ won the prize.','hi':'यह वही लड़का है __ पुरस्कार जीता।'},'choices':['which','who','whom','whose'],'answer':1, 'hint':{'en':'Use "who" for people.','hi':'लोगों के लिए "who" का प्रयोग करें।'}},
+            {'topic':'Language','grade':7,'difficulty':'difficult','q':{'en':'Change to passive voice: "He writes a letter."','hi':'कर्मवाच्य में बदलें: "He writes a letter."'},'choices':['A letter is wrote by him.','A letter is written by him.','He is written a letter.','A letter was written by him.'],'answer':1, 'hint':{'en':'The object becomes the subject. Use "is" + past participle.','hi':'वस्तु विषय बन जाती है। "is" + पास्ट पार्टिसिपल का प्रयोग करें।'}},
+            {'topic':'Language','grade':7,'difficulty':'difficult','q':{'en':'Identify the clause type: I will go if you come.','hi':'उपवाक्य का प्रकार पहचानें: यदि तुम आओगे तो मैं जाऊंगा।'},'choices':['Adjective Clause','Noun Clause','Adverb Clause','Main Clause'],'answer':2, 'hint':{'en':'It tells us the condition under which the action will happen.','hi':'यह हमें वह शर्त बताता है जिसके तहत क्रिया होगी।'}},
+            {'topic':'Language','grade':7,'difficulty':'difficult','q':{'en':'He said, "I am busy." (Indirect speech)','hi':'उसने कहा, "मैं व्यस्त हूं।" (अप्रत्यक्ष कथन)'},'choices':['He said that he is busy.','He said that I was busy.','He said that he was busy.','He told he was busy.'],'answer':2, 'hint':{'en':'In indirect speech, the tense often shifts back. "am" becomes "was".','hi':'अप्रत्यक्ष कथन में, काल अक्सर पीछे चला जाता है। "am" "was" बन जाता है।'}},
+            {'topic':'Language','grade':7,'difficulty':'difficult','q':{'en':'Unless you work hard, you __ pass.','hi':'जब तक तुम मेहनत नहीं करोगे, तुम पास नहीं __।'},'choices':['will not','will','would not','would'],'answer':0, 'hint':{'en':'"Unless" implies a negative condition.','hi':`"Unless" का अर्थ एक नकारात्मक शर्त है।`}},
+            {'topic':'Language','grade':7,'difficulty':'difficult','q':{'en':'Find the correctly spelled word.','hi':'सही वर्तनी वाला शब्द खोजें।'},'choices':['Tommorrow','Tommorow','Tomorow','Tomorrow'],'answer':3, 'hint':{'en':'It is the day after today.','hi':'यह आज के बाद का दिन है।'}},
+            {'topic':'Language','grade':8,'difficulty':'easy','q':{'en':'A group of lions is called a __.','hi':'शेरों के समूह को __ कहते हैं।'},'choices':['herd','flock','pride','pack'],'answer':2, 'hint':{'en':'This word also means a feeling of satisfaction in oneself.','hi':'इस शब्द का अर्थ स्वयं में संतुष्टि की भावना भी है।'}},
+            {'topic':'Language','grade':8,'difficulty':'easy','q':{'en':'Choose the correct modal: You __ respect your elders.','hi':'सही मोडल चुनें: तुम्हें अपने बड़ों का सम्मान करना __।'},'choices':['can','may','should','might'],'answer':2, 'hint':{'en':'It is used to give advice or a recommendation.','hi':'इसका उपयोग सलाह या सिफारिश देने के लिए किया जाता है।'}},
+            {'topic':'Language','grade':8,'difficulty':'easy','q':{'en':'What is the antonym of "brave"?','hi':'"brave" का विलोम क्या है?'},'choices':['strong','bold','fear','cowardly'],'answer':3, 'hint':{'en':'An antonym has the opposite meaning.','hi':'एक विलोम का विपरीत अर्थ होता है।'}},
+            {'topic':'Language','grade':8,'difficulty':'easy','q':{'en':'Identify the infinitive: I want TO PLAY.','hi':'इंफिनिटिव पहचानें: मैं TO PLAY चाहता हूं।'},'choices':['I','want','TO PLAY','play'],'answer':2, 'hint':{'en':'An infinitive is usually in the form "to + verb".','hi':'एक इंफिनिटिव आमतौर पर "to + verb" के रूप में होता है।'}},
+            {'topic':'Language','grade':8,'difficulty':'easy','q':{'en':'Plural of "cactus" is?','hi':'"cactus" का बहुवचन है?'},'choices':['cactuses','cacti','cactus','cacties'],'answer':1, 'hint':{'en':'This word has a Latin origin.','hi':'इस शब्द का मूल लैटिन है।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'Change the voice: "The cat killed the mouse."','hi':'वाच्य बदलें: "The cat killed the mouse."'},'choices':['The mouse was killed by the cat.','The mouse is killed by the cat.','The cat was killed by the mouse.','The mouse has been killed.'],'answer':0, 'hint':{'en':'The sentence is in past tense, so use "was".','hi':'वाक्य भूतकाल में है, इसलिए "was" का प्रयोग करें।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'"To hit the nail on the head" means:','hi':'"To hit the nail on the head" का अर्थ है:'},'choices':['To hit someone','To do or say something exactly right','To work hard','To miss an opportunity'],'answer':1, 'hint':{'en':'This is an idiom.','hi':'यह एक मुहावरा है।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'He is suffering __ fever.','hi':'वह बुखार __ पीड़ित है।'},'choices':['of','with','from','by'],'answer':2, 'hint':{'en':'This preposition is used to indicate the cause of suffering.','hi':'इस पूर्वसर्ग का उपयोग पीड़ा के कारण को इंगित करने के लिए किया जाता है।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'Which is a compound sentence?','hi':'संयुक्त वाक्य कौन सा है?'},'choices':['He is poor but he is honest.','He is a poor and honest boy.','Despite being poor, he is honest.','He who is poor is honest.'],'answer':0, 'hint':{'en':'A compound sentence has two independent clauses joined by a conjunction.','hi':'एक संयुक्त वाक्य में एक संयोजक द्वारा जुड़े दो स्वतंत्र उपवाक्य होते हैं।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'The study of stars is called __.','hi':'तारों के अध्ययन को __ कहते हैं।'},'choices':['Astrology','Astronomy','Geology','Biology'],'answer':1, 'hint':{'en':'Do not confuse it with astrology, which is about predicting the future.','hi':'इसे ज्योतिष के साथ भ्रमित न करें, जो भविष्य की भविष्यवाणी के बारे में है।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'If I were a bird, I __ fly.','hi':'अगर मैं पक्षी होता, तो मैं उड़ __।'},'choices':['will','can','would','should'],'answer':2, 'hint':{'en':'Use "would" for hypothetical situations.','hi':'काल्पनिक स्थितियों के लिए "would" का प्रयोग करें।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'Identify the participle: a BROKEN chair.','hi':'पार्टिसिपल पहचानें: एक BROKEN कुर्सी।'},'choices':['chair','a','BROKEN','is'],'answer':2, 'hint':{'en':'A participle is a verb form that can be used as an adjective.','hi':'एक पार्टिसिपल एक क्रिया रूप है जिसका उपयोग विशेषण के रूप में किया जा सकता है।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'One who knows everything is __.','hi':'जो सब कुछ जानता है वह __ है।'},'choices':['omnipotent','omniscient','omnipresent','optimist'],'answer':1, 'hint':{'en':'"Omni" means all, and "scient" relates to knowledge.','hi':'"Omni" का अर्थ है सब, और "scient" ज्ञान से संबंधित है।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'Neither he nor his friends __ arrived.','hi':'न तो वह और न ही उसके दोस्त पहुंचे __।'},'choices':['has','have','is','are'],'answer':1, 'hint':{'en':'With "neither...nor", the verb agrees with the nearest subject.','hi':'"neither...nor" के साथ, क्रिया निकटतम विषय से सहमत होती है।'}},
+            {'topic':'Language','grade':8,'difficulty':'moderate','q':{'en':'Find the correctly spelled word.','hi':'सही वर्तनी वाला शब्द खोजें।'},'choices':['Grammer','Grammar','Gramer','Gramar'],'answer':1, 'hint':{'en':'It is the study of language rules.','hi':'यह भाषा के नियमों का अध्ययन है।'}},
+            {'topic':'Language','grade':8,'difficulty':'difficult','q':{'en':'"He is too weak to walk." Remove "too".','hi':'"He is too weak to walk." "too" हटाएं।'},'choices':['He is so weak that he cannot walk.','He is very weak and cannot walk.','He is weak so he cannot walk.','He cannot walk because he is weak.'],'answer':0, 'hint':{'en':'Use the "so...that" structure.','hi':`"so...that" संरचना का प्रयोग करें।`}},
+            {'topic':'Language','grade':8,'difficulty':'difficult','q':{'en':'The train had left before I __ the station.','hi':'मेरे स्टेशन पहुंचने से पहले ट्रेन जा चुकी __।'},'choices':['reach','reached','had reached','was reaching'],'answer':1, 'hint':{'en':'The first action is in past perfect, the second is in simple past.','hi':'पहली क्रिया पूर्ण भूतकाल में है, दूसरी सामान्य भूतकाल में है।'}},
+            {'topic':'Language','grade':8,'difficulty':'difficult','q':{'en':'Identify the figure of speech: "The wind whispered through the trees."','hi':'अलंकार पहचानें: "The wind whispered through the trees."'},'choices':['Metaphor','Simile','Personification','Hyperbole'],'answer':2, 'hint':{'en':'It gives human qualities to an inanimate object.','hi':'यह एक निर्जीव वस्तु को मानवीय गुण देता है।'}},
+            {'topic':'Language','grade':8,'difficulty':'difficult','q':{'en':'Hardly had he seen the police __ he ran away.','hi':'जैसे ही उसने पुलिस को देखा __ वह भाग गया।'},'choices':['than','then','when','that'],'answer':2, 'hint':{'en':'The structure is "Hardly had... when...".','hi':'संरचना "Hardly had... when..." है।'}},
+            {'topic':'Language','grade':8,'difficulty':'difficult','q':{'en':'The plural of "phenomenon" is:','hi':'"phenomenon" का बहुवचन है:'},'choices':['phenomenons','phenomenae','phenomenas','phenomena'],'answer':3, 'hint':{'en':'This word has a Greek origin.','hi':'इस शब्द का मूल ग्रीक है।'}},
+        ];
+        const TOPICS = [...new Set(QUESTIONS.map(q => q.topic))].sort();
+        const GRADES = [...new Set(QUESTIONS.map(q => q.grade))].sort();
+        const DIFFICULTIES = ['easy', 'moderate', 'difficult'];
+
+        const FUN_FACTS = [
+            { en: "A group of owls is called a parliament!", hi: "उल्लुओं के समूह को 'संसद' कहा जाता है!" },
+            { en: "Honey never spoils! You could eat 3000-year-old honey.", hi: "शहद कभी खराब नहीं होता! आप 3000 साल पुराना शहद भी खा सकते हैं।" },
+            { en: "The human brain is more active at night than during the day.", hi: "इंसानी दिमाग दिन के मुकाबले रात में ज़्यादा सक्रिय होता है।" },
+            { en: "An octopus has three hearts and blue blood.", hi: "एक ऑक्टोपस के तीन दिल और नीला खून होता है।" },
+            { en: "Bananas are berries, but strawberries aren't!", hi: "केले 'बेरी' होते हैं, लेकिन स्ट्रॉबेरी नहीं!" }
+        ];
+
+        let lang = 'en', progress = {}, playerName = '', stars = 0, currentQuestion = null, lifelines = {}, currentTopic = '', questionIndex = 0, score = 0, levelQuestions = [], selectedGrade = null, selectedDifficulty = null, timerInterval = null, confirmAction = null;
+        let audioCtx;
+        const playSound = (type) => { try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0, audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.01); if (type === 'correct') o.frequency.value = 800; else if (type === 'wrong') { o.frequency.value = 200; o.type = 'square'; } else o.frequency.value = 440; o.start(audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2); o.stop(audioCtx.currentTime + 0.2); } catch(e) { /* Audio failed */ }};
+       
+        const nameEntry = document.getElementById('name-entry');
+        const starsCount = document.getElementById('stars-count');
+        const topicsContainer = document.getElementById('topics-container');
+        const gradeContainer = document.getElementById('grade-container');
+        const difficultyContainer = document.getElementById('difficulty-container');
+        const toast = document.getElementById('toast');
+        const confettiCanvas = document.getElementById('confetti-canvas');
+        const progressBar = document.getElementById('progress-bar');
+        const timerText = document.getElementById('timer-text');
+        const timerProgressRing = document.getElementById('timer-progress-ring');
+        const radius = timerProgressRing.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+        timerProgressRing.style.strokeDasharray = `${circumference} ${circumference}`;
+
+        const translations = { 'Village Quest': { en: 'Village Quest', hi: 'विलेज क्वेस्ट' }, 'Learn & Explore — Play to earn stars!': { en: 'Learn & Explore — Play to earn stars!', hi: 'सीखो और खोजो — स्टार कमाओ!' }, '1. Enter name:': { en: '1. Enter name:', hi: '१. अपना नाम डालें:' }, '2. Choose your grade:': { en: '2. Choose your grade:', hi: '२. अपनी कक्षा चुनें:' }, 'Grade': { en: 'Grade', hi: 'कक्षा' }, '3. Choose difficulty:': { en: '3. Choose difficulty:', hi: '३. कठिनाई चुनें:' }, '4. Choose a topic:': { en: '4. Choose a topic:', hi: '४. एक विषय चुनें:' }, 'easy': {en: 'Easy', hi: 'आसान'}, 'moderate': {en: 'Moderate', hi: 'मध्यम'}, 'difficult': {en: 'Difficult', hi: 'कठिन'}, 'Total Stars:': { en: 'Total Stars:', hi: 'कुल स्टार्स:' }, 'Player': { en: 'Player', hi: 'खिलाड़ी' }, 'Topic': { en: 'Topic', hi: 'विषय' }, 'Hint': { en: 'Hint', hi: 'संकेत' }, 'Skip': { en: 'Skip', hi: 'स्किप' }, 'Menu': { en: 'Menu', hi: 'मेन्यू' }, 'Round Complete!': { en: 'Round Complete!', hi: 'राउंड पूरा हुआ!' }, 'Score:': { en: 'Score:', hi: 'अंक:' }, 'Play another topic': { en: 'Play another topic', hi: 'दूसरा विषय खेलें' }, 'Please enter your name.': { en: 'Please enter your name before starting.', hi: 'कृपया शुरू करने से पहले अपना नाम डालें।' }, 'Please select a grade.': { en: 'Please select a grade first.', hi: 'कृपया पहले एक ग्रेड चुनें।' }, 'Please select a difficulty.': { en: 'Please select a difficulty level.', hi: 'कृपया एक कठिनाई स्तर चुनें।' }, 'No questions for this selection.': { en: 'No questions found for this selection.', hi: 'इस चयन के लिए कोई प्रश्न नहीं मिला।' }, 'Correct!': { en: 'Correct!', hi: 'सही!' }, 'Wrong. Correct was:': { en: 'Wrong. The correct answer was:', hi: 'गलत। सही उत्तर था:' }, 'Time\'s Up!': { en: 'Time\'s Up!', hi: 'समय समाप्त!' }, 'See you soon!': { en: 'See you soon!', hi: 'जल्द ही फिर मिलेंगे!' }, 'Great job today,': { en: 'Great job today,', hi: 'आज बहुत अच्छा खेला,' }, 'You have': { en: 'You have', hi: 'आपके पास' }, 'stars!': { en: 'stars!', hi: 'स्टार्स हैं!' }, 'Fun Fact!': { en: 'Fun Fact!', hi: 'एक मज़ेदार तथ्य!' }, 'Thanks for playing Village Quest!': { en: 'Thanks for playing Village Quest!', hi: 'विलेज क्वेस्ट खेलने के लिए धन्यवाद!' }, 'Quit Game': { en: 'Quit Game', hi: 'खेल छोड़ें' }, 'Back to Menu?': { en: 'Back to Menu?', hi: 'मेन्यू पर वापस जाएं?' }, 'Your progress in this round will be lost.': { en: 'Your progress in this round will be lost.', hi: 'इस राउंड में आपकी प्रगति खो जाएगी।' }, 'Quit Game?': { en: 'Quit Game?', hi: 'खेल छोड़ें?' }, 'Cancel': { en: 'Cancel', hi: 'रद्द करें' }, 'Yes, Proceed': { en: 'Yes, Proceed', hi: 'हाँ, आगे बढ़ें' }, 'Main Menu': { en: 'Main Menu', hi: 'मुख्य मेन्यू' }, 'Got it!': { en: 'Got it!', hi: 'समझ गया!' }, 'How to Play': { en: 'How to Play', hi: 'कैसे खेलें' } };
+        const _t = (key, fallback = '') => (translations[key] && translations[key][lang]) || fallback || key;
+
+        const loadProgress = () => { try { const d = localStorage.getItem('vq_progress'); progress = d ? JSON.parse(d) : {}; stars = progress.stars || 0; } catch (e) { progress = {}; stars = 0; } };
+        const saveProgress = () => { try { progress.stars = stars; progress.last_player = playerName; localStorage.setItem('vq_progress', JSON.stringify(progress)); } catch (e) {} };
+        const showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
+        const showToast = (msg, isSuccess) => { toast.textContent = msg; toast.className = 'toast-notification'; toast.classList.add(isSuccess ? 'bg-green-500' : 'bg-red-500', 'show'); setTimeout(() => toast.classList.remove('show'), 2000); };
+       
+        const showHelpModal = (show) => {
+            const helpContent = document.getElementById('help-content');
+            if (show) {
+                const helpSteps = {
+                    en: [
+                        { step: "1. Choose Your Level:", desc: "First, enter your name, then select your grade (6, 7, or 8) and a difficulty level (Easy, Moderate, or Difficult)." },
+                        { step: "2. Pick a Topic:", desc: "Once you've set your level, choose an interesting topic like Math, Science, or Local Knowledge to begin the quiz." },
+                        { step: "3. Answer & Use Lifelines:", desc: "Answer the questions before the timer runs out! If you're stuck, you can use a 'Hint' or 'Skip' the question." },
+                        { step: "4. Earn Stars & Learn:", desc: "You get a star for every correct answer. Play more, learn more, and see how many stars you can collect!" }
+                    ],
+                    hi: [
+                        { step: "१. अपना स्तर चुनें:", desc: "पहले अपना नाम दर्ज करें, फिर अपनी कक्षा (6, 7, या 8) और एक कठिनाई स्तर (आसान, मध्यम, या कठिन) चुनें।" },
+                        { step: "२. एक विषय चुनें:", desc: "अपना स्तर निर्धारित करने के बाद, क्विज़ शुरू करने के लिए गणित, विज्ञान, या स्थानीय ज्ञान जैसा कोई रोचक विषय चुनें।" },
+                        { step: "३. उत्तर दें और लाइफलाइन का उपयोग करें:", desc: "टाइमर खत्म होने से पहले सवालों के जवाब दें! यदि आप फंस गए हैं, तो आप 'संकेत' का उपयोग कर सकते हैं या प्रश्न को 'स्किप' कर सकते हैं।" },
+                        { step: "४. स्टार्स कमाएँ और सीखें:", desc: "हर सही उत्तर के लिए आपको एक स्टार मिलता है। अधिक खेलें, अधिक जानें, और देखें कि आप कितने स्टार इकट्ठा कर सकते हैं!" }
+                    ]
+                };
+                helpContent.innerHTML = '';
+                helpSteps[lang].forEach(item => {
+                    const stepEl = document.createElement('p');
+                    stepEl.innerHTML = `<strong class="text-orange-600">${item.step}</strong> ${item.desc}`;
+                    helpContent.appendChild(stepEl);
+                });
+                document.getElementById('help-title').textContent = _t('How to Play');
+                document.getElementById('help-close-btn').textContent = _t('Got it!');
+            }
+            document.getElementById('help-modal').classList.toggle('active', show);
+        };
+        const showResetModal = (show) => document.getElementById('reset-modal').classList.toggle('active', show);
+
+        const confirmModal = document.getElementById('confirm-modal');
+        const showConfirmModal = (title, text, onConfirm) => {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-text').textContent = text;
+            confirmAction = onConfirm;
+            document.getElementById('confirm-confirm-btn').onclick = () => { if (confirmAction) confirmAction(); closeConfirmModal(); };
+            confirmModal.classList.add('active');
+        };
+        const closeConfirmModal = () => { confirmModal.classList.remove('active'); confirmAction = null; };
+
+        const buildWelcome = () => {
+            selectedGrade = null;
+            selectedDifficulty = null;
+            document.getElementById('difficulty-selection-container').classList.add('hidden');
+            starsCount.textContent = stars;
+            nameEntry.value = progress.last_player || '';
+            gradeContainer.innerHTML = '';
+            GRADES.forEach(grade => { const btn = document.createElement('button'); btn.className = "grade-btn w-full text-center bg-white border-b-4 border-gray-300 text-gray-700 font-bold py-3 px-2 rounded-xl"; btn.textContent = `${_t('Grade')} ${grade}`; btn.onclick = () => selectGrade(grade, btn); gradeContainer.appendChild(btn); });
+            updateTopicButtons();
+            showScreen('welcome-screen');
+        };
+       
+        const showGoodbyeScreen = () => {
+            playSound('click');
+            const name = nameEntry.value.trim() || "Learner";
+            const randomFact = FUN_FACTS[Math.floor(Math.random() * FUN_FACTS.length)];
+           
+            document.getElementById('goodbye-title').textContent = _t('See you soon!');
+            document.getElementById('goodbye-message').textContent = `${_t('Great job today,')} ${name}!`;
+            document.getElementById('goodbye-stars-text').textContent = `${_t('You have')}`;
+            document.getElementById('goodbye-stars-count').textContent = stars;
+            document.getElementById('fun-fact-title').textContent = _t('Fun Fact!');
+            document.getElementById('fun-fact').textContent = randomFact[lang];
+            document.getElementById('thanks-text').textContent = _t('Thanks for playing Village Quest!');
+            document.getElementById('main-menu-btn').textContent = _t('Main Menu');
+           
+            showScreen('goodbye-screen');
+        };
+
+        const selectGrade = (grade, selectedBtn) => {
+            playSound('click');
+            selectedGrade = grade;
+            selectedDifficulty = null;
+            document.querySelectorAll('.grade-btn').forEach(btn => btn.classList.remove('selected'));
+            selectedBtn.classList.add('selected');
+           
+            difficultyContainer.innerHTML = '';
+            DIFFICULTIES.forEach(diff => {
+                const btn = document.createElement('button');
+                btn.className = "difficulty-btn w-full text-center bg-white border-b-4 border-gray-300 text-gray-700 font-bold py-3 px-2 rounded-xl";
+                btn.textContent = _t(diff);
+                btn.onclick = () => selectDifficulty(diff, btn);
+                difficultyContainer.appendChild(btn);
+            });
+            document.getElementById('difficulty-selection-container').classList.remove('hidden');
+            updateTopicButtons();
+        };
+
+        const selectDifficulty = (difficulty, selectedBtn) => {
+            playSound('click');
+            selectedDifficulty = difficulty;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('selected'));
+            selectedBtn.classList.add('selected');
+            updateTopicButtons();
+        };
+
+        const updateTopicButtons = () => { topicsContainer.innerHTML = ''; TOPICS.forEach(topic => { const btn = document.createElement('button'); btn.className = "topic-btn w-full text-white font-bold py-3 px-2 rounded-xl shadow disabled:bg-gray-400"; btn.textContent = _t(topic, topic); btn.disabled = !selectedGrade || !selectedDifficulty; btn.onclick = () => startGame(topic); topicsContainer.appendChild(btn); }); };
+
+        const startTimer = (duration) => {
+            let timeLeft = duration;
+            const setProgress = (percent) => { const offset = circumference - percent / 100 * circumference; timerProgressRing.style.strokeDashoffset = offset; };
+            const updateTimer = () => {
+                timerText.textContent = timeLeft;
+                setProgress(timeLeft / duration * 100);
+                 if (timeLeft <= 10) {
+                    timerProgressRing.classList.remove('text-green-500','text-yellow-500');
+                    timerProgressRing.classList.add('text-red-500');
+                    timerText.classList.add('timer-danger');
+                } else if (timeLeft <= duration / 2) {
+                    timerProgressRing.classList.remove('text-green-500','text-red-500');
+                    timerProgressRing.classList.add('text-yellow-500');
+                    timerText.classList.remove('timer-danger');
+                } else {
+                    timerProgressRing.classList.remove('text-yellow-500','text-red-500');
+                    timerProgressRing.classList.add('text-green-500');
+                    timerText.classList.remove('timer-danger');
+                }
+                if (timeLeft < 0) {
+                    clearInterval(timerInterval);
+                    showToast(_t('Time\'s Up!'), false);
+                    checkAnswer(-1, null);
+                }
+                timeLeft--;
+            };
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        };
+       
+        const showQuestion = () => {
+            clearInterval(timerInterval);
+            if (questionIndex >= levelQuestions.length) { endRound(); return; }
+            currentQuestion = levelQuestions[questionIndex];
+            progressBar.style.width = `${((questionIndex + 1) / levelQuestions.length) * 100}%`;
+            document.getElementById('player-info').textContent = `${_t('Player')}: ${playerName}`;
+            document.getElementById('topic-info').textContent = `${_t('Topic')}: ${_t(currentTopic, currentTopic)}`;
+            document.getElementById('stars-info').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-yellow-400"><path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z" /></svg> ${stars}`;
+            document.getElementById('hint-text').textContent = `${_t('Hint')} (${lifelines.hint})`;
+            document.getElementById('skip-text').textContent = `${_t('Skip')} (${lifelines.skip})`;
+            document.getElementById('hint-btn').disabled = lifelines.hint <= 0;
+            document.getElementById('skip-btn').disabled = lifelines.skip <= 0;
+            document.getElementById('question-text').textContent = `Q${questionIndex + 1}. ${currentQuestion.q[lang]}`;
+            const choicesContainer = document.getElementById('choices-container'); choicesContainer.innerHTML = '';
+            currentQuestion.choices.forEach((choice, i) => { const btn = document.createElement('button'); btn.className = "choice-btn w-full text-left p-4 bg-white border-b-4 border-gray-300 rounded-xl shadow-sm hover:bg-sky-100 hover:border-sky-300 text-gray-700 font-bold text-lg"; btn.textContent = `${i + 1}. ${choice}`; btn.onclick = (e) => checkAnswer(i, e.target); choicesContainer.appendChild(btn); });
+           
+            let duration = 60;
+            switch(selectedDifficulty) {
+                case 'easy': duration = 50; break;
+                case 'moderate': duration = 45; break;
+                case 'difficult': duration = 40; break;
+            }
+            startTimer(duration);
+            showScreen('question-screen');
+        };
+
+        const endRound = () => {
+            document.getElementById('end-title').textContent = _t('Round Complete!');
+            document.getElementById('end-score').textContent = `${_t('Score:')} ${score} / ${levelQuestions.length}`;
+            document.getElementById('end-stars').textContent = `${_t('Total Stars:')} ${stars}`;
+            if (score / levelQuestions.length > 0.6) { startConfetti(); }
+            showScreen('end-round-screen');
+        };
+
+        const setLang = (l) => { lang = l; buildWelcome(); };
+        const startGame = (topic) => {
+            playSound('click');
+            const name = nameEntry.value.trim();
+            if (!name) { showToast(_t('Please enter your name.'), false); return; }
+            if (!selectedGrade) { showToast(_t('Please select a grade.'), false); return; }
+            if (!selectedDifficulty) { showToast(_t('Please select a difficulty.'), false); return; }
+
+            playerName = name; currentTopic = topic;
+            let filteredQuestions = QUESTIONS.filter(q => q.topic === topic && q.grade === selectedGrade && q.difficulty === selectedDifficulty);
+           
+            if(filteredQuestions.length === 0){ showToast(_t('No questions for this selection.'), false); return; }
+           
+            // Shuffle and take first 5
+            levelQuestions = filteredQuestions.sort(() => 0.5 - Math.random()).slice(0, 5);
+           
+            questionIndex = 0; score = 0; lifelines = { hint: 2, skip: 1 }; saveProgress(); showQuestion();
+        };
+
+        const checkAnswer = (idx, btn) => {
+            clearInterval(timerInterval);
+            playSound('click');
+            document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+            const isCorrect = idx === currentQuestion.answer;
+            if (isCorrect) { score++; stars++; saveProgress(); btn.classList.add('correct-answer'); playSound('correct'); }
+            else { if(btn) btn.classList.add('incorrect-answer'); document.getElementById('choices-container').children[currentQuestion.answer].classList.add('correct-answer'); playSound('wrong'); }
+            questionIndex++;
+            setTimeout(showQuestion, 1800);
+        };
+       
+        const useHint = () => { if (lifelines.hint <= 0) return; playSound('click'); lifelines.hint--; showToast(currentQuestion.hint?.[lang] || 'No hint available.', true); document.getElementById('hint-btn').disabled = lifelines.hint <= 0; document.getElementById('hint-text').textContent = `${_t('Hint')} (${lifelines.hint})`; };
+        const useSkip = () => { if (lifelines.skip <= 0) return; playSound('click'); lifelines.skip--; clearInterval(timerInterval); questionIndex++; showQuestion(); };
+       
+        const requestGoToMenu = () => {
+            playSound('click');
+            showConfirmModal(_t('Back to Menu?'), _t('Your progress in this round will be lost.'), () => { clearInterval(timerInterval); buildWelcome(); });
+        };
+        const requestQuitGame = () => {
+            playSound('click');
+            showConfirmModal(_t('Quit Game?'), _t('Your progress in this round will be lost.'), () => { clearInterval(timerInterval); showGoodbyeScreen(); });
+        };
+       
+        const performReset = () => { progress = {}; stars = 0; playerName = ''; saveProgress(); showResetModal(false); buildWelcome(); };
+       
+        const startConfetti = () => { const ctx = confettiCanvas.getContext('2d'); const W = confettiCanvas.width = document.getElementById('app-container').offsetWidth, H = confettiCanvas.height = document.getElementById('app-container').offsetHeight; let particles = []; const colors = ["#22c55e", "#f97316", "#3b82f6", "#facc15", "#ec4899"]; for (let i = 0; i < 60; i++) { particles.push({ x: Math.random() * W, y: Math.random() * H - H, size: Math.random() * 6 + 3, color: colors[Math.floor(Math.random() * colors.length)], speed: Math.random() * 4 + 2 }); } let frame; const draw = () => { ctx.clearRect(0, 0, W, H); particles.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size * 2); p.y += p.speed; if (p.y > H) { p.y = -20; p.x = Math.random() * W; } }); frame = requestAnimationFrame(draw); }; draw(); setTimeout(() => { cancelAnimationFrame(frame); ctx.clearRect(0, 0, W, H); }, 3000); };
+       
+        document.addEventListener('DOMContentLoaded', () => { loadProgress(); buildWelcome(); });
+    </script>
+</body>
+</html>

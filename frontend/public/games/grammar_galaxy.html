@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Galaxy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: #1a202c;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #2c3e50, #1b2838);
+            transition: background 1.5s ease-in-out;
+        }
+
+        /* Background Emojis */
+        .bg-emoji {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0;
+            animation: floatAndFade 20s linear infinite;
+            z-index: -1;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .bg-emoji:nth-child(2n) { animation-delay: -5s; }
+        .bg-emoji:nth-child(3n) { animation-duration: 25s; }
+        .bg-emoji:nth-child(4n) { animation-duration: 18s; animation-delay: -10s; }
+
+        @keyframes floatAndFade {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+        }
+
+        /* Main Screen & Game Container */
+        .main-container {
+            position: relative;
+            width: 95%;
+            max-width: 900px;
+            min-height: 80vh;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            z-index: 1;
+            animation: breathe 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes breathe {
+            from { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); }
+            to { box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7); }
+        }
+
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .question-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.1);
+            width: 100%;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .word-to-drag, .word-choice {
+            display: inline-block;
+            background: #81d4fa;
+            color: #1a202c;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: grab;
+            margin: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+            animation: popIn 0.5s ease-out;
+        }
+
+        .word-to-drag:active, .word-choice:active { cursor: grabbing; }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .orb-dropzone {
+            width: 95%;
+            max-width: 600px;
+            min-height: 150px;
+            border-radius: 1.5rem;
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px 5px rgba(129, 212, 250, 0.3);
+            transition: all 0.5s ease-in-out;
+            border: 3px solid transparent;
+            position: relative;
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+
+        .orb-dropzone.drag-over { border: 3px dashed #81d4fa; transform: scale(1.05); }
+
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 15px 5px rgba(129, 212, 250, 0.5); }
+            to { box-shadow: 0 0 25px 8px rgba(129, 212, 250, 0.7); }
+        }
+
+        .orb-dropzone .dropped-word {
+            display: inline-block;
+            background: #81d4fa;
+            color: #1a202c;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            margin: 0.5rem;
+        }
+
+        .orb-correct { background: #22c55e; box-shadow: 0 0 20px 5px #22c55e, 0 0 40px 10px #22c55e; animation: correctPulse 1s ease-out forwards; }
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .orb-incorrect { background: #ef4444; box-shadow: 0 0 20px 5px #ef4444, 0 0 40px 10px #ef4444; animation: incorrectShake 0.5s ease-in-out forwards; }
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .feedback-message { margin-top: 1rem; font-size: 1.2rem; font-weight: 600; animation: popIn 0.5s ease-out; }
+        .correct { color: #10b981; }
+        .incorrect { color: #ef4444; }
+
+        .words-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2rem; }
+        .timer-container { display: flex; align-items: center; gap: 0.5rem; }
+        .timer { font-size: 1.5rem; color: #ef4444; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        .lives-display, .score { font-size: 1.5rem; color: #fff; font-weight: 600; text-shadow: 0 0 5px rgba(255,255,255,0.5); }
+        .lives-display { margin-top: 0.5rem; }
+
+        .fairy-container { 
+            position: absolute; 
+            top: 50%; 
+            right: 0%; 
+            transform: translateY(-50%) scale(0); 
+            font-size: 5rem; 
+            z-index: 20; 
+            transition: all 0.5s ease-in-out; 
+        }
+        .joker-container { 
+            position: absolute; 
+            top: 50%; 
+            right: 0%; 
+            transform: translateY(-50%) scale(0); 
+            font-size: 5rem; 
+            z-index: 20; 
+            transition: all 0.5s ease-in-out; 
+        }
+        .show-animation {
+            transform: translateY(-50%) scale(1);
+        }
+
+        .joker-container.show-animation { animation: shake 0.5s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateY(-50%) translateX(0) rotate(0deg); }
+            25% { transform: translateY(-50%) translateX(-20px) rotate(-5deg); }
+            50% { transform: translateY(-50%) translateX(20px) rotate(5deg); }
+            75% { transform: translateY(-50%) translateX(-20px) rotate(-5deg); }
+        }
+        .fairy-container.show-animation { animation: dance 1s linear infinite; }
+        @keyframes dance {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            25% { transform: translateY(-60%) rotate(5deg); }
+            50% { transform: translateY(-50%) rotate(0deg); }
+            75% { transform: translateY(-40%) rotate(-5deg); }
+            100% { transform: translateY(-50%) rotate(0deg); }
+        }
+
+
+        /* Menu Specific Styles */
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        .menu-btn {
+            padding: 1rem 2rem;
+            margin: 0.75rem 0;
+            width: 100%;
+            max-width: 300px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a202c;
+            background: #81d4fa;
+            border-radius: 9999px;
+            box-shadow: 0 4px 15px rgba(129, 212, 250, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(129, 212, 250, 0.6);
+        }
+        .back-to-menu-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: 9999px;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s;
+        }
+        .back-to-menu-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .exit-door {
+            position: absolute;
+            top: 1.5rem;
+            left: 2rem;
+            font-size: 2.5rem;
+            cursor: pointer;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+        .exit-door:hover {
+            transform: scale(1.1);
+        }
+
+        /* Word Sorter Specific Styles */
+        .sorter-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        .sorter-zone {
+            width: 45%;
+            min-height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            transition: border-color 0.3s;
+        }
+
+        .sorter-zone.drag-over {
+            border-color: #81d4fa;
+        }
+        
+        .sorter-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #81d4fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Emojis -->
+    <div class="bg-emoji" style="top: 10%; left: 15%; animation-duration: 25s; animation-delay: -3s;">✨</div>
+    <div class="bg-emoji" style="top: 25%; left: 75%; animation-duration: 30s; animation-delay: -10s;">🌸</div>
+    <div class="bg-emoji" style="top: 50%; left: 30%; animation-duration: 20s; animation-delay: -8s;">🦋</div>
+    <div class="bg-emoji" style="top: 80%; left: 60%; animation-duration: 22s; animation-delay: -5s;">🌟</div>
+    <div class="bg-emoji" style="top: 40%; left: 90%; animation-duration: 28s; animation-delay: -12s;">🌿</div>
+    <div class="bg-emoji" style="top: 65%; left: 5%; animation-duration: 35s; animation-delay: -15s;">✨</div>
+    <div class="bg-emoji" style="top: 15%; left: 50%; animation-duration: 20s; animation-delay: -7s;">🌸</div>
+    <div class="bg-emoji" style="top: 80%; left: 20%; animation-duration: 32s; animation-delay: -4s;">🦋</div>
+    <div class="bg-emoji" style="top: 25%; left: 85%; animation-duration: 28s; animation-delay: -9s;">🌟</div>
+    <div class="bg-emoji" style="top: 50%; left: 10%; animation-duration: 24s; animation-delay: -11s;">🌿</div>
+    <div class="bg-emoji" style="top: 70%; left: 45%; animation-duration: 27s; animation-delay: -6s;">✨</div>
+    <div class="bg-emoji" style="top: 30%; left: 60%; animation-duration: 33s; animation-delay: -13s;">🌸</div>
+
+    <!-- Main Game Container -->
+    <div id="main-container" class="main-container">
+        <!-- Main Menu -->
+        <div id="main-menu" class="menu-container text-center">
+            <h1 class="text-6xl font-extrabold text-white mb-8">Grammar Galaxy</h1>
+            <p class="text-xl text-slate-200 mb-10">Choose your adventure to master grammar!</p>
+            <button class="menu-btn" onclick="startGame('basic-grammar')">Grammar Guardian</button>
+            <button class="menu-btn" onclick="startGame('sentence-scramble')">Sentence Scramble</button>
+            <button class="menu-btn" onclick="startGame('antonyms')">Antonym Attack</button>
+            <button class="menu-btn" onclick="startGame('synonyms')">Synonym Sprint</button>
+            <button class="menu-btn" onclick="startGame('articles')">Article Adventure</button>
+            <button class="menu-btn" onclick="startGame('word-sorter')">Word Sorter</button>
+        </div>
+
+        <!-- Game Content - Hidden by default -->
+        <div id="game-content" class="w-full h-full flex flex-col justify-between hidden">
+            <div class="exit-door" onclick="showMainMenu()">🚪</div>
+            <div class="header">
+                <div class="flex-grow flex justify-center">
+                    <div class="flex flex-col items-center gap-2">
+                        <span class="score-text text-white text-lg">SCORE</span>
+                        <span id="score" class="score text-2xl">0</span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end gap-1">
+                    <div class="timer-container">
+                        <span class="timer-icon text-white text-2xl">⏳</span>
+                        <div id="timer" class="timer">20</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="lives-display" class="lives-display text-2xl">❤️❤️❤️</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-box mb-4">
+                <h2 id="game-title" class="text-3xl font-bold mb-2 text-white hidden"></h2>
+                <p id="prompt-text" class="question-text text-xl font-bold"></p>
+                <p id="sentence-text" class="question-text text-lg text-gray-300"></p>
+            </div>
+
+            <!-- This is where game-specific content will be rendered -->
+            <div id="game-area" class="w-full flex flex-col items-center flex-grow"></div>
+
+            <div id="feedback-message" class="feedback-message"></div>
+
+            <!-- Fairy and Joker Containers -->
+            <div id="fairy-container" class="fairy-container hidden">💃</div>
+            <div id="joker-container" class="joker-container hidden">🃏</div>
+            <div id="correct-answer-display" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-green-600 bg-white p-4 rounded-lg shadow-lg hidden"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Utility function to shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        // Game State Variables
+        const getElement = (id) => document.getElementById(id);
+        const mainMenu = getElement('main-menu');
+        const gameContent = getElement('game-content');
+        const livesDisplay = getElement('lives-display');
+        const scoreElement = getElement('score');
+        const timerElement = getElement('timer');
+        const gameTitle = getElement('game-title');
+        const promptTextElement = getElement('prompt-text');
+        const sentenceTextElement = getElement('sentence-text');
+        const gameArea = getElement('game-area');
+        const feedbackMessage = getElement('feedback-message');
+        const fairyContainer = getElement('fairy-container');
+        const jokerContainer = getElement('joker-container');
+        const correctAnswerDisplay = getElement('correct-answer-display');
+
+        let currentLevel = 0;
+        let lives = 3;
+        let score = 0;
+        let timer = 20;
+        let timerInterval;
+        let originalData = null;
+        let currentGameMode = '';
+        let currentDroppedWords = [];
+
+        // Color palettes for each level (dark and light colors)
+        const colorPalettes = [
+            { body: ['#2c3e50', '#81d4fa'], text: '#ffffff', button: '#81d4fa' }, // Dark Blue to Light Blue
+            { body: ['#4b0f3b', '#ffc4d1'], text: '#ffffff', button: '#ffc4d1' }, // Dark Magenta to Light Pink
+            { body: ['#0f3b2c', '#dcfce7'], text: '#ffffff', button: '#dcfce7' }, // Dark Green to Light Green
+            { body: ['#5a3d00', '#fef9c3'], text: '#ffffff', button: '#fef9c3' }, // Dark Brown to Light Yellow
+            { body: ['#0f1f3b', '#ede9fe'], text: '#ffffff', button: '#ede9fe' }, // Dark Indigo to Light Purple
+            { body: ['#4d2952', '#dcc9f7'], text: '#ffffff', button: '#dcc9f7' }  // Dark Purple to Light Purple
+        ];
+
+        // --- Game Data for All Modes ---
+        const gameData = {
+            'basic-grammar': [
+                // Nouns - Multiple Answers
+                { prompt: "Drag all the Nouns:", sentence: "The little bird landed on the big rock.", words: ["The", "little", "bird", "landed", "on", "the", "big", "rock"], answer: ["bird", "rock"] },
+                { prompt: "Drag all the Nouns:", sentence: "The knight fought the dragon for the princess.", words: ["The", "knight", "fought", "the", "dragon", "for", "the", "princess"], answer: ["knight", "dragon", "princess"] },
+                { prompt: "Drag all the Nouns:", sentence: "The baker made a cake with flour and sugar.", words: ["The", "baker", "made", "a", "cake", "with", "flour", "and", "sugar"], answer: ["baker", "cake", "flour", "sugar"] },
+                { prompt: "Drag all the Nouns:", sentence: "The cat sat on the mat with the toy.", words: ["The", "cat", "sat", "on", "the", "mat", "with", "the", "toy"], answer: ["cat", "mat", "toy"] },
+                { prompt: "Drag all the Nouns:", sentence: "The sun, moon, and stars are in the sky.", words: ["The", "sun", "moon", "and", "stars", "are", "in", "the", "sky"], answer: ["sun", "moon", "stars", "sky"] },
+                { prompt: "Drag the Noun that names a person:", sentence: "She saw her mother at the market.", words: ["She", "saw", "her", "mother", "at", "the", "market"], answer: ["mother"] },
+                { prompt: "Drag the Noun that names a place:", sentence: "They are going to the beach.", words: ["They", "are", "going", "to", "the", "beach"], answer: ["beach"] },
+                { prompt: "Drag the Noun that names a thing:", sentence: "He put the book on the table.", words: ["He", "put", "the", "book", "on", "the", "table"], answer: ["book"] },
+                
+                // Verbs - Multiple Answers
+                { prompt: "Drag all the Verbs:", sentence: "The children played and laughed happily.", words: ["The", "children", "played", "and", "laughed", "happily"], answer: ["played", "laughed"] },
+                { prompt: "Drag all the Verbs:", sentence: "The dog barked, ran, and jumped.", words: ["The", "dog", "barked", "ran", "and", "jumped"], answer: ["barked", "ran", "jumped"] },
+                { prompt: "Drag all the Verbs:", sentence: "She will sing, dance, and play the piano.", words: ["She", "will", "sing", "dance", "and", "play", "the", "piano"], answer: ["sing", "dance", "play"] },
+                { prompt: "Drag the Verb that shows an action:", sentence: "The cat slept soundly on the bed.", words: ["The", "cat", "slept", "soundly", "on", "the", "bed"], answer: ["slept"] },
+                { prompt: "Drag the Verb that shows a state of being:", sentence: "The flowers are beautiful today.", words: ["The", "flowers", "are", "beautiful", "today"], answer: ["are"] },
+
+                // Adjectives - Multiple Answers
+                { prompt: "Drag all the Adjectives:", sentence: "The big, black cat sat on the small mat.", words: ["The", "big", "black", "cat", "sat", "on", "the", "small", "mat"], answer: ["big", "black", "small"] },
+                { prompt: "Drag all the Adjectives:", sentence: "The beautiful, red dress was very long.", words: ["The", "beautiful", "red", "dress", "was", "very", "long"], answer: ["beautiful", "red", "long"] },
+                { prompt: "Drag the Adjective that describes a color:", sentence: "I like the color blue.", words: ["I", "like", "the", "color", "blue"], answer: ["blue"] },
+                { prompt: "Drag the Adjective that describes a size:", sentence: "A tiny mouse was running on the huge floor.", words: ["A", "tiny", "mouse", "was", "running", "on", "the", "huge", "floor"], answer: ["tiny", "huge"] },
+            ],
+            'sentence-scramble': [
+                { sentence: "The little bird landed on the big rock." },
+                { sentence: "The wizard quickly cast a powerful spell." },
+                { sentence: "The knight bravely fought the dragon." },
+                { sentence: "The sprites happily sang a song." },
+                { sentence: "The fish swam in the deep ocean." },
+                { sentence: "The baby cried loudly for his mother." },
+                { sentence: "He put the book on the table." },
+                { sentence: "The sun shines brightly in the sky." },
+                { sentence: "The dog barks at the mailman." },
+            ],
+            'antonyms': [
+                { word: "Happy", choices: ["Sad", "Joyful", "Excited", "Cheerful"], answer: "Sad" },
+                { word: "Big", choices: ["Large", "Small", "Huge", "Giant"], answer: "Small" },
+                { word: "Fast", choices: ["Quick", "Rapid", "Slow", "Swift"], answer: "Slow" },
+                { word: "Hot", choices: ["Cold", "Warm", "Boiling", "Steamy"], answer: "Cold" },
+                { word: "Up", choices: ["Down", "Above", "Over", "Below"], answer: "Down" },
+            ],
+            'synonyms': [
+                { word: "Start", choices: ["End", "Begin", "Stop", "Finish"], answer: "Begin" },
+                { word: "Small", choices: ["Tiny", "Large", "Huge", "Big"], answer: "Tiny" },
+                { word: "Sad", choices: ["Happy", "Upset", "Cheerful", "Joyful"], answer: "Upset" },
+                { word: "Quick", choices: ["Slow", "Fast", "Easy", "Hard"], answer: "Fast" },
+                { word: "Big", choices: ["Huge", "Small", "Tiny", "Little"], answer: "Huge" },
+            ],
+            'articles': [
+                { sentence: "The boy is reading ___ book.", choices: ["a", "an", "the"], answer: "a" },
+                { sentence: "He saw ___ elephant at the zoo.", choices: ["a", "an", "the"], answer: "an" },
+                { sentence: "___ sun is hot.", choices: ["a", "an", "the"], answer: "the" },
+                { sentence: "She ate ___ apple.", choices: ["a", "an", "the"], answer: "an" },
+                { sentence: "I want to buy ___ new car.", choices: ["a", "an", "the"], answer: "a" },
+            ],
+            'word-sorter': [
+                { word: "Apple", category1: "Fruit", category2: "Vegetable", answer: "Fruit" },
+                { word: "Carrot", category1: "Fruit", category2: "Vegetable", answer: "Vegetable" },
+                { word: "Run", category1: "Verb", category2: "Noun", answer: "Verb" },
+                { word: "Cat", category1: "Verb", category2: "Noun", answer: "Noun" },
+                { word: "Blue", category1: "Color", category2: "Shape", answer: "Color" },
+                { word: "Square", category1: "Color", category2: "Shape", answer: "Shape" }
+            ]
+        };
+
+        // Main Game Logic
+        function showMainMenu() {
+            mainMenu.classList.remove('hidden');
+            gameContent.classList.add('hidden');
+            lives = 3;
+            score = 0;
+            currentLevel = 0;
+            updateLivesDisplay();
+            updateScoreDisplay();
+        }
+
+        function startGame(mode) {
+            currentGameMode = mode;
+            mainMenu.classList.add('hidden');
+            gameContent.classList.remove('hidden');
+            loadLevel(0);
+        }
+        
+        function getGameTitle(mode) {
+            switch(mode) {
+                case 'basic-grammar': return "Grammar Guardian";
+                case 'sentence-scramble': return "Sentence Scramble";
+                case 'antonyms': return "Antonym Attack";
+                case 'synonyms': return "Synonym Sprint";
+                case 'articles': return "Article Adventure";
+                case 'word-sorter': return "Word Sorter";
+                default: return "Grammar Galaxy";
+            }
+        }
+
+        function updateLivesDisplay() {
+            livesDisplay.textContent = '❤️'.repeat(lives);
+        }
+        
+        function updateScoreDisplay() {
+            scoreElement.textContent = score;
+        }
+        
+        function updateTimerDisplay() {
+            timerElement.textContent = timer;
+            if (timer <= 5) {
+                timerElement.style.color = '#ef4444';
+                timerElement.style.animation = 'pulse 1s infinite';
+            } else {
+                timerElement.style.color = '#ffffff';
+                timerElement.style.animation = 'none';
+            }
+        }
+        
+        function startTimer() {
+            timer = 20;
+            updateTimerDisplay();
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timer--;
+                updateTimerDisplay();
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    handleIncorrectAnswer();
+                }
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerElement.style.animation = 'none';
+        }
+
+        function loadLevel(levelIndex) {
+            const currentLevels = gameData[currentGameMode];
+            if (levelIndex >= currentLevels.length || lives <= 0) {
+                endGame();
+                return;
+            }
+
+            const level = currentLevels[levelIndex];
+            gameArea.innerHTML = '';
+            feedbackMessage.textContent = '';
+            fairyContainer.classList.remove('show-animation');
+            fairyContainer.classList.add('hidden');
+            jokerContainer.classList.remove('show-animation');
+            jokerContainer.classList.add('hidden');
+            correctAnswerDisplay.classList.add('hidden');
+            currentDroppedWords = [];
+
+            // Change background gradient based on level
+            const palette = colorPalettes[levelIndex % colorPalettes.length];
+            document.body.style.background = `linear-gradient(135deg, ${palette.body[0]}, ${palette.body[1]})`;
+            document.querySelectorAll('.lives-display, .score, .timer, .question-text, .back-to-menu-btn, .game-title, .score-text').forEach(el => el.style.color = palette.text);
+            document.querySelectorAll('.menu-btn, .start-button').forEach(btn => btn.style.background = palette.button);
+            
+            // Render the specific game mode
+            gameTitle.classList.add('hidden'); // Ensure it's always hidden here.
+
+            if (currentGameMode === 'basic-grammar') {
+                renderBasicGrammar(level);
+            } else if (currentGameMode === 'sentence-scramble') {
+                renderSentenceScramble(level);
+            } else if (currentGameMode === 'antonyms' || currentGameMode === 'synonyms' || currentGameMode === 'articles') {
+                renderMultipleChoice(level);
+            } else if (currentGameMode === 'word-sorter') {
+                renderWordSorter(level);
+            }
+
+            startTimer();
+        }
+
+        function endGame() {
+            gameContent.innerHTML = `
+                <div class="text-center p-8 text-white">
+                    <h2 class="text-4xl font-bold text-red-400 mb-4">Game Over</h2>
+                    <p class="text-xl text-gray-300">You ran out of lives! But you can try again.</p>
+                    <button onclick="showMainMenu()" class="start-button mt-6">Return to Menu</button>
+                </div>
+            `;
+            stopTimer();
+        }
+
+        function handleCorrectAnswer() {
+            stopTimer();
+            score += 100;
+            updateScoreDisplay();
+
+            fairyContainer.classList.remove('hidden');
+            fairyContainer.classList.add('show-animation');
+            fairyContainer.classList.add('fairy-dance');
+            
+            feedbackMessage.textContent = "Correct! The galaxy shines even brighter.";
+            feedbackMessage.classList.add('correct');
+            feedbackMessage.classList.remove('incorrect');
+            
+            setTimeout(() => {
+                fairyContainer.classList.add('hidden');
+                fairyContainer.classList.remove('show-animation');
+                fairyContainer.classList.remove('fairy-dance');
+                currentLevel++;
+                loadLevel(currentLevel);
+            }, 2000);
+        }
+
+        function handleIncorrectAnswer(correctAnswer) {
+            stopTimer();
+            lives--;
+            updateLivesDisplay();
+            
+            jokerContainer.classList.remove('hidden');
+            jokerContainer.classList.add('show-animation');
+            
+            feedbackMessage.textContent = "Oops! That's not quite right.";
+            feedbackMessage.classList.add('incorrect');
+            feedbackMessage.classList.remove('correct');
+
+            if (correctAnswer) {
+                correctAnswerDisplay.textContent = `The correct answer was: ${correctAnswer}`;
+                correctAnswerDisplay.classList.remove('hidden');
+            }
+            
+            setTimeout(() => {
+                jokerContainer.classList.add('hidden');
+                jokerContainer.classList.remove('show-animation');
+                correctAnswerDisplay.classList.add('hidden');
+                if (lives > 0) {
+                    currentLevel++;
+                    loadLevel(currentLevel);
+                } else {
+                    endGame();
+                }
+            }, 2000);
+        }
+        
+        // Helper function to process bolding
+        function processBold(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        // --- Game Mode Rendering Functions ---
+
+        function renderBasicGrammar(level) {
+            promptTextElement.innerHTML = `<span class="text-2xl font-bold text-white">${processBold(level.prompt)}</span>`;
+            sentenceTextElement.innerHTML = `<span class="text-2xl font-bold text-black">${level.sentence}</span>`;
+            
+            const wordsContainer = document.createElement('div');
+            wordsContainer.classList.add('words-container');
+            level.words.forEach(word => {
+                const wordElement = createDraggableWord(word, word);
+                wordsContainer.appendChild(wordElement);
+            });
+            
+            const dropZone = document.createElement('div');
+            dropZone.id = 'drop-zone';
+            dropZone.classList.add('orb-dropzone');
+            dropZone.innerHTML = '<span>Drag words here</span>';
+
+            gameArea.appendChild(dropZone);
+            gameArea.appendChild(wordsContainer);
+            
+            setupDragAndDrop(dropZone, (droppedWord) => {
+                const isSingleAnswer = !Array.isArray(level.answer);
+                if (isSingleAnswer) {
+                    const isCorrect = droppedWord.toLowerCase() === level.answer[0].toLowerCase();
+                    if (isCorrect) {
+                        dropZone.classList.add('orb-correct');
+                        handleCorrectAnswer();
+                    } else {
+                        dropZone.classList.add('orb-incorrect');
+                        handleIncorrectAnswer(level.answer[0]);
+                    }
+                } else {
+                    const droppedWordElement = document.querySelector(`.word-to-drag[data-word="${droppedWord}"]`);
+                    if (level.answer.map(a => a.toLowerCase()).includes(droppedWord.toLowerCase())) {
+                        currentDroppedWords.push(droppedWord.toLowerCase());
+                        droppedWordElement.style.display = 'none';
+
+                        const droppedElement = document.createElement('span');
+                        droppedElement.textContent = droppedWord;
+                        droppedElement.classList.add('dropped-word');
+                        dropZone.appendChild(droppedElement);
+                        
+                        if (currentDroppedWords.length === level.answer.length) {
+                             const isCorrect = JSON.stringify(currentDroppedWords.sort()) === JSON.stringify(level.answer.map(a => a.toLowerCase()).sort());
+                            if (isCorrect) {
+                                dropZone.classList.add('orb-correct');
+                                handleCorrectAnswer();
+                            } else {
+                                dropZone.classList.add('orb-incorrect');
+                                handleIncorrectAnswer(level.answer.join(', '));
+                            }
+                        }
+                    } else {
+                        handleIncorrectAnswer(level.answer.join(', '));
+                    }
+                }
+            });
+        }
+        
+        function renderSentenceScramble(level) {
+            promptTextElement.innerHTML = `<span class="text-xl font-bold text-white">Arrange the words to form a correct sentence:</span>`;
+            sentenceTextElement.innerHTML = '';
+            
+            const originalWords = level.sentence.split(' ');
+            let shuffledWords = [...originalWords];
+            shuffleArray(shuffledWords);
+
+            const wordsContainer = document.createElement('div');
+            wordsContainer.classList.add('words-container');
+            wordsContainer.id = 'scramble-words';
+
+            shuffledWords.forEach(word => {
+                const wordElement = createDraggableWord(word, word);
+                wordsContainer.appendChild(wordElement);
+            });
+            
+            const dropZone = document.createElement('div');
+            dropZone.id = 'scramble-drop-zone';
+            dropZone.classList.add('orb-dropzone');
+            dropZone.innerHTML = '<span>Drag words here to build the sentence</span>';
+            
+            gameArea.appendChild(wordsContainer);
+            gameArea.appendChild(dropZone);
+
+            setupDragAndDrop(dropZone, (droppedWord) => {
+                currentDroppedWords.push(droppedWord);
+                const draggedElement = document.querySelector(`.word-to-drag[data-word="${droppedWord}"]`);
+                if(draggedElement) draggedElement.style.display = 'none';
+
+                const droppedElement = document.createElement('span');
+                droppedElement.textContent = droppedWord;
+                droppedElement.classList.add('dropped-word');
+                dropZone.appendChild(droppedElement);
+                
+                if (currentDroppedWords.length === originalWords.length) {
+                    const isCorrect = JSON.stringify(currentDroppedWords) === JSON.stringify(originalWords);
+                    if (isCorrect) {
+                        dropZone.classList.add('orb-correct');
+                        handleCorrectAnswer();
+                    } else {
+                        dropZone.classList.add('orb-incorrect');
+                        handleIncorrectAnswer(originalWords.join(' '));
+                    }
+                }
+            });
+        }
+        
+        function renderMultipleChoice(level) {
+            promptTextElement.innerHTML = '';
+            sentenceTextElement.innerHTML = '';
+            
+            if (currentGameMode === 'articles') {
+                promptTextElement.innerHTML = `<span class="text-2xl font-bold text-white">Choose the correct **article**:</span>`;
+                sentenceTextElement.innerHTML = `<span class="text-4xl font-extrabold text-black">${level.sentence.replace('___', '_____')}</span>`;
+            } else if (currentGameMode === 'antonyms') {
+                promptTextElement.innerHTML = `<span class="text-xl font-bold text-white">Choose the **opposite** of:</span>`;
+                sentenceTextElement.innerHTML = `<span class="text-4xl font-extrabold text-black">${level.word}</span>`;
+            } else if (currentGameMode === 'synonyms') {
+                promptTextElement.innerHTML = `<span class="text-xl font-bold text-white">Choose a **synonym** for:</span>`;
+                sentenceTextElement.innerHTML = `<span class="text-4xl font-extrabold text-black">${level.word}</span>`;
+            }
+
+            const choicesContainer = document.createElement('div');
+            choicesContainer.classList.add('words-container');
+            
+            const dropZone = document.createElement('div');
+            dropZone.id = 'drop-zone';
+            dropZone.classList.add('orb-dropzone', 'w-48', 'h-48');
+            dropZone.innerHTML = '<span>Drop here</span>';
+
+            shuffleArray(level.choices);
+            level.choices.forEach(choice => {
+                const choiceElement = createDraggableWord(choice, choice);
+                choicesContainer.appendChild(choiceElement);
+            });
+
+            gameArea.appendChild(dropZone);
+            gameArea.appendChild(choicesContainer);
+
+            setupDragAndDrop(dropZone, (droppedWord) => {
+                const isCorrect = droppedWord.toLowerCase() === level.answer.toLowerCase();
+                if (isCorrect) {
+                    dropZone.classList.add('orb-correct');
+                    handleCorrectAnswer();
+                } else {
+                    dropZone.classList.add('orb-incorrect');
+                    handleIncorrectAnswer(level.answer);
+                }
+            });
+        }
+        
+        function renderWordSorter(level) {
+            promptTextElement.innerHTML = `<span class="text-2xl font-bold text-white">Sort the words into the correct category:</span>`;
+            sentenceTextElement.innerHTML = `<span class="text-4xl font-extrabold text-black">${level.word}</span>`;
+
+            const sorterContainer = document.createElement('div');
+            sorterContainer.classList.add('sorter-container');
+
+            const zone1 = document.createElement('div');
+            zone1.classList.add('sorter-zone');
+            zone1.innerHTML = `<h3 class="sorter-title">${level.category1}</h3>`;
+            zone1.dataset.answer = level.category1;
+
+            const zone2 = document.createElement('div');
+            zone2.classList.add('sorter-zone');
+            zone2.innerHTML = `<h3 class="sorter-title">${level.category2}</h3>`;
+            zone2.dataset.answer = level.category2;
+
+            sorterContainer.appendChild(zone1);
+            sorterContainer.appendChild(zone2);
+            gameArea.appendChild(sorterContainer);
+
+            const wordElement = createDraggableWord(level.word, level.word);
+            gameArea.appendChild(wordElement);
+
+            setupDragAndDrop(zone1, (droppedWord) => {
+                if (droppedWord.toLowerCase() === level.word.toLowerCase() && zone1.dataset.answer === level.answer) {
+                    zone1.classList.add('orb-correct');
+                    handleCorrectAnswer();
+                } else {
+                    zone1.classList.add('orb-incorrect');
+                    handleIncorrectAnswer(level.answer);
+                }
+            });
+
+            setupDragAndDrop(zone2, (droppedWord) => {
+                if (droppedWord.toLowerCase() === level.word.toLowerCase() && zone2.dataset.answer === level.answer) {
+                    zone2.classList.add('orb-correct');
+                    handleCorrectAnswer();
+                } else {
+                    zone2.classList.add('orb-incorrect');
+                    handleIncorrectAnswer(level.answer);
+                }
+            });
+        }
+        
+        function createDraggableWord(text, data) {
+            const el = document.createElement('div');
+            el.textContent = text;
+            el.classList.add('word-to-drag', 'text-sm');
+            el.setAttribute('draggable', true);
+            el.dataset.word = data;
+            return el;
+        }
+
+        function setupDragAndDrop(dropZone, callback) {
+            document.querySelectorAll('.word-to-drag').forEach(word => {
+                word.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', e.target.dataset.word);
+                    setTimeout(() => { e.target.classList.add('opacity-50'); }, 0);
+                });
+                word.addEventListener('dragend', (e) => { e.target.classList.remove('opacity-50'); });
+            });
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const droppedWord = e.dataTransfer.getData('text/plain');
+                callback(droppedWord);
+            });
+        }
+        
+        // Initial setup
+        window.onload = () => {
+            createBackgroundEmojis();
+            showMainMenu();
+        };
+
+        function createBackgroundEmojis() {
+            const emojis = ['✨', '🌸', '🦋', '🌟', '🌿', '🌼', '🧚‍♀️'];
+            const numEmojis = 30;
+            const container = document.body;
+            for (let i = 0; i < numEmojis; i++) {
+                const emoji = document.createElement('div');
+                emoji.classList.add('bg-emoji');
+                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                const size = Math.random() * 2 + 1.5;
+                emoji.style.fontSize = `${size}rem`;
+                emoji.style.left = `${Math.random() * 100}vw`;
+                emoji.style.animationDelay = `-${Math.random() * 20}s`;
+                emoji.style.animationDuration = `${Math.random() * 15 + 10}s`;
+                
+                container.appendChild(emoji);
+            }
+        }
+    </script>
+</body>
+</html>
