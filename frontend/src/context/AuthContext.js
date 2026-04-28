@@ -3,6 +3,8 @@ import axios from "axios";
 
 const AuthContext = createContext(null);
 
+const API = "https://educare-project-ktoo.onrender.com";
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -19,7 +21,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get("/api/profile");
+      const res = await axios.get(`${API}/api/profile`);
       setUser(res.data);
     } catch {
       logout();
@@ -29,7 +31,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const res = await axios.post("/api/login", { email, password });
+    const res = await axios.post(`${API}/api/login`, { email, password });
     const { token: newToken, user: userData } = res.data;
     localStorage.setItem("token", newToken);
     axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
@@ -39,12 +41,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password) => {
-    const res = await axios.post("/api/register", { name, email, password });
+    const res = await axios.post(`${API}/api/register`, { name, email, password });
     return res.data;
   };
 
   const setRole = async (role) => {
-    await axios.post("/api/set-role", { role });
+    await axios.post(`${API}/api/set-role`, { role });
     setUser((prev) => ({ ...prev, role }));
   };
 
