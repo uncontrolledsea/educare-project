@@ -1,37 +1,54 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const CHILD_DATA = {
-  name: "Aarav Sharma",
-  grade: "Class 7A",
-  xp: 320,
-  level: 4,
-  attendance: 92,
-  homeworkDone: 8,
-  homeworkTotal: 10,
-  badges: ["🏆", "⭐", "🔥", "💡"],
-  recentActivity: [
-    { day: "Mon", activity: "Completed Math Quiz", xp: 50, time: "10:30 AM" },
-    { day: "Tue", activity: "Played Grammar Galaxy", xp: 30, time: "2:15 PM" },
-    { day: "Wed", activity: "Attended Science Lab", xp: 40, time: "11:00 AM" },
-    { day: "Thu", activity: "Finished History Essay", xp: 60, time: "4:00 PM" },
-    { day: "Fri", activity: "Physics Nexus Game", xp: 35, time: "3:30 PM" },
-  ],
-  subjects: [
-    { name: "Mathematics", progress: 75, grade: "A" },
-    { name: "Science", progress: 82, grade: "A+" },
-    { name: "English", progress: 68, grade: "B" },
-    { name: "History", progress: 60, grade: "B+" },
-    { name: "Hindi", progress: 88, grade: "A+" },
-  ]
-};
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+const STATIC_ACTIVITY = [
+  { day: "Mon", activity: "Completed Math Quiz", xp: 50, time: "10:30 AM" },
+  { day: "Tue", activity: "Played Grammar Galaxy", xp: 30, time: "2:15 PM" },
+  { day: "Wed", activity: "Attended Science Lab", xp: 40, time: "11:00 AM" },
+  { day: "Thu", activity: "Finished History Essay", xp: 60, time: "4:00 PM" },
+  { day: "Fri", activity: "Physics Nexus Game", xp: 35, time: "3:30 PM" },
+];
+
+const STATIC_SUBJECTS = [
+  { name: "Mathematics", progress: 75, grade: "A" },
+  { name: "Science", progress: 82, grade: "A+" },
+  { name: "English", progress: 68, grade: "B" },
+  { name: "History", progress: 60, grade: "B+" },
+  { name: "Hindi", progress: 88, grade: "A+" },
+];
 
 export default function ParentDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [msgSent, setMsgSent] = useState(false);
   const [message, setMessage] = useState("");
+  const [childData, setChildData] = useState(null);
+
+  React.useEffect(() => {
+    const fetchChildData = async () => {
+      try {
+        const res = await axios.get(`${API}/api/parent/child-data`);
+        setChildData(res.data);
+      } catch (err) {
+        console.error("Failed to fetch child data", err);
+      }
+    };
+    fetchChildData();
+  }, []);
+
+  if (!childData) {
+    return <div style={{ minHeight: "100vh", background: "#021028", color: "#fff", display: "flex", justifyContent: "center", alignItems: "center" }}>Loading child data...</div>;
+  }
+
+  const xp = childData.xp || 0;
+  const level = Math.floor(xp / 100) + 1;
+  const attendedToday = childData.lastAttendanceDate && new Date(childData.lastAttendanceDate).toDateString() === new Date().toDateString();
+  const attendance = attendedToday ? 100 : 0;
+  const badgesCount = childData.badges ? childData.badges.length : 0;
 
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif", background: "#021028", minHeight: "100vh", color: "#fff" }}>
@@ -52,18 +69,18 @@ export default function ParentDashboard() {
         {/* Welcome */}
         <div style={card}>
           <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>Welcome back, {user?.name || "Parent"}!</p>
-          <h2 style={{ fontSize: "1.8rem", fontWeight: 900, margin: "0 0 4px" }}>👧 {CHILD_DATA.name}'s Learning Report</h2>
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.9rem" }}>{CHILD_DATA.grade} • Active Learner</p>
+          <h2 style={{ fontSize: "1.8rem", fontWeight: 900, margin: "0 0 4px" }}>👧 {childData.name}'s Learning Report</h2>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.9rem" }}>Class 7 • Active Learner</p>
         </div>
 
         {/* Stats Row */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 16, marginTop: 20 }}>
           {[
-            { label: "Total XP", value: `⭐ ${CHILD_DATA.xp}`, color: "#ffc107" },
-            { label: "Level", value: `🏅 ${CHILD_DATA.level}`, color: "#58a6ff" },
-            { label: "Attendance", value: `📅 ${CHILD_DATA.attendance}%`, color: "#3dd68c" },
-            { label: "Homework", value: `📝 ${CHILD_DATA.homeworkDone}/${CHILD_DATA.homeworkTotal}`, color: "#a371f7" },
-            { label: "Badges", value: `🏆 ${CHILD_DATA.badges.length}`, color: "#f778ba" },
+            { label: "Total XP", value: `⭐ ${xp}`, color: "#ffc107" },
+            { label: "Level", value: `🏅 ${level}`, color: "#58a6ff" },
+            { label: "Attendance", value: `📅 ${attendance}%`, color: "#3dd68c" },
+            { label: "Homework", value: `📝 Pending`, color: "#a371f7" },
+            { label: "Badges", value: `🏆 ${badgesCount}`, color: "#f778ba" },
           ].map(s => (
             <div key={s.label} style={{ ...card, padding: "20px 16px", textAlign: "center" }}>
               <div style={{ fontSize: "1.5rem", fontWeight: 900, color: s.color, marginBottom: 4 }}>{s.value}</div>
@@ -76,7 +93,7 @@ export default function ParentDashboard() {
           {/* Subject Progress */}
           <div style={card}>
             <h3 style={{ ...st, color: "#58a6ff" }}>📊 Subject Progress</h3>
-            {CHILD_DATA.subjects.map(s => (
+            {STATIC_SUBJECTS.map(s => (
               <div key={s.name} style={{ marginBottom: 18 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                   <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>{s.name}</span>
@@ -93,7 +110,7 @@ export default function ParentDashboard() {
           {/* Recent Activity */}
           <div style={card}>
             <h3 style={{ ...st, color: "#3dd68c" }}>⚡ This Week's Activity</h3>
-            {CHILD_DATA.recentActivity.map((a, i) => (
+            {STATIC_ACTIVITY.map((a, i) => (
               <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 14 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(61,214,140,0.15)", border: "1px solid rgba(61,214,140,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.75rem", color: "#3dd68c", flexShrink: 0 }}>{a.day}</div>
                 <div>
@@ -115,7 +132,17 @@ export default function ParentDashboard() {
                   placeholder="Type your message to the teacher..."
                   style={{ flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(163,113,247,0.3)", borderRadius: 10, padding: "12px 16px", color: "#fff", fontFamily: "'Poppins',sans-serif", outline: "none", fontSize: "0.9rem" }}
                 />
-                <button onClick={() => { if (message.trim()) setMsgSent(true); }} style={{ ...btn("rgba(163,113,247,0.3)", "#a371f7"), padding: "12px 24px" }}>Send</button>
+                <button onClick={async () => { 
+                  if (message.trim()) {
+                    try {
+                      await axios.post(`${API}/api/messages`, { content: message });
+                      setMsgSent(true);
+                    } catch (err) {
+                      console.error("Failed to send message", err);
+                      alert("Failed to send message");
+                    }
+                  } 
+                }} style={{ ...btn("rgba(163,113,247,0.3)", "#a371f7"), padding: "12px 24px" }}>Send</button>
               </div>
             )}
           </div>

@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const GAMES = [
   { id: "grammar_galaxy", emoji: "🔤", title: "Grammar Galaxy", desc: "Master English grammar", file: "grammar_galaxy.html" },
@@ -25,33 +28,53 @@ const BADGES = [
   { emoji: "🎯", label: "Sharpshooter" },
 ];
 
-const QUESTS = [
-  { id: 1, title: "Complete Math Quiz", xp: 50, done: false },
-  { id: 2, title: "Read Science Chapter", xp: 30, done: false },
-  { id: 3, title: "Hindi Vocabulary Practice", xp: 40, done: false },
-  { id: 4, title: "History Timeline Game", xp: 60, done: false },
-];
+
 
 export default function StudentDashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, fetchProfile } = useAuth();
   const navigate = useNavigate();
-  const [xp, setXp] = useState(user?.xp || 120);
-  const [quests, setQuests] = useState(QUESTS);
   const [chatOpen, setChatOpen] = useState(false);
+  const [quests, setQuests] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    fetchQuests();
+    fetchAnnouncements();
+  }, []);
+
+  const fetchQuests = async () => {
+    try {
+      const res = await axios.get(`${API}/api/quests`);
+      setQuests(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchAnnouncements = async () => {
+    try {
+      const res = await axios.get(`${API}/api/announcements`);
+      setAnnouncements(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const xp = user?.xp || 0;
 
   const level = Math.floor(xp / 100) + 1;
   const xpInLevel = xp % 100;
   const userName = user?.name || "Student";
   const initial = userName.charAt(0).toUpperCase();
 
-  const completeQuest = (id) => {
-    setQuests(prev => prev.map(q => {
-      if (q.id === id && !q.done) {
-        setXp(x => x + q.xp);
-        return { ...q, done: true };
-      }
-      return q;
-    }));
+  const completeQuest = async (id, xpReward) => {
+    try {
+      await axios.post(`${API}/api/complete-quest`, { questId: id, xpReward });
+      fetchProfile(); // Update user state with new XP and completed quests
+    } catch (err) {
+      console.error("Error completing quest", err);
+      alert(err.response?.data?.message || "Failed to complete quest");
+    }
   };
 
   const openGame = (file) => {
@@ -125,28 +148,31 @@ export default function StudentDashboard() {
           {/* Daily Quests */}
           <div style={card}>
             <h3 style={sectionTitle("🎯", "#3dd68c")}>Daily Quests</h3>
-            {quests.map(q => (
-              <div key={q.id} style={{
+            {quests.length === 0 && <p style={{ color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>No quests available right now.</p>}
+            {quests.map(q => {
+              const isDone = user?.completedQuests?.includes(q._id);
+              return (
+              <div key={q._id} style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "14px 16px", borderRadius: 12, marginBottom: 10,
-                background: q.done ? "rgba(61,214,140,0.1)" : "rgba(255,255,255,0.04)",
-                border: `1px solid ${q.done ? "rgba(61,214,140,0.3)" : "rgba(255,255,255,0.08)"}`,
+                background: isDone ? "rgba(61,214,140,0.1)" : "rgba(255,255,255,0.04)",
+                border: `1px solid ${isDone ? "rgba(61,214,140,0.3)" : "rgba(255,255,255,0.08)"}`,
                 transition: "all 0.2s"
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span>{q.done ? "✅" : "⬜"}</span>
-                  <span style={{ fontWeight: 600, textDecoration: q.done ? "line-through" : "none", opacity: q.done ? 0.5 : 1 }}>{q.title}</span>
+                  <span>{isDone ? "✅" : "⬜"}</span>
+                  <span style={{ fontWeight: 600, textDecoration: isDone ? "line-through" : "none", opacity: isDone ? 0.5 : 1 }}>{q.title}</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ color: "#ffc107", fontWeight: 700, fontSize: "0.9rem" }}>+{q.xp} XP</span>
-                  {!q.done && (
-                    <button onClick={() => completeQuest(q.id)} style={{ ...btnStyle("rgba(88,166,255,0.2)", "#58a6ff"), padding: "6px 14px", fontSize: "0.8rem" }}>
+                  {!isDone && (
+                    <button onClick={() => completeQuest(q._id, q.xp)} style={{ ...btnStyle("rgba(88,166,255,0.2)", "#58a6ff"), padding: "6px 14px", fontSize: "0.8rem" }}>
                       Complete
                     </button>
                   )}
                 </div>
               </div>
-            ))}
+            )})}
           </div>
 
           {/* Badges */}
@@ -230,7 +256,20 @@ export default function StudentDashboard() {
 }
 
 function AttendanceSection() {
-  const [marked, setMarked] = useState(false);
+  const { user, fetchProfile } = useAuth();
+  
+  const todayStr = new Date().toDateString();
+  const marked = user?.lastAttendanceDate && new Date(user.lastAttendanceDate).toDateString() === todayStr;
+  
+  const markAttendance = async () => {
+    try {
+      await axios.post(`${API}/api/attendance`);
+      fetchProfile();
+    } catch (err) {
+      console.error("Error marking attendance", err);
+    }
+  };
+
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
   return (
     <div>
@@ -240,7 +279,7 @@ function AttendanceSection() {
           ✅ Attendance marked for today!
         </div>
       ) : (
-        <button onClick={() => setMarked(true)} style={{
+        <button onClick={markAttendance} style={{
           width: "100%", padding: "14px",
           background: "linear-gradient(135deg,#58a6ff,#388bfd)",
           border: "none", borderRadius: 12, color: "#fff",
@@ -255,19 +294,41 @@ function AttendanceSection() {
 }
 
 function HomeworkSection() {
-  const [hw, setHw] = useState([
-    { id: 1, title: "Math: Algebra Chapter 3", due: "Tomorrow", status: "Pending", marks: null },
-    { id: 2, title: "Science: Photosynthesis Notes", due: "Today", status: "Overdue", marks: null },
-    { id: 3, title: "History Essay: Mughal Empire", due: "3 days", status: "Pending", marks: null },
-  ]);
+  const { user } = useAuth();
+  const [hw, setHw] = useState([]);
 
-  const submit = (id) => {
-    setHw(prev => prev.map(h => {
-      if (h.id === id) {
-        return { ...h, status: "Submitted", marks: h.status === "Overdue" ? 5 : 10 };
-      }
-      return h;
-    }));
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  const fetchAssignments = async () => {
+    try {
+      const res = await axios.get(`${API}/api/assignments`);
+      // map backend assignments to match the format used
+      const mapped = res.data.map(a => {
+        const submission = a.submissions?.find(s => s.studentId === user.id);
+        return {
+          id: a._id,
+          title: a.title,
+          due: a.due,
+          status: submission ? submission.status : "Pending",
+          marks: submission ? submission.marks : null
+        };
+      });
+      setHw(mapped);
+    } catch (err) {
+      console.error("Error fetching assignments", err);
+    }
+  };
+
+  const submit = async (id) => {
+    try {
+      await axios.post(`${API}/api/assignments/submit`, { assignmentId: id });
+      fetchAssignments(); // refresh to show submitted status
+    } catch (err) {
+      console.error("Error submitting assignment", err);
+      alert(err.response?.data?.message || "Failed to submit assignment");
+    }
   };
 
   return (
