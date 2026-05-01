@@ -22,6 +22,10 @@ export default function TeacherDashboard() {
   const [newAssignment, setNewAssignment] = useState({ title: "", subject: "", due: "" });
   const [showAddForm, setShowAddForm] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
+  const [selectedAction, setSelectedAction] = useState(null);
+  const [actionFormData, setActionFormData] = useState({});
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentProgress, setStudentProgress] = useState(null);
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -61,6 +65,17 @@ export default function TeacherDashboard() {
     }
   };
 
+  const viewStudentProgress = async (id) => {
+    try {
+      const res = await axios.get(`${API}/api/students/${id}/progress`);
+      setSelectedStudent(res.data.student);
+      setStudentProgress(res.data.assignments);
+    } catch (err) {
+      console.error("Error fetching student progress", err);
+      showToast("Failed to fetch student progress");
+    }
+  };
+
   const addAssignment = async () => {
     if (!newAssignment.title || !newAssignment.subject) return;
     try {
@@ -76,47 +91,38 @@ export default function TeacherDashboard() {
     }
   };
 
-  const handleQuickAction = async (type) => {
+  const openQuickAction = (type) => {
+    if (type === "Generate Progress Report") {
+      const confirm = window.confirm("Do you want to generate a class progress report and announce it?");
+      if (!confirm) return;
+      axios.post(`${API}/api/reports/generate`).then(() => showToast("Progress report generated successfully!")).catch(console.error);
+      return;
+    }
+    setSelectedAction(type);
+    setActionFormData({});
+  };
+
+  const submitQuickAction = async () => {
     try {
-      if (type === "Create New Quest") {
-        const title = window.prompt("Enter Quest Title:");
-        if (!title) return;
-        const xp = window.prompt("Enter XP Reward (e.g., 50):");
-        if (!xp) return;
-        await axios.post(`${API}/api/quests`, { title, xp: Number(xp) });
+      if (selectedAction === "Create New Quest") {
+        if (!actionFormData.title || !actionFormData.xp) return showToast("Missing fields!");
+        await axios.post(`${API}/api/quests`, { title: actionFormData.title, xp: Number(actionFormData.xp) });
         showToast("Quest created successfully!");
-      } else if (type === "Send Announcement") {
-        const content = window.prompt("Enter your announcement message:");
-        if (!content) return;
-        await axios.post(`${API}/api/announcements`, { type, content });
+      } else if (selectedAction === "Send Announcement") {
+        if (!actionFormData.content) return showToast("Missing fields!");
+        await axios.post(`${API}/api/announcements`, { type: "Announcement", content: actionFormData.content });
         showToast("Announcement sent successfully!");
-      } else if (type === "Generate Progress Report") {
-        const confirm = window.confirm("Do you want to generate a class progress report and announce it?");
-        if (!confirm) return;
-        await axios.post(`${API}/api/reports/generate`);
-        showToast("Progress report generated successfully!");
-      } else if (type === "Schedule Parent Meeting") {
-        const date = window.prompt("Enter meeting date (e.g., 2024-11-20):");
-        if (!date) return;
-        const time = window.prompt("Enter meeting time (e.g., 10:00 AM):");
-        if (!time) return;
-        const topic = window.prompt("Enter meeting topic:");
-        if (!topic) return;
-        await axios.post(`${API}/api/meetings`, { date, time, topic });
+      } else if (selectedAction === "Schedule Parent Meeting") {
+        if (!actionFormData.date || !actionFormData.time || !actionFormData.topic) return showToast("Missing fields!");
+        await axios.post(`${API}/api/meetings`, { date: actionFormData.date, time: actionFormData.time, topic: actionFormData.topic });
         showToast("Meeting scheduled successfully!");
-      } else if (type === "Upload Study Material") {
-        const title = window.prompt("Enter material title:");
-        if (!title) return;
-        const subject = window.prompt("Enter subject:");
-        if (!subject) return;
-        const link = window.prompt("Enter material link/URL:");
-        if (!link) return;
-        await axios.post(`${API}/api/materials`, { title, subject, link });
+      } else if (selectedAction === "Upload Study Material") {
+        if (!actionFormData.title || !actionFormData.subject || !actionFormData.link) return showToast("Missing fields!");
+        await axios.post(`${API}/api/materials`, { title: actionFormData.title, subject: actionFormData.subject, link: actionFormData.link });
         showToast("Material uploaded successfully!");
-      } else {
-        await axios.post(`${API}/api/announcements`, { type, content: `Teacher generated a new ${type}` });
-        showToast(`Successfully triggered: ${type}`);
       }
+      setSelectedAction(null);
+      setActionFormData({});
     } catch (err) {
       console.error("Error with quick action", err);
       showToast("Failed to perform action");
@@ -152,10 +158,10 @@ export default function TeacherDashboard() {
         <div style={card}>
           <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg,#a371f7,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", fontWeight: 900, color: "#fff" }}>
-              {(user?.name || "T").charAt(0).toUpperCase()}
+          {(user?.name || "T").charAt(0).toUpperCase()}
             </div>
             <div>
-              <h2 style={{ fontSize: "1.6rem", fontWeight: 900, margin: 0 }}>Good day, {user?.name || "Teacher"}! 🧑‍🏫</h2>
+              <h2 style={{ fontSize: "1.6rem", fontWeight: 900, margin: 0 }}>Good day,  Teacher! 🧑‍🏫</h2>
               <p style={{ color: "rgba(255,255,255,0.5)", margin: "4px 0 0" }}>Here's your classroom overview for today</p>
             </div>
             <div style={{ marginLeft: "auto", display: "flex", gap: 16 }}>
@@ -201,7 +207,7 @@ export default function TeacherDashboard() {
                         </td>
                         <td style={{ padding: "12px 14px", color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>{s.lastAttendanceDate ? new Date(s.lastAttendanceDate).toLocaleDateString() : "Never"}</td>
                         <td style={{ padding: "12px 14px" }}>
-                          <button style={{ ...btn("rgba(88,166,255,0.15)", "#58a6ff"), padding: "6px 12px", fontSize: "0.78rem" }}>View</button>
+                          <button onClick={() => viewStudentProgress(s._id)} style={{ ...btn("rgba(88,166,255,0.15)", "#58a6ff"), padding: "6px 12px", fontSize: "0.78rem" }}>View</button>
                         </td>
                       </tr>
                     )
@@ -254,28 +260,66 @@ export default function TeacherDashboard() {
 
           {/* Quick Actions */}
           <div style={card}>
-            <h3 style={{ ...secTitle, color: "#3dd68c" }}>⚡ Quick Actions</h3>
-            {[
-              { emoji: "📢", label: "Send Announcement", color: "#58a6ff" },
-              { emoji: "📊", label: "Generate Progress Report", color: "#a371f7" },
-              { emoji: "📅", label: "Schedule Parent Meeting", color: "#3dd68c" },
-              { emoji: "🎯", label: "Create New Quest", color: "#ffa726" },
-              { emoji: "📝", label: "Upload Study Material", color: "#f778ba" },
-            ].map((a, i) => (
-              <button key={i} onClick={() => handleQuickAction(a.label)} style={{
-                display: "flex", alignItems: "center", gap: 12, width: "100%",
-                background: "rgba(255,255,255,0.04)", border: `1px solid ${a.color}22`,
-                borderRadius: 10, padding: "14px 16px", marginBottom: 10,
-                cursor: "pointer", color: "#fff", fontFamily: "'Poppins',sans-serif",
-                fontWeight: 600, transition: "all 0.2s", fontSize: "0.9rem"
-              }}
-                onMouseEnter={e => { e.currentTarget.style.background = `${a.color}15`; e.currentTarget.style.borderColor = a.color; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = `${a.color}22`; }}
-              >
-                <span style={{ fontSize: "1.2rem" }}>{a.emoji}</span>
-                <span>{a.label}</span>
-              </button>
-            ))}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <h3 style={{ ...secTitle, color: "#3dd68c", marginBottom: 0 }}>⚡ Quick Actions</h3>
+              {selectedAction && (
+                <button onClick={() => setSelectedAction(null)} style={btn("rgba(255,255,255,0.1)", "#fff")}>Back</button>
+              )}
+            </div>
+            
+            {selectedAction ? (
+              <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 16 }}>
+                <h4 style={{ margin: "0 0 16px", color: "#fff" }}>{selectedAction}</h4>
+                {selectedAction === "Create New Quest" && (
+                  <>
+                    <input placeholder="Quest Title" value={actionFormData.title || ""} onChange={e => setActionFormData(p => ({ ...p, title: e.target.value }))} style={inputStyle} />
+                    <input type="number" placeholder="XP Reward (e.g. 50)" value={actionFormData.xp || ""} onChange={e => setActionFormData(p => ({ ...p, xp: e.target.value }))} style={inputStyle} />
+                  </>
+                )}
+                {selectedAction === "Send Announcement" && (
+                  <textarea placeholder="Announcement content..." value={actionFormData.content || ""} onChange={e => setActionFormData(p => ({ ...p, content: e.target.value }))} style={{ ...inputStyle, minHeight: 80 }} />
+                )}
+                {selectedAction === "Schedule Parent Meeting" && (
+                  <>
+                    <input type="date" placeholder="Date" value={actionFormData.date || ""} onChange={e => setActionFormData(p => ({ ...p, date: e.target.value }))} style={inputStyle} />
+                    <input type="time" placeholder="Time" value={actionFormData.time || ""} onChange={e => setActionFormData(p => ({ ...p, time: e.target.value }))} style={inputStyle} />
+                    <input placeholder="Topic" value={actionFormData.topic || ""} onChange={e => setActionFormData(p => ({ ...p, topic: e.target.value }))} style={inputStyle} />
+                  </>
+                )}
+                {selectedAction === "Upload Study Material" && (
+                  <>
+                    <input placeholder="Material Title" value={actionFormData.title || ""} onChange={e => setActionFormData(p => ({ ...p, title: e.target.value }))} style={inputStyle} />
+                    <input placeholder="Subject" value={actionFormData.subject || ""} onChange={e => setActionFormData(p => ({ ...p, subject: e.target.value }))} style={inputStyle} />
+                    <input placeholder="Link/URL" value={actionFormData.link || ""} onChange={e => setActionFormData(p => ({ ...p, link: e.target.value }))} style={inputStyle} />
+                  </>
+                )}
+                <button onClick={submitQuickAction} style={{ ...btn("rgba(61,214,140,0.2)", "#3dd68c"), width: "100%", padding: "10px", marginTop: 8 }}>Complete Action</button>
+              </div>
+            ) : (
+              <>
+                {[
+                  { emoji: "📢", label: "Send Announcement", color: "#58a6ff" },
+                  { emoji: "📊", label: "Generate Progress Report", color: "#a371f7" },
+                  { emoji: "📅", label: "Schedule Parent Meeting", color: "#3dd68c" },
+                  { emoji: "🎯", label: "Create New Quest", color: "#ffa726" },
+                  { emoji: "📝", label: "Upload Study Material", color: "#f778ba" },
+                ].map((a, i) => (
+                  <button key={i} onClick={() => openQuickAction(a.label)} style={{
+                    display: "flex", alignItems: "center", gap: 12, width: "100%",
+                    background: "rgba(255,255,255,0.04)", border: `1px solid ${a.color}22`,
+                    borderRadius: 10, padding: "14px 16px", marginBottom: 10,
+                    cursor: "pointer", color: "#fff", fontFamily: "'Poppins',sans-serif",
+                    fontWeight: 600, transition: "all 0.2s", fontSize: "0.9rem"
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.background = `${a.color}15`; e.currentTarget.style.borderColor = a.color; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = `${a.color}22`; }}
+                  >
+                    <span style={{ fontSize: "1.2rem" }}>{a.emoji}</span>
+                    <span>{a.label}</span>
+                  </button>
+                ))}
+              </>
+            )}
           </div>
 
           {/* Messages from Parents */}
@@ -301,6 +345,42 @@ export default function TeacherDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Student Progress Modal */}
+      {selectedStudent && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)" }}>
+          <div style={{ background: "#0a0e1a", width: "90%", maxWidth: 600, maxHeight: "90vh", borderRadius: 20, border: "1px solid rgba(88,166,255,0.3)", padding: 24, overflowY: "auto", position: "relative" }}>
+            <button onClick={() => { setSelectedStudent(null); setStudentProgress(null); }} style={{ position: "absolute", top: 16, right: 16, ...btn("rgba(255,80,80,0.2)", "#ff8080") }}>Close</button>
+            <h2 style={{ margin: "0 0 8px", color: "#58a6ff" }}>{selectedStudent.name}'s Progress</h2>
+            <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+              <span style={{ background: "rgba(255,193,7,0.15)", padding: "6px 12px", borderRadius: 20, color: "#ffc107", fontWeight: 700 }}>⭐ {selectedStudent.xp} XP</span>
+              <span style={{ background: "rgba(61,214,140,0.15)", padding: "6px 12px", borderRadius: 20, color: "#3dd68c", fontWeight: 700 }}>Quests Done: {selectedStudent.completedQuests?.length || 0}</span>
+            </div>
+            
+            <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8 }}>Assignments</h3>
+            {studentProgress && studentProgress.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {studentProgress.map(a => (
+                  <div key={a.id} style={{ display: "flex", justifyContent: "space-between", background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 10 }}>
+                    <div>
+                      <p style={{ margin: 0, fontWeight: 700 }}>{a.title}</p>
+                      <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>{a.subject} • Due: {a.due}</p>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <span style={{ fontSize: "0.85rem", fontWeight: 700, padding: "4px 8px", borderRadius: 6, background: a.status === "Submitted" ? "rgba(61,214,140,0.2)" : "rgba(255,193,7,0.2)", color: a.status === "Submitted" ? "#3dd68c" : "#ffc107" }}>
+                        {a.status}
+                      </span>
+                      {a.status === "Submitted" && <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#3dd68c" }}>{a.marks}/{a.total} marks</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: "rgba(255,255,255,0.5)" }}>No assignments found.</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -308,6 +388,7 @@ export default function TeacherDashboard() {
 const card = { background: "rgba(27,39,57,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(163,113,247,0.1)", borderRadius: 20, padding: 28 };
 const secTitle = { fontSize: "1.1rem", fontWeight: 800, marginTop: 0, marginBottom: 20 };
 const btn = (bg, color = "#fff") => ({ background: bg, color, border: `1px solid ${color}33`, borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontWeight: 600, fontSize: "0.85rem", fontFamily: "'Poppins', sans-serif", transition: "all 0.15s" });
+const inputStyle = { width: "100%", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "10px 12px", color: "#fff", fontFamily: "'Poppins',sans-serif", marginBottom: 8, boxSizing: "border-box", outline: "none" };
 
 
 

@@ -68,8 +68,8 @@ export default function ParentDashboard() {
       <div style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: "32px 20px" }}>
         {/* Welcome */}
         <div style={card}>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>Welcome back, {user?.name || "Parent"}!</p>
-          <h2 style={{ fontSize: "1.8rem", fontWeight: 900, margin: "0 0 4px" }}>👧 {childData.name}'s Learning Report</h2>
+          <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>Welcome back, Parent!</p>
+          <h2 style={{ fontSize: "1.8rem", fontWeight: 900, margin: "0 0 4px" }}>👧 {user?.name}'s Learning Report</h2>
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.9rem" }}>Class 7 • Active Learner</p>
         </div>
 

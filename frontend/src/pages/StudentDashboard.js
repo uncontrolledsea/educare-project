@@ -306,7 +306,7 @@ function HomeworkSection() {
       const res = await axios.get(`${API}/api/assignments`);
       // map backend assignments to match the format used
       const mapped = res.data.map(a => {
-        const submission = a.submissions?.find(s => s.studentId === user.id);
+        const submission = a.submissions?.find(s => s.studentId === (user._id || user.id));
         return {
           id: a._id,
           title: a.title,
