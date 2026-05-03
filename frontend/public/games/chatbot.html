@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,6 +66,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -128,10 +130,14 @@
         }
 
         @keyframes typingAnimation {
-            0%, 60%, 100% {
+
+            0%,
+            60%,
+            100% {
                 opacity: 0.5;
                 transform: translateY(0);
             }
+
             30% {
                 opacity: 1;
                 transform: translateY(-10px);
@@ -190,21 +196,17 @@
         }
     </style>
 </head>
+
 <body>
-    <button onclick="window.location.href='/dashboard'" style="position: fixed; top: 20px; left: 20px; z-index: 9999; padding: 10px 20px; background: linear-gradient(145deg, #5f43b2, #4d3694); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-family: sans-serif; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+    <!-- <button onclick="window.location.href='/dashboard'" style="position: fixed; top: 20px; left: 20px; z-index: 9999; padding: 10px 20px; background: linear-gradient(145deg, #5f43b2, #4d3694); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-family: sans-serif; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
         ← Back to Main
-    </button>
+    </button> -->
 
     <div id="chat-container">
         <div id="chat-header">🤖 EduCare AI Chatbot ✨</div>
         <div id="messages"></div>
         <div id="input-area">
-            <input 
-                type="text" 
-                id="user-input" 
-                placeholder="Ask me anything..." 
-                autocomplete="off"
-            >
+            <input type="text" id="user-input" placeholder="Ask me anything..." autocomplete="off">
             <button id="send-button">Send</button>
         </div>
     </div>
@@ -220,90 +222,90 @@
             hello: "Hello! 👋 Welcome to EduCare! I'm your AI assistant. I can help you with:\n• Learning games and how to play them\n• Understanding gamification (XP, Badges, Levels)\n• Daily quests and challenges\n• Subject topics (Math, Science, History, English, Hindi)\n• Platform features and navigation\n\nWhat would you like to know?",
             hi: "Hi there! 😊 I'm here to guide you through EduCare. What can I help you with today?",
             hey: "Hey! Great to see you! 🚀 Ask me anything about the platform or your learning journey!",
-            
+
             // === PLATFORM OVERVIEW ===
             educare: "EduCare is a GAMIFIED EDUCATION PLATFORM designed to make learning fun! 🎮📚\n\nKey Features:\n✨ Interactive Learning Games\n🏆 Gamification System (XP, Badges, Levels)\n📋 Daily Quests\n👥 Leaderboards\n🎯 Multiple Subject Modules\n👨‍🏫 Teacher & Parent Dashboards\n🌍 Multi-language Support\n\nWe have 3 roles: Student, Teacher, and Parent. Which would you like to know about?",
             platform: "EduCare Platform Overview:\n\n🎮 LEARNING GAMES:\n• Math Bullseye - Hit number targets\n• Grammar Galaxy - Master grammar\n• State Spotter - Identify Indian states\n• Village Quest - Story-based learning\n• Science Lab - Chemistry experiments\n• History Timeline - Order historical events\n• Shape Sorter - Geometry practice\n• Puzzle Mania - Brain teasers\n• Newton's Nexus - Physics problems\n• Hindi Journey - Language learning\n\n📊 DASHBOARDS:\n• Student - Quests, Badges, Progress\n• Teacher - Class management, Reports\n• Parent - Child's progress tracking\n\nWhat would you like to explore?",
             features: "EduCare Features:\n\n🎯 GAMIFICATION:\n• XP (Experience Points) - Earn by completing activities\n• Levels - Progress through levels as you gain XP\n• Badges - Unlock achievements: Village Star, Water Warrior, Bookworm\n• Leaderboards - Compete with other students\n\n📚 LEARNING:\n• 10+ Interactive Games\n• Daily Quests - Generated AI quests\n• Module Progress Tracking\n• Homework Management\n• Attendance Tracking\n• Voice Input (Microphone)\n\n👥 ROLES:\n• Student Dashboard\n• Teacher Dashboard\n• Parent Dashboard\n\nInterested in any specific feature?",
-            
+
             // === GAMIFICATION SYSTEM ===
             xp: "🏆 XP (Experience Points) System:\n\nWhat is XP?\nXP is the currency of learning! Earn XP by:\n• Completing daily quests\n• Playing learning games\n• Answering questions correctly\n• Finishing modules\n• Earning badges\n\n📊 XP to Level Progression:\n• Every 100 XP = 1 level\n• Your current progress shows on dashboard\n• Next level requirement displayed\n• Level 1 → Level ∞ (no limit!)\n\nHow to earn more XP?\nClick 'Generate New Quest' daily - each quest gives 50-100 XP when completed!",
-            
+
             level: "📈 LEVEL SYSTEM:\n\nYour Level = Your Progress\n\nHow Levels Work:\n• Start at Level 1\n• Earn XP through activities\n• Reach XP threshold → Level UP! 🎉\n• Each level requires more XP\n• Formula: 100 XP per level (customizable)\n\nCurrent Info:\n• Check your level on dashboard\n• Yellow level badge shows current level\n• Leaderboard ranks by XP (not level)\n\nTips to Level Up Fast:\n✨ Complete daily quests\n✨ Play all 10+ games\n✨ Try multiple modules\n✨ Challenge yourself on leaderboards",
-            
+
             badge: "🎖️ ACHIEVEMENT BADGES:\n\nWhat are Badges?\nBadges are achievements you earn for mastering concepts!\n\n🏅 Available Badges:\n1. Village Star ⭐ - Mastered village-related quests\n2. Water Warrior 💧 - Expert in water conservation\n3. Bookworm 📖 - Completed reading challenges\n4. Master Farmer 🌾 - Agricultural knowledge\n5. Problem Solver 💡 - Physics/Logic expert\n\nHow to Earn Badges:\n• Complete specific challenges\n• Achieve milestones\n• Master subject modules\n• Score high on games\n\nBadges are displayed on your profile and show your achievements! 🌟",
-            
+
             // === QUESTS ===
             quest: "📋 DAILY QUESTS:\n\nWhat are Quests?\nDaily AI-generated learning challenges! Each day, a new quest is tailored for you.\n\n✨ How Quests Work:\n1. Click 'Generate New Quest' button\n2. AI creates a unique quest for you\n3. Complete the quest to earn XP\n4. Only 1 quest per day (resets at midnight)\n\n📊 Quest Rewards:\n• 50-100 XP per quest\n• Badges for series completion\n• Leaderboard points\n\n🎯 Quest Topics:\n• Water Conservation\n• Farming & Agriculture\n• Village Development\n• Local History\n• Traditional Crafts\n\nReady for today's challenge? Click 'Generate New Quest'!",
-            
+
             leaderboard: "🏆 LEADERBOARD SYSTEM:\n\nWhat is the Leaderboard?\nA competitive ranking showing top performers!\n\n📊 How it Works:\n• Ranked by Total XP\n• Top 5 students displayed\n• Updates in real-time\n• Your position highlighted\n\n🌟 Why Compete?\n• Motivation to learn more\n• Community engagement\n• See progress vs peers\n• Earn bragging rights!\n\n💪 How to Climb:\n✓ Complete quests regularly\n✓ Play games and score high\n✓ Master all modules\n✓ Unlock all badges\n✓ Help others (for teachers)\n\nYour current XP and rank appear on your dashboard. Keep grinding! 🚀",
-            
+
             // === GAMES ===
             games: "🎮 LEARNING GAMES:\n\nEduCare has 10+ interactive games:\n\n📐 MATH:\n• Math Bullseye - Dart game for calculations\n• Puzzle Mania - Brain teasers\n\n🔬 SCIENCE:\n• Science Lab - Chemistry experiments\n• Newton's Nexus - Physics problems\n\n🗺️ GEOGRAPHY:\n• State Spotter - Identify Indian states\n• Shape Sorter - Geometry practice\n\n📚 LANGUAGE:\n• Grammar Galaxy - Grammar mastery\n• Hindi Journey - Language learning\n\n📜 HISTORY:\n• History Timeline - Order events\n• Village Quest - Story-based quests\n\n🎯 SPECIAL:\n• Teacher Resolve - Classroom challenges\n• Mission CET - Entrance exam prep!\n\nEach game earns you XP! Pick one to start!",
-            
+
             bullseye: "🎯 MATH BULLSEYE:\n\nHow to Play:\n1. Dart game on a target\n2. Throw darts at numbers\n3. Hit the target number\n4. Compete on leaderboard\n\n✨ Rewards:\n• 50-100 XP per game\n• Leaderboard ranking\n• Math skill improvement\n\n💡 Tips:\n• Aim carefully\n• Practice calculations\n• Try multiple times\n• Use in Module Progress section\n\nGreat for improving mental math! 🧠",
-            
+
             villagequest: "🏡 VILLAGE QUEST:\n\nStory-Based Learning Game!\n\n📖 How it Works:\n1. Follow a village story\n2. Answer questions about local context\n3. Learn about village life\n4. Unlock story chapters\n\n✨ Topics Covered:\n• Village geography\n• Local customs\n• Agricultural practices\n• Community values\n• Environmental awareness\n\n🏆 Rewards:\n• 75-100 XP per chapter\n• Village Star badge\n• Cultural knowledge\n\nPerfect for learning about rural India! 🌾",
-            
+
             grammargalaxy: "🌌 GRAMMAR GALAXY:\n\nGrammar Mastery Game!\n\n🎮 How to Play:\n1. Drag words to correct positions\n2. Identify parts of speech\n3. Fix sentence structures\n4. Progress through levels\n\n✨ Topics:\n• Nouns, Verbs, Adjectives\n• Sentence formation\n• Tenses\n• Punctuation\n\n🏆 Rewards:\n• 60-90 XP per level\n• Grammar Wizard badge\n• English proficiency\n\nMake grammar fun! ✨",
-            
+
             sciencelab: "🧪 SCIENCE LAB:\n\nInteractive Chemistry Experiments!\n\n⚗️ How to Play:\n1. Drag chemical elements\n2. Create reactions\n3. See results visually\n4. Learn formulas\n\n✨ Experiments:\n• Acid-base reactions\n• Combustion\n• Decomposition\n• Synthesis reactions\n\n🏆 Rewards:\n• 70-100 XP per experiment\n• Science Expert badge\n• Chemistry knowledge\n\nLearning through experimentation! 🔬",
-            
+
             cet: "🎯 MISSION CET/NEET:\n\nEntrance Exam Preparation Game!\n\n📚 How to Use:\n1. Click 'CET Tactics Game' card\n2. Click 'Start Game'\n3. Select a subject (Physics/Chemistry/Math/Biology)\n4. Choose difficulty (Easy/Medium/Hard)\n5. Answer 30 questions with 30-sec timer\n6. Earn points & unlock careers!\n\n✨ Features:\n• 4 subjects (50+ questions each)\n• 3 difficulty levels\n• Powerups: Hint, 50-50, Freeze Time\n• Real-time scoring\n• Career unlocking system\n• High score tracking\n• Leaderboard\n\n🎯 Game Mechanics:\n✓ 30 seconds per question\n✓ Multiple choice answers\n✓ Start with easy, progress to hard\n✓ Use powerups wisely\n✓ High score unlocks careers\n\n🚀 Works OFFLINE!\n• Plays without internet\n• Cloud saves when back online\n• Perfect for exam prep\n\nReady to ace the test? 📝",
-            
+
             mission: "🎯 MISSION CET/NEET: Same as CET game above!",
-            
+
             // === STUDENT DASHBOARD ===
             student: "👨‍🎓 STUDENT DASHBOARD:\n\nYour Learning Hub!\n\n📊 Main Sections:\n1. Welcome Message - Personalized greeting\n2. Level & XP - Your current progress\n3. Daily Quests - Today's challenges\n4. Leaderboard - Top 5 students\n5. Badges - Your achievements\n6. Module Progress - Subject tracking\n7. Attendance - Tracking record\n8. Homework - Assignments to submit\n9. Curious Corner - Ask questions\n10. Learning Games - 10+ games to play\n\n🎯 What to Do:\n• Generate daily quest\n• Play a game\n• Complete homework\n• Check progress\n• View achievements\n\nWhich section interests you?",
-            
+
             homework: "📝 HOMEWORK SYSTEM:\n\nManage Your Assignments!\n\n📋 Homework Features:\n• Assignment titles & due dates\n• Status tracking (Pending/Completed)\n• File upload capability\n• Marks display\n• AI Help button (Get Help ✨)\n\n📊 Statuses:\n✅ Completed - Submitted & graded\n⏳ Pending - Due later\n❌ Overdue - Past due date\n\n💡 Features:\n• Upload completed work\n• Get AI assistance\n• Track marks earned\n• See submission deadlines\n\n🎯 How to Submit:\n1. Click 'Upload' button\n2. Select your file\n3. Submit\n4. Check status\n\nStay on top of your assignments!",
-            
+
             attendance: "📅 ATTENDANCE SYSTEM:\n\nTrack Your Presence!\n\n📊 Attendance Features:\n• Mark daily attendance\n• See attendance percentage\n• Weekly breakdown (Mon-Fri)\n• Status indicators ✅ ❌\n\n✨ How to Use:\n1. Click 'Mark Attendance'\n2. Confirm your presence\n3. See celebration animation 🎉\n4. Check percentage updated\n\n📈 Quarterly Performance:\n• Display monthly attendance %\n• Show week-by-week (M-F)\n• Visual indicators\n• Target: 90%+ attendance\n\n💡 Tips:\n• Mark daily for consistency\n• Maintain 90%+ attendance\n• Regular attendance = XP bonus\n\nStay present, stay engaged! 📚",
-            
+
             progresstracking: "📈 MODULE PROGRESS:\n\nTrack Your Learning!\n\n📊 Progress Tracking:\n• Math - Track calculus/algebra progress\n• Science - Chemistry/physics mastery\n• History - Historical knowledge\n• English - Language skills\n\n✨ Features:\n• Visual progress bars\n• Percentage completion\n• Read aloud function\n• Progress explanation\n\n🎯 How to Use:\n1. Check each module's %\n2. Click 'Read Aloud' for help\n3. See progress details\n4. Track improvement over time\n\n💡 Tips:\n• Start with lower % modules\n• Complete games for progress\n• Use 'Read Aloud' for help\n• Aim for 100% completion\n\nProgress is success! 🚀",
-            
+
             curiousness: "🤔 CURIOUS CORNER:\n\nAsk Anything!\n\n✨ Features:\n• Ask any question about anything\n• Get AI-powered answers\n• Learn beyond curriculum\n• Safe, educational environment\n\n🎯 How to Use:\n1. Type your question\n2. Click 'Ask Question'\n3. Wait for AI response\n4. Learn something new!\n\n💡 Example Questions:\n• Why is sky blue?\n• How do photosynthesis work?\n• What's gravity?\n• Tell me about space\n• How do computers work?\n\n🌟 Benefits:\n• Expand knowledge\n• Satisfy curiosity\n• Deep learning\n• Critical thinking\n\nQuestions = Growth! 📚",
-            
+
             // === TEACHER DASHBOARD ===
             teacher: "👨‍🏫 TEACHER DASHBOARD:\n\nClassroom Management Hub!\n\n📊 Main Sections:\n1. Student Progress - Class performance\n2. Class Leaderboard - Top students\n3. Reward & Recognition - Award badges\n4. Assignment Management - Create tasks\n5. Notifications - Class updates\n6. Teacher Development - Professional growth\n\n🎯 Teacher Features:\n✓ Monitor individual student progress\n✓ Generate class reports\n✓ Award achievement badges\n✓ Create & assign modules\n✓ Send class notifications\n✓ See class analytics\n\n📈 Reports Available:\n• Average XP\n• Average Level\n• Total students\n• Performance insights\n\nManage your class effectively!",
-            
+
             teacherreport: "📊 TEACHER REPORTS:\n\nAnalyze Class Performance!\n\n✨ Report Features:\n• Generate instant reports\n• Class summary analytics\n• Student-wise breakdown\n• Performance insights\n• Encouraging feedback\n\n📈 Metrics:\n• Average XP in class\n• Average Level\n• Total students\n• Top performers\n• Areas for improvement\n\n🎯 How to Generate:\n1. Go to Student Progress section\n2. Click 'Generate Report'\n3. AI creates detailed analysis\n4. View insights\n\n💡 Uses:\n• Parent communication\n• Curriculum planning\n• Student motivation\n• Identifying struggling students\n• Celebrating achievements\n\nData-driven teaching! 📚",
-            
+
             assignment: "📋 ASSIGNMENT MANAGEMENT:\n\nCreate & Assign Tasks!\n\n✨ Features:\n• Create module assignments\n• Add descriptions\n• Assign to groups or all\n• Track submissions\n• Grade work\n\n🎯 How to Create:\n1. Enter Module Title\n2. Write description\n3. Select group (All/Group A/B)\n4. Click 'Create Assignment'\n5. Students receive it\n\n📊 Assignment Tracking:\n• See who submitted\n• Download submissions\n• Leave feedback\n• Grade with marks\n\n💡 Best Practices:\n• Clear descriptions\n• Reasonable deadlines\n• Regular assignments\n• Provide feedback\n\nEmpower your students! 📝",
-            
+
             badgeaward: "🎖️ AWARD BADGES:\n\nRecognize Achievements!\n\n✨ How to Award:\n1. Select student from dropdown\n2. Choose badge to award\n3. Click 'Award Badge'\n4. Student gets notified\n5. Badge appears on profile\n\n🏅 Available Badges:\n• Star Performer\n• Helping Hand\n• Problem Solver\n• Water Warrior\n• Master Farmer\n\n🎯 Why Award Badges?\n• Motivate students\n• Recognize achievement\n• Build confidence\n• Create healthy competition\n• Foster class culture\n\n💡 Timing Tips:\n• Award regularly\n• Be fair & consistent\n• Celebrate progress\n• Different badges to different students\n\nRecognition drives motivation! ⭐",
-            
+
             // === PARENT DASHBOARD ===
             parent: "👨‍👩‍👧 PARENT DASHBOARD:\n\nMonitor Your Child's Progress!\n\n📊 Main Sections:\n1. Overall Progress - Level, XP, Badges\n2. Subject Progress - Math, Science, English\n3. Recent Homework - Assignment status\n4. Attendance - Present/Absent tracking\n5. Recent Announcements - School updates\n6. Parent's Corner - Development game\n\n🎯 Parent Features:\n✓ See child's XP & level\n✓ Track subject-wise progress\n✓ Monitor homework completion\n✓ Check attendance %\n✓ Receive announcements\n✓ Play development game\n\n👶 Child Data Shown:\n• Ujwal's Dashboard\n• 12+ Learning Level\n• 8,450 Points Earned\n• 21 Badges Collected\n\nStay informed about your child! 🎓",
-            
+
             // === ROLE MANAGEMENT ===
             role: "👥 ROLES & ACCESS:\n\n3 Different User Roles:\n\n👨‍🎓 STUDENT:\n• Access learning games\n• Complete quests\n• Earn badges & XP\n• Track progress\n• Submit homework\n• See leaderboards\n\n👨‍🏫 TEACHER:\n• Monitor students\n• Generate reports\n• Award badges\n• Create assignments\n• Send notifications\n• Access analytics\n\n👨‍👩‍👧 PARENT:\n• View child progress\n• Track attendance\n• Monitor homework\n• Receive announcements\n• Play development game\n• Support learning\n\n🔄 Switch Role:\n• Use 'Switch Role' button\n• Select new role\n• Refresh dashboard\n• Switch anytime\n\nChoose your role wisely!",
-            
+
             // === TECHNICAL & FEATURES ===
             language: "🌍 MULTI-LANGUAGE SUPPORT:\n\nAvailable Languages:\n🇬🇧 English\n🇮🇳 Hindi\n🇮🇳 Odiya\n🇮🇳 Bengali\n🇮🇳 Marathi\n🇮🇳 Gujarati\n🇮🇳 Tamil\n🇮🇳 Telugu\n+ 15 more Indian languages!\n\n✨ How to Change:\n1. Find language selector (dropdown)\n2. Choose preferred language\n3. UI updates instantly\n4. All text translated\n\n🎤 Voice Support:\n• Different voice for each language\n• Text-to-Speech available\n• Read aloud function\n• Listen to explanations\n\n💡 Languages supported across:\n• Dashboard\n• Games\n• Quests\n• Explanations\n• Instructions\n\nLearn in your language! 🗣️",
-            
+
             voice: "🎤 VOICE FEATURES:\n\nLearn by Listening!\n\n✨ Available:\n• Text-to-Speech (Read Aloud)\n• Voice input (Microphone)\n• Multiple language voices\n• Speed control\n\n🎯 How to Use Read Aloud:\n1. Click 'Read Aloud' button\n2. Choose text/module\n3. Wait for audio\n4. Listen to explanation\n\n🎤 Voice Input:\n1. Click microphone button\n2. Speak your question\n3. AI understands\n4. Get text + answer\n\n💡 Best For:\n• Visual learners\n• Language learners\n• Multi-sensory learning\n• Accessibility\n• Building confidence\n\nAccessible learning for all! 🔊",
-            
+
             // === COMMON QUESTIONS ===
             start: "🚀 HOW TO GET STARTED:\n\nStep 1: LOGIN\n• Enter phone number\n• Verify OTP\n\nStep 2: SELECT ROLE\n• Student / Teacher / Parent\n\nStep 3: EXPLORE\n👨‍🎓 STUDENTS:\n• Generate today's quest\n• Play a game\n• Check progress\n• Earn badges\n\n👨‍🏫 TEACHERS:\n• Monitor students\n• Generate reports\n• Award badges\n• Create assignments\n\n👨‍👩‍👧 PARENTS:\n• View child's dashboard\n• Check progress\n• Monitor homework\n• See announcements\n\nWhat role are you?",
-            
+
             earn: "💰 HOW TO EARN XP:\n\n🎯 XP Sources (Ranked):\n\n⭐ Daily Quest (50-100 XP)\n• Generate once per day\n• Complete challenge\n• Best earning method!\n\n🎮 Play Learning Games (40-80 XP)\n• Math Bullseye\n• Grammar Galaxy\n• Science Lab\n• Each game rewards XP\n\n✅ Complete Assignments (30-50 XP)\n• Submit homework\n• Score high marks\n• Get + XP\n\n📈 Module Progress (20-40 XP)\n• Advance in modules\n• Unlock new content\n• Progress = XP\n\n🎖️ Earn Badges (50 XP)\n• Each badge:\n• Special badge bonus\n\n💡 Strategy:\n✓ Daily quest first\n✓ Play all games\n✓ Complete homework\n✓ Progress modules\n✓ Climb leaderboard!\n\nConsistent = Fast XP! 🚀",
-            
+
             help: "🆘 NEED HELP?\n\n✨ Available Help Options:\n\n📚 HOMEWORK HELP:\n• Click 'Get Help' button\n• AI explains concept\n• Listen to explanation\n• Try again\n\n📖 MODULE EXPLANATIONS:\n• Click 'Read Aloud'\n• Get detailed explanation\n• Understand concept\n• Progress faster\n\n🤔 CURIOUS CORNER:\n• Ask any question\n• Get AI answer\n• Learn beyond curriculum\n• Expand knowledge\n\n📞 DIRECT QUESTIONS:\n• Ask this chatbot!\n• Any topic\n• Any feature\n• Real-time help\n\n👨‍🏫 TEACHER SUPPORT:\n• Message your teacher\n• Join study groups\n• Attend help sessions\n• Get personalized help\n\nNever hesitate to ask! 🤝",
-            
+
             problem: "🐛 TROUBLESHOOTING:\n\n❌ Game Not Loading?\n• Refresh page\n• Clear cache\n• Check internet\n• Try another game\n\n❌ Quest Not Generating?\n• Can only generate 1/day\n• Try again tomorrow\n• Check time zone\n\n❌ Points Not Updating?\n• Refresh page\n• Log out & log in\n• Check internet\n• Contact support\n\n❌ Leaderboard Not Showing?\n• Refresh page\n• Check your XP\n• Generate quest first\n• Play a game\n\n❌ Can't Log In?\n• Check phone number\n• Verify OTP\n• Clear cookies\n• Try different browser\n\n💡 Contact Support:\n• Use help button\n• Email support\n• Ask this chatbot\n• Chat with teacher\n\nWe're here to help! 🙌",
-            
+
             default: "Great question! 🤔\n\nI have lots of knowledge about EduCare! Try asking me about:\n\n🎮 Games & Activities:\n• Math Bullseye, Grammar Galaxy, Science Lab, etc.\n\n🏆 Gamification:\n• XP, Levels, Badges, Leaderboards\n\n📋 Quests & Learning:\n• Daily Quests, Progress Tracking, Modules\n\n👥 Dashboards:\n• Student, Teacher, Parent features\n\n🎯 How to Use:\n• Getting started, earning XP, climbing leaderboard\n\n🆘 Support:\n• Troubleshooting, help options\n\n💬 Or just chat with me about education and learning!\n\nWhat would you like to know? 😊"
         };
 
         function addMessage(text, sender = 'user') {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
-            
+
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
             bubble.textContent = text;
-            
+
             messageDiv.appendChild(bubble);
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -313,11 +315,11 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message bot';
             messageDiv.id = 'typing-indicator';
-            
+
             const typing = document.createElement('div');
             typing.className = 'typing-indicator';
             typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-            
+
             messageDiv.appendChild(typing);
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -330,24 +332,24 @@
 
         function getResponse(userText) {
             const text = userText.toLowerCase().trim();
-            
+
             // Check for CET game issues
             if ((text.includes('cet') || text.includes('mission')) && (text.includes('not') || text.includes('work') || text.includes('broken') || text.includes('open') || text.includes('error'))) {
                 return "🆘 CET Game Issue?\n\n✅ Fixed! Try these steps:\n\n1️⃣ Click 'CET Tactics Game' card again\n2️⃣ Wait for window to open (may take 2-3 seconds)\n3️⃣ Check if popup was blocked:\n   • Browser > Settings > Popups\n   • Allow popups for this site\n4️⃣ Try refreshing the page (F5)\n5️⃣ Clear browser cache (Ctrl+Shift+Delete)\n\n✨ Good News:\n• Game works OFFLINE ✅\n• No internet needed\n• Firebase optional\n\n🎮 Once opened:\n• Click 'Start Game'\n• Select subject & difficulty\n• Answer 30 questions\n• Compete on leaderboard!\n\nStill having issues? Try a different browser! 🚀";
             }
-            
+
             // Check for exact matches first
             for (const [key, value] of Object.entries(knowledgeBase)) {
                 if (text.includes(key)) {
                     return value;
                 }
             }
-            
+
             // Check for common question patterns
             if (text.includes('what') || text.includes('how') || text.includes('why') || text.includes('can')) {
                 return "Great question! 🤔 I can help with that. Could you be more specific? Ask me about:\n• Math, Science, History, or English lessons\n• How to earn XP or badges\n• Daily quests\n• Game tips";
             }
-            
+
             // Default response
             return knowledgeBase.default;
         }
@@ -363,7 +365,7 @@
 
             // Show typing indicator and simulate response
             showTypingIndicator();
-            
+
             setTimeout(() => {
                 removeTypingIndicator();
                 const response = getResponse(text);
@@ -389,4 +391,5 @@
         });
     </script>
 </body>
+
 </html>
